@@ -1,0 +1,235 @@
+/* styles.css */
+
+/* Reset básico */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1d1d1f;
+    background-color: #f8f8f8;
+    line-height: 1.6;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Container principal */
+.container {
+    width: 100%;
+    max-width: 1000px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    padding: 2.5rem;
+    border: 1px solid #e0e0e0;
+}
+
+/* Títulos */
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1d1d1f;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.subtitle, h2 {
+    font-size: 1.4rem;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Estilos do Formulário */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+label {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+input[type="text"],
+select {
+    width: 100%;
+    padding: 0.9rem;
+    font-size: 1rem;
+    border: 1px solid #d1d1d6;
+    border-radius: 8px;
+    background-color: #fafafa;
+    color: #333;
+    transition: border 0.2s ease;
+}
+
+input[type="text"]:focus,
+select:focus {
+    outline: none;
+    border-color: #007aff;
+}
+
+button[type="submit"] {
+    background-color: #007aff;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 1rem;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+button[type="submit"]:hover {
+    background-color: #005bb5;
+}
+
+/* Seção de opções de criação */
+.slogan-options {
+    margin-top: 2.5rem;
+}
+
+.slogan-options h2 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin-bottom: 2rem;
+}
+
+/* Caixa de slogan com estilo aprimorado */
+.slogan-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f8f8;
+    border: 1px solid #d1d1d6;
+    border-radius: 12px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.slogan-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+.slogan-box h3 {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.slogan-image {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 10px;
+    margin-top: 0.8rem;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+/* Opções de Real-Time Data */
+.real-time-data {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+}
+
+.real-time-data .data-item {
+    background-color: #f0f0f5;
+    padding: 1rem;
+    border-radius: 10px;
+    flex: 1;
+    text-align: center;
+    color: #007aff;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Botões secundários */
+.secondary-button {
+    background-color: #e7e7e8;
+    color: #007aff;
+    border: none;
+    padding: 0.9rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.secondary-button:hover {
+    background-color: #d0d0d5;
+}
+
+.secondary-button.green {
+    background-color: #34c759;
+    color: white;
+}
+
+.secondary-button.green:hover {
+    background-color: #28a745;
+}
+
+.secondary-button.purple {
+    background-color: #af52de;
+    color: white;
+}
+
+.secondary-button.purple:hover {
+    background-color: #9b42cb;
+}
+
+/* Footer e chamada para ação */
+footer {
+    margin-top: 2rem;
+    text-align: center;
+    padding: 1.5rem 0;
+    border-top: 1px solid #e0e0e0;
+}
+
+.cta {
+    font-size: 1.1rem;
+    color: #6e6e73;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .container {
+        padding: 1.5rem;
+    }
+
+    h1 {
+        font-size: 1.7rem;
+    }
+
+    .slogan-box h3 {
+        font-size: 1.2rem;
+    }
+
+    .slogan-image {
+        width: 100%;
+    }
+}
