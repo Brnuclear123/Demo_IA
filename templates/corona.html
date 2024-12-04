@@ -91,10 +91,10 @@
 
             <!-- Dados em tempo real -->
             <div class="real-time-data">
-                <div class="data-item">🌤️ Weather<br><span></span></div>
-                <div class="data-item">#️⃣ Trending<br><span></span></div>
-                <div class="data-item">📅 Local Events<br><span></span></div>
-                <div class="data-item">🎬 Pop Culture<br><span></span></div>
+                <div class="data-item">🌤️ Weather<br><span>{{ real_time_data.weather if real_time_data else "Loading..." }}</span></div>
+                <div class="data-item">#️⃣ Trending<br><span>{{ real_time_data.trending if real_time_data else "Loading..." }}</span></div>
+                <div class="data-item">📅 Local Events<br><span>{{ real_time_data.local_events if real_time_data else "Loading..." }}</span></div>
+                <div class="data-item">🎬 Pop Culture<br><span>{{ real_time_data.pop_culture if real_time_data else "Loading..." }}</span></div>
             </div>
 
             <!-- Botão para gerar conteúdo -->
