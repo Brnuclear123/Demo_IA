@@ -100,8 +100,10 @@ def gerar_slogans(localizacao, tema, brand_name):
         "No caso de o dia selecionado for Quarta feira subistitua para Quartou, Quinta feira subistitua para Quintou e se for Sexta feira subistitua para Sextou."
         )
 
-    client = OpenAI()
+
     try:
+        client = OpenAI()
+        
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
@@ -128,7 +130,18 @@ def gerar_slogans(localizacao, tema, brand_name):
         return slogans[:4]
     except Exception as e:
         print("Erro ao gerar slogans:", e)
-        return ["Erro ao gerar o slogan. Tente novamente.", "", "", ""]
+        #return ["Erro ao gerar o slogan. Tente novamente.", "", "", ""]
+
+        slogans = ['Slogan 1 é na bump',
+                  'Slogan 2 é na bump_media',
+                  'Slogan 3 é na media',
+                  'Slogan 4 é na bump media',
+                  'Slogan 5 é na media_bump']
+    
+        for i, slogan in enumerate(slogans, start=1):
+            criar_imagem_slogan(slogan, brand_name, f"slogan_imagem_{i}.png")
+
+        return slogans[:4]
 
 # Função para gerar dados em tempo real usando a OpenAI
 def gerar_dados_em_tempo_real(localizacao):
