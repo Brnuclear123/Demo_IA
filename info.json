@@ -1,10 +1,10 @@
 {
     "user-info":{
         "corona":{
-            "caminho": ["slogan_salvo1.png", "slogan_salvo2.png", "slogan_salvo3.png"]
+            "caminho-like": ["slogan_salvo1.png", "slogan_salvo2.png", "slogan_salvo3.png"]
         },
         "lacta":{
-            "caminho": ["slogan_salvo4.png", "slogan_salvo6.png", "slogan_salvo8.png"]
+            "caminho-like": ["slogan_salvo4.png", "slogan_salvo6.png", "slogan_salvo8.png"]
         }
     }
 }

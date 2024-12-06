@@ -1,5 +1,5 @@
 # Ignorar arquivos contendo chaves API
-*.env
+env_variables.json
 
 # Ignorar ambientes virtuais
 venv/

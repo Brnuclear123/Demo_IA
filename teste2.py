@@ -1,13 +1,15 @@
-from dotenv import load_dotenv
-import os
+import openai
 
-# Carregar o .env
-load_dotenv()
+openai.api_key = ""
 
-# Obter a chave da API
-api_key = os.getenv("OPENAI_API_KEY")
-print(api_key)
-if api_key:
-    print(f"A chave foi carregada com sucesso: {api_key[:5]}...")  # Imprime os primeiros caracteres para verificar
-else:
-    print("Erro: A chave não foi encontrada no arquivo .env")
+response = openai.ChatCompletion.create(
+    model="gpt-3.5-turbo",  # Ou "gpt-4"
+    messages=[
+        {"role": "system", "content": "Você é um assistente útil."},
+        {"role": "user", "content": "Crie um slogan para uma empresa de tecnologia."}
+    ],
+    max_tokens=50
+)
+
+# Resultado
+print(response['choices'][0]['message']['content'].strip())
