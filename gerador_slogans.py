@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from PIL import Image, ImageDraw, ImageFont
 import google.generativeai as genai
-from dotenv import load_dotenv
 import openai
 #from openai import OpenAI 
 import json
@@ -81,7 +80,7 @@ def criar_imagem_slogan(slogan_texto, brand_name, output_filename="slogan_imagem
     #print(f"Imagem salva em {output_path}")
 
 # Função para gerar slogans usando a OpenAI
-def gerar_slogans(localizacao, tema, brand_name):
+def gerar_slogans(localizacao, tema, brand_name, momento):
     slogans = []
     
     regex_patterns_gpt = [
@@ -105,7 +104,7 @@ def gerar_slogans(localizacao, tema, brand_name):
         f"Sempre tente colocar o nome da marca Corona nos slogans, para não ser confundido com outra marca de cerveja."
         f"Ajustar a linguagem e o seu apelo para se conectar efetivamente com esse público e coisas relacionadas a ele."
         f"Construa a mensagem relacionando ela ao momento do dia."
-        f"Use o '{localizacao}' para criar frases que tenha contexto com a localidade."
+        f"Use o estado '{localizacao}' para criar frases que tenha contexto com a localidade."
         f"Mantenha a mensagem concisa, criativa e impactante usando até 70 caracteres."
         f"A mensagem não precisa necessariamente ter o nome da marca Corona na sua construção."
         f"Apesar de considerar a temperatura local, não precisa incluir o numero da temperatura na mensagem."
@@ -117,12 +116,13 @@ def gerar_slogans(localizacao, tema, brand_name):
         f"quero apenas o slogan e nada mais, para podermos extrair o melhor de cada frase." 
         f"não use as informaçoes de 'localização e :'"
         f"Use '{tema}' para poder te ajudar a gerar algumas frases de acordo com o sendo proposto."
+        f"Considere na criação do slogan o horario que vai ser consumido o produto: {momento}'"
         )
 
     elif brand_name == "Lacta":
         prompt = (
         f"Crie quatro slogans publicitários exclusivos e de alto impacto para a marca Lacta, "
-        f"Use o '{localizacao}' para criar slogans que tenha contexto com a localidade. Esta campanha é direcionada ao público de 18 a 35 anos com o tema '{tema}', "
+        f"Use o estado '{localizacao}' para criar slogans que tenha contexto com a localidade. Esta campanha é direcionada ao público de 18 a 35 anos com o tema '{tema}', "
         f"utilizando um tom de voz de emocional e afetivo para transmitir uma sensação de prestígio, acolhimento e valor agregado positivo. "
         "precisamos que limite o uso de caracter para que não exceda, não pode passar de 45 caracteres"
         "Cada slogan deve ser envolvente, destacar a exclusividade da marca e incluir uma chamada para ação (CTA) que inspire desejo e urgência. "
@@ -136,6 +136,7 @@ def gerar_slogans(localizacao, tema, brand_name):
         "criativo da marca frequentemente utiliza jogos de palavras, trocadilhos e referencias culturais, criatividade na forma de se comunicar"
         "eu quero concordancia nas frases dos slogans, sempre tenta manter uma concordancia verbal para um maior entendimento do publico."
         "No caso de o dia selecionado for Quarta feira subistitua para Quartou, Quinta feira subistitua para Quintou e se for Sexta feira subistitua para Sextou."
+        f"Considere na criação do slogan o horario que vai ser consumido o produto: {momento}'"
         )
 
 
@@ -288,10 +289,12 @@ def corona():
     if 'username' in session and session['brand_name'] == 'Corona':
         real_time_data = None
         if request.method == 'POST':
+            momento = request.form.getlist('time_range')
+            print(str( ','.join(momento)))
             tema = request.form.get('tema')
             localizacao = request.form.get('localizacao')
             real_time_data = gerar_dados_em_tempo_real(localizacao)
-            slogans = gerar_slogans(localizacao, tema, "Corona")
+            slogans = gerar_slogans(localizacao, tema, "Corona", str( ','.join(momento)))
             imagens = [f"slogan_imagem_{i}.png" for i in range(1, len(slogans) + 1)]
             slogans_imagens = list(zip(slogans, imagens))
             return render_template('corona.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
@@ -306,10 +309,12 @@ def lacta():
         real_time_data = None
 
         if request.method == 'POST':
+            momento = request.form.getlist('time_range')
+            print(str( ','.join(momento)))
             tema = request.form.get('tema')
             localizacao = request.form.get('localizacao')
             real_time_data = gerar_dados_em_tempo_real(localizacao)
-            slogans = gerar_slogans(localizacao, tema, "Lacta")
+            slogans = gerar_slogans(localizacao, tema, "Lacta", str( ','.join(momento)))
             imagens = [f"slogan_imagem_{i}.png" for i in range(1, len(slogans) + 1)]
             slogans_imagens = list(zip(slogans, imagens))
             return render_template('lacta.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
