@@ -1,52 +1,36 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <title>Gerador de Conteúdo - Lacta</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Título principal -->
-        <h1>Lacta Content Generator</h1>
-        
-        <!-- Seção de formulário para configuração da campanha -->
-        <form action="{{ url_for('lacta') }}" method="post">
-            <!-- Linha de localização e loja -->
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="location">Localização</label>
-                    <select id="location" name="localizacao" required>
-                        <option selected disabled>Selecione a Localização</option>
-                        <option value="AC">Acre</option>
-                        <option value="AL">Alagoas</option>
-                        <option value="AP">Amapá</option>
-                        <option value="AM">Amazonas</option>
-                        <option value="BA">Bahia</option>
-                        <option value="CE">Ceará</option>
-                        <option value="DF">Distrito Federal</option>
-                        <option value="ES">Espírito Santo</option>
-                        <option value="GO">Goiás</option>
-                        <option value="MA">Maranhão</option>
-                        <option value="MT">Mato Grosso</option>
-                        <option value="MS">Mato Grosso do Sul</option>
-                        <option value="MG">Minas Gerais</option>
-                        <option value="PA">Pará</option>
-                        <option value="PB">Paraíba</option>
-                        <option value="PR">Paraná</option>
-                        <option value="PE">Pernambuco</option>
-                        <option value="PI">Piauí</option>
-                        <option value="RJ">Rio de Janeiro</option>
-                        <option value="RN">Rio Grande do Norte</option>
-                        <option value="RS">Rio Grande do Sul</option>
-                        <option value="RO">Rondônia</option>
-                        <option value="RR">Roraima</option>
-                        <option value="SC">Santa Catarina</option>
-                        <option value="SP">São Paulo</option>
-                        <option value="SE">Sergipe</option>
-                        <option value="TO">Tocantins</option>
-                    </select>
+    <body>
+        <div class="container">
+            <!-- Título principal -->
+            <h1>Lacta Content Generator</h1>
+    
+            <!-- Seção de formulário para configuração da campanha -->
+            <form action="{{ url_for('lacta') }}" method="post">
+                <!-- Campo de busca para a localização -->
+                <div class="form-group" style="position:relative;">
+                    <label for="localizacao">Localização</label>
+                    <input type="text" id="localizacao" placeholder="Digite Estado, Cidade ou Bairro" autocomplete="off" required>
+                    <ul id="suggestions" style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ccc; list-style:none; padding:0; margin:0; display:none;">
+                        <!-- Sugestões serão geradas aqui dinamicamente -->
+                    </ul>
                 </div>
+            
+                <!-- Campos ocultos que serão preenchidos dinamicamente -->
+                <input type="hidden" id="estado" name="estado">
+                <input type="hidden" id="cidade" name="cidade">
+                <input type="hidden" id="bairro" name="bairro">
+
+
+                <!-- Aqui está o fechamento da div corrigido -->
                 <div class="form-group">
                     <label for="loja">Lojas</label>
                     <select id="loja" name="loja" required>
@@ -55,72 +39,257 @@
                         <option value="Store 2">Loja 2</option>
                     </select>
                 </div>
-            </div>
-
-            <!-- Linha para o campo Tema -->
-            <div class="form-group">
-                <label for="tema">Tema</label>
-                <input type="text" id="tema" name="tema" required>
-            </div>
-
-            <!-- Linha de datas de campanha (início e término) -->
-            <div class="form-row">
+    
+                <!-- Linha de datas de campanha (início e término) -->
                 <div class="form-group">
-                    <label for="data_campanha">Inicio da campanha</label>
-                    <input type="date" id="data_campanha" name="data_campanha" required>
+                    <label for="data_campanha">Período da Campanha</label>
+                    <input type="text" id="data_campanha" class="datepicker" name="data_campanha" placeholder="Selecione o intervalo de datas" required>
                 </div>
+                    
+                <!-- Seção de seleção de horários -->
                 <div class="form-group">
-                    <label for="data_fim_campanha">Final da campanha</label>
-                    <input type="date" id="data_fim_campanha" name="data_fim_campanha" required>
-                </div>
-            </div>
-
-            <!-- Seção de seleção de horários -->
-            <div class="form-group">
-                <label>Momento de consumo</label>
-                <div class="time-ranges">
-                    <label><input type="checkbox" name="time_range" value="Manhã / Café da manhã"> Manhã / Café da manhã</label>
-                    <label><input type="checkbox" name="time_range" value="Antes do almoço"> Antes do almoço </label>
-                    <label><input type="checkbox" name="time_range" value="Depois do almoço"> Depois do almoço </label>
-                    <label><input type="checkbox" name="time_range" value="Tarde"> Tarde </label>
-                    <label><input type="checkbox" name="time_range" value="Happy Hour"> Happy Hour </label>
-                    <label><input type="checkbox" name="time_range" value="Jantar"> Jantar </label>
-                    <label><input type="checkbox" name="time_range" value="Noite"> Noite </label>
-                </div>
-            </div>
-
-            <!-- Dados em tempo real -->
-            <div class="real-time-data">
-                <div class="data-item">🌤️ Weather<br><span>{{ real_time_date.weather if real_time_date else "Loading..." }}</span></div>
-                <div class="data-item">#️⃣ Trending<br><span>{{ real_time_date.trending if real_time_date else "Loading..." }}</span></div>
-                <div class="data-item">📅 Local Events<br><span>{{ real_time_date.local_events if real_time_date else "Loading..." }}</span></div>
-                <div class="data-item">🎬 Pop Culture<br><span>{{ real_time_date.pop_culture if real_time_date else "Loading..." }}</span></div>
-            </div>
-
-            <!-- Botão para gerar conteúdo -->
-            <button type="submit">Generate Content</button>
-        </form>
-
-        <!-- Seção de opções criativas de slogans -->
-        <h2>Opções Criativas</h2>
-        <div class="slogan-options">
-            {% if slogans_imagens %}
-                {% for slogan, imagem in slogans_imagens %}
-                    <div class="slogan-box">
-                        <h3>{{ slogan }}</h3>
-                        <img src="{{ url_for('static', filename=imagem) }}" alt="{{ slogan }}" class="slogan-image">
-                        <!-- Botões de avaliação e edição -->
-                        <div class="slogan-controls">
-                            <button class="secondary-button">👍</button>
-                            <button class="secondary-button">👎</button>
-                            <button class="secondary-button">✏️</button>
-                        </div>
+                    <label>Momento de consumo</label>
+                    <div class="time-ranges">
+                        <label><input type="checkbox" name="time_range" value="early_morning"> Manhã / Café da manhã </label>
+                        <label><input type="checkbox" name="time_range" value="before_lunch"> Antes do almoço </label>
+                        <label><input type="checkbox" name="time_range" value="after_lunch"> Depois do almoço </label>
+                        <label><input type="checkbox" name="time_range" value="afternoon"> Tarde </label>
+                        <label><input type="checkbox" name="time_range" value="happy_hour"> Happy Hour </label>
+                        <label><input type="checkbox" name="time_range" value="dinner"> Jantar </label>
+                        <label><input type="checkbox" name="time_range" value="late_night"> Noite </label>
                     </div>
-                {% endfor %}
-            {% else %}
-                <p>Conteúdo não gerado ainda. Preencha o formulário e gere conteúdo.</p>
-            {% endif %}
+                </div>
+    
+                <!-- Dados em tempo real -->
+                <div class="real-time-data">
+                    <button class="data-button" data-type="weather">🌤️ Weather<br><span>{{ real_time_date.weather if real_time_date else "Loading..." }}</span></button>
+                    <button class="data-button" data-type="trending">#️⃣ Trending<br><span>{{ real_time_date.trending if real_time_date else "Loading..." }}</span></button>
+                    <button class="data-button" data-type="local-events">📅 Local Events<br><span>{{ real_time_date.local_events if real_time_date else "Loading..." }}</span></button>
+                    <button class="data-button" data-type="pop-culture">🎬 Pop Culture<br><span>{{ real_time_date.pop_culture if real_time_date else "Loading..." }}</span></button>
+                </div>                
+    
+                <!-- Botão para gerar conteúdo -->
+                <button type="submit">Generate Content</button>
+            </form>
+    
+            <form action="avaliados" method="post">
+                <button type="submit">Acessar slogans</button>
+            </form>
+
+            <!-- Seção de opções criativas de slogans -->
+            <h2>Opções Criativas</h2>
+            <div class="slogan-options">
+                {% if slogans_imagens %}
+                    {% for slogan, imagem in slogans_imagens %}
+                        <div class="slogan-box">
+                            <h3>{{ slogan }}</h3>
+                            <img src="{{ url_for('static', filename=imagem) }}" alt="{{ slogan }}" class="slogan-image">
+                            
+                            <!-- Botões de avaliação e edição -->
+                            <div class="slogan-controls">
+                                <button class="like-button" data-imagem="{{ imagem }}" data-avaliacao="like">👍</button>
+                                <button class="dislike-button" data-imagem="{{ imagem }}" data-avaliacao="dislike">👎</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Conteúdo não gerado ainda. Preencha o formulário e gere conteúdo.</p>
+                {% endif %}
+            </div>
         </div>
-    </div>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const input = document.getElementById('localizacao');
+                const suggestions = document.getElementById('suggestions');
+                const estadoInput = document.getElementById('estado');
+                const cidadeInput = document.getElementById('cidade');
+                const bairroInput = document.getElementById('bairro');
+        
+                // Carregar os dados do JSON
+                fetch('/static/data/estados_cidades_bairros.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Atualizar sugestões conforme o usuário digita
+                        input.addEventListener('input', () => {
+                            const query = input.value.toLowerCase();
+                            suggestions.innerHTML = ''; // Limpa sugestões anteriores
+        
+                            if (query.length < 2) {
+                                suggestions.style.display = 'none';
+                                return;
+                            }
+        
+                            // Filtrar os dados para encontrar correspondências
+                            const matches = [];
+                            for (const [estado, cidades] of Object.entries(data)) {
+                                for (const [cidade, bairros] of Object.entries(cidades)) {
+                                    if (estado.toLowerCase().includes(query) || cidade.toLowerCase().includes(query)) {
+                                        matches.push(`${estado} - ${cidade}`);
+                                    }
+                                    bairros.forEach(bairro => {
+                                        if (bairro.toLowerCase().includes(query)) {
+                                            matches.push(`${estado} - ${cidade} - ${bairro}`);
+                                        }
+                                    });
+                                }
+                            }
+        
+                            // Exibir as sugestões encontradas
+                            if (matches.length > 0) {
+                                matches.forEach(match => {
+                                    const li = document.createElement('li');
+                                    li.textContent = match;
+                                    li.style.padding = '8px';
+                                    li.style.cursor = 'pointer';
+                                    li.addEventListener('click', () => {
+                                        input.value = match;
+                                        suggestions.style.display = 'none';
+        
+                                        // Preencher os campos ocultos
+                                        const parts = match.split(' - ');
+                                        estadoInput.value = parts[0] || '';
+                                        cidadeInput.value = parts[1] || '';
+                                        bairroInput.value = parts[2] || '';
+                                    });
+                                    suggestions.appendChild(li);
+                                });
+                                suggestions.style.display = 'block';
+                            } else {
+                                suggestions.style.display = 'none';
+                            }
+                        });
+        
+                        // Esconder as sugestões ao clicar fora
+                        document.addEventListener('click', (e) => {
+                            if (!e.target.closest('.form-group')) {
+                                suggestions.style.display = 'none';
+                            }
+                        });
+                    })
+                    .catch(error => console.error('Erro ao carregar os dados:', error));
+            });
+        </script>
+        
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                flatpickr("#data_campanha", {
+                    mode: "range", // Permite selecionar um intervalo de datas
+                    dateFormat: "d/m/Y", // Formato da data
+                    minDate: "today", // Começa a partir de hoje
+                    locale: {
+                        firstDayOfWeek: 0, // Domingo como o primeiro dia
+                        weekdays: {
+                            shorthand: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+                            longhand: ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"]
+                        },
+                        months: {
+                            shorthand: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
+                            longhand: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+                        }
+                    },
+                    onChange: function(selectedDates, dateStr, instance) {
+                        console.log("Datas selecionadas:", dateStr); // Retorna o intervalo no formato escolhido
+                    }
+                });
+            });
+        </script>
+        
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const estadoSelect = document.getElementById('estado');
+            const cidadeSelect = document.getElementById('cidade');
+            const bairroSelect = document.getElementById('bairro');
+
+            // Carregar JSON de estados, cidades e bairros
+            fetch('/static/data/estados_cidades_bairros.json')
+                .then(response => response.json())
+                .then(data => {
+                    // Preencher estados
+                    Object.keys(data).forEach(estado => {
+                        const option = document.createElement('option');
+                        option.value = estado;
+                        option.textContent = estado;
+                        estadoSelect.appendChild(option);
+                    });
+
+                    // Quando o estado for selecionado
+                    estadoSelect.addEventListener('change', function () {
+                        const estadoSelecionado = this.value;
+                        cidadeSelect.innerHTML = '<option selected disabled>Selecione a Cidade</option>';
+                        bairroSelect.innerHTML = '<option selected disabled>Selecione o Bairro</option>';
+
+                        // Preencher cidades do estado selecionado
+                        Object.keys(data[estadoSelecionado]).forEach(cidade => {
+                            const option = document.createElement('option');
+                            option.value = cidade;
+                            option.textContent = cidade;
+                            cidadeSelect.appendChild(option);
+                        });
+                    });
+
+                    // Quando a cidade for selecionada
+                    cidadeSelect.addEventListener('change', function () {
+                        const estadoSelecionado = estadoSelect.value;
+                        const cidadeSelecionada = this.value;
+                        bairroSelect.innerHTML = '<option selected disabled>Selecione o Bairro</option>';
+
+                        // Preencher bairros da cidade selecionada
+                        data[estadoSelecionado][cidadeSelecionada].forEach(bairro => {
+                            const option = document.createElement('option');
+                            option.value = bairro;
+                            option.textContent = bairro;
+                            bairroSelect.appendChild(option);
+                        });
+                    });
+                })
+                .catch(error => console.error('Erro ao carregar os dados:', error));
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adicionar evento aos botões de like/dislike
+            document.querySelectorAll('.like-button, .dislike-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const imagem = this.getAttribute('data-imagem');
+                    const avaliacao = this.getAttribute('data-avaliacao');
+                    
+                    // Enviar os dados via Fetch
+                    fetch('/avaliar_slogan', {
+                        method: 'POST',
+                        body: new URLSearchParams({
+                            'slogan_image': imagem,
+                            'avaliacao': avaliacao
+                        }),
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Exibir uma mensagem de sucesso
+                            alert(data.message);
+
+                            // Atualizar as listas de like e dislike na página
+                            // Se você tiver elementos de exibição dos likes e dislikes, atualize-os aqui.
+                            console.log('Likes:', data.likes);
+                            console.log('Dislikes:', data.dislikes);
+                        } else {
+                            alert("Erro ao avaliar slogan");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao avaliar slogan:', error);
+                    });
+                });
+            });
+        });
+
+    </script>
+
 </body>
 </html>

@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from PIL import Image, ImageDraw, ImageFont
 import google.generativeai as genai
+from datetime import datetime
+from time import sleep
 import openai
 #from openai import OpenAI 
 import json
@@ -27,6 +29,30 @@ users = {
     'lacta': {'password': generate_password_hash('1234'), 'brand': 'Lacta'}
 }
 
+AVALIACOES_PATH = 'avaliacoes.json'
+
+def carregar_avaliacoes():
+    if os.path.exists(AVALIACOES_PATH):
+        with open(AVALIACOES_PATH, 'r') as file:
+            return json.load(file)
+    return {}
+
+def salvar_avaliacoes(avaliacoes):
+    with open(AVALIACOES_PATH, 'w') as file:
+        json.dump(avaliacoes, file, indent=4)
+
+def ultimos_slogan():    
+    diretorio = f'{os.path.dirname(os.path.abspath(__file__))}/static/'
+    
+    arquivos_png = [arquivo for arquivo in os.listdir(diretorio) if arquivo.endswith('.png')]
+    
+    print("LISTA DE ARQUIVOS ATÉ O MOMENTO\n\n", arquivos_png)
+    print("\n\nreturn: ",arquivos_png[-4:])
+    
+    return arquivos_png[-4:]
+
+    
+
 def encontrar_slogans(string_response, regex_patterns):
     for regex_pattern in regex_patterns:
         slogans = re.findall(regex_pattern, string_response)
@@ -48,7 +74,9 @@ def regex_info(string_response, regex_patterns):
     return info
 
 # Função para criar uma imagem de slogan
-def criar_imagem_slogan(slogan_texto, brand_name, output_filename="slogan_imagem.png"):
+def criar_imagem_slogan(slogan_texto, brand_name):
+    dtnow = datetime.now()
+    output_filename = f"slogan_imagem{dtnow.strftime('%Y%m%d%H%M%S')}{str(dtnow.microsecond)[:2].zfill(2)}.png"
     largura, altura = 960, 120
     # Definições de estilo específicas para cada marca
     if brand_name == "Corona":
@@ -77,10 +105,12 @@ def criar_imagem_slogan(slogan_texto, brand_name, output_filename="slogan_imagem
     output_path = os.path.join("static", output_filename)
     os.makedirs("static", exist_ok=True)
     imagem.save(output_path)
+    sleep(0.05)
+    return output_filename
     #print(f"Imagem salva em {output_path}")
 
 # Função para gerar slogans usando a OpenAI
-def gerar_slogans(localizacao, tema, brand_name, momento):
+def gerar_slogans(estado, cidade, bairro, data_campanha, momento, brand_name):
     slogans = []
     
     regex_patterns_gpt = [
@@ -104,7 +134,7 @@ def gerar_slogans(localizacao, tema, brand_name, momento):
         f"Sempre tente colocar o nome da marca Corona nos slogans, para não ser confundido com outra marca de cerveja."
         f"Ajustar a linguagem e o seu apelo para se conectar efetivamente com esse público e coisas relacionadas a ele."
         f"Construa a mensagem relacionando ela ao momento do dia."
-        f"Use o estado '{localizacao}' para criar frases que tenha contexto com a localidade."
+        f"Use o estado '{estado}, '{cidade}', '{bairro}' para criar frases que tenha contexto com a localidade."
         f"Mantenha a mensagem concisa, criativa e impactante usando até 70 caracteres."
         f"A mensagem não precisa necessariamente ter o nome da marca Corona na sua construção."
         f"Apesar de considerar a temperatura local, não precisa incluir o numero da temperatura na mensagem."
@@ -115,16 +145,16 @@ def gerar_slogans(localizacao, tema, brand_name, momento):
         f"não coloque as informações de manha/tarde/noite nos slogans."
         f"quero apenas o slogan e nada mais, para podermos extrair o melhor de cada frase." 
         f"não use as informaçoes de 'localização e :'"
-        f"Use '{tema}' para poder te ajudar a gerar algumas frases de acordo com o sendo proposto."
+        f"Use '{data_campanha}' para poder te ajudar a gerar algumas frases de acordo com o periodo que os slogans vao ficar ao ar."
         f"Considere na criação do slogan o horario que vai ser consumido o produto: {momento}'"
         )
 
     elif brand_name == "Lacta":
         prompt = (
         f"Crie quatro slogans publicitários exclusivos e de alto impacto para a marca Lacta, "
-        f"Use o estado '{localizacao}' para criar slogans que tenha contexto com a localidade. Esta campanha é direcionada ao público de 18 a 35 anos com o tema '{tema}', "
+        f"Use o estado '{estado}','{cidade}' e '{bairro} para criar slogans que tenha contexto com a localidade. Esta campanha é direcionada ao público de 18 a 35 anos com o tema, "
         f"utilizando um tom de voz de emocional e afetivo para transmitir uma sensação de prestígio, acolhimento e valor agregado positivo. "
-        "precisamos que limite o uso de caracter para que não exceda, não pode passar de 45 caracteres"
+        "precisamos que limite o uso de caracter para que não exceda, não pode passar de 70 caracteres"
         "Cada slogan deve ser envolvente, destacar a exclusividade da marca e incluir uma chamada para ação (CTA) que inspire desejo e urgência. "
         "Separe cada slogan com uma quebra de linha e garanta que sejam quatro slogans únicos."
         "slogans que pode ser rimados seria muito bom, para grudar na cabeça do cliente, mas mantendo a criatividade e os 45 caracteres "
@@ -135,7 +165,7 @@ def gerar_slogans(localizacao, tema, brand_name, momento):
         "nunca deixe de mencionar a marca Lacta."
         "criativo da marca frequentemente utiliza jogos de palavras, trocadilhos e referencias culturais, criatividade na forma de se comunicar"
         "eu quero concordancia nas frases dos slogans, sempre tenta manter uma concordancia verbal para um maior entendimento do publico."
-        "No caso de o dia selecionado for Quarta feira subistitua para Quartou, Quinta feira subistitua para Quintou e se for Sexta feira subistitua para Sextou."
+        f"No caso de o '{data_campanha}'selecionado for Quarta feira subistitua para Quartou, Quinta feira subistitua para Quintou e se for Sexta feira subistitua para Sextou."
         f"Considere na criação do slogan o horario que vai ser consumido o produto: {momento}'"
         )
 
@@ -156,12 +186,14 @@ def gerar_slogans(localizacao, tema, brand_name, momento):
         slogans = encontrar_slogans(string_response, regex_patterns_gpt)
 
         # Criar imagens para cada slogan
+        imgs = []
         for i, slogan in enumerate(slogans, start=1):
-            criar_imagem_slogan(slogan, brand_name, f"slogan_imagem_{i}.png")
-
+            file_img = criar_imagem_slogan(slogan, brand_name)
+            imgs.append(file_img)
+            
         print("Mensagem GPT\n\n",slogans)
 
-        return slogans[:4]
+        return slogans[:4], imgs
     except Exception as e:
         print("Erro ao gerar slogans:", e)
         #return ["Erro ao gerar o slogan. Tente novamente.", "", "", ""]
@@ -184,12 +216,14 @@ def gerar_slogans(localizacao, tema, brand_name, momento):
             slogans = encontrar_slogans(string_response, regex_patterns_gpt)
             
             # Criar imagens para cada slogan
+            imgs = []
             for i, slogan in enumerate(slogans, start=1):
-                criar_imagem_slogan(slogan, brand_name, f"slogan_imagem_{i}.png")
+                file_img = criar_imagem_slogan(slogan, brand_name)
+                imgs.append(file_img)
 
-            print("Mensagem gemini\n\n",slogans)
+            print("Mensagem GPT\n\n",slogans)
 
-            return slogans[:4]
+            return slogans[:4], imgs
 
             
         except:
@@ -201,13 +235,15 @@ def gerar_slogans(localizacao, tema, brand_name, momento):
                     'Slogan 4 é na bump media',
                     'Slogan 5 é na media_bump']
             
+            imgs = []
             for i, slogan in enumerate(slogans, start=1):
-                criar_imagem_slogan(slogan, brand_name, f"slogan_imagem_{i}.png")
+                file_img = criar_imagem_slogan(slogan, brand_name)
+                imgs.append(file_img)
 
-            return slogans[:4]
+            return slogans[:4], imgs
 
 # Função para gerar dados em tempo real usando a OpenAI
-def gerar_dados_em_tempo_real(localizacao):
+def gerar_dados_em_tempo_real(estado, cidade, bairro):
     regex_patterns = [
         r"\d+\.\s*(.*)",
         r"\d+\.\s*([^\d\n]+)(?=\n\d+|\n\n|$)",
@@ -216,7 +252,7 @@ def gerar_dados_em_tempo_real(localizacao):
     
     
     prompt = (
-        f"Baseado na localização '{localizacao}', forneça:\n"
+        f"Baseado na localização '{estado, cidade, bairro}', forneça:\n"
         "1. Clima atual\n"
         "2. Hashtags de tendências\n"
         "3. Um evento local relevante\n"
@@ -255,6 +291,8 @@ def gerar_dados_em_tempo_real(localizacao):
         }
 
 
+
+
 @app.route('/')
 def index():
     return redirect(url_for('login'))
@@ -282,7 +320,6 @@ def login():
     
     return render_template('login.html', error=error)
 
-
 # Rota para a página exclusiva da Corona
 @app.route('/corona', methods=['GET', 'POST'])
 def corona():
@@ -290,37 +327,103 @@ def corona():
         real_time_data = None
         if request.method == 'POST':
             momento = request.form.getlist('time_range')
-            print(str( ','.join(momento)))
-            tema = request.form.get('tema')
-            localizacao = request.form.get('localizacao')
-            real_time_data = gerar_dados_em_tempo_real(localizacao)
-            slogans = gerar_slogans(localizacao, tema, "Corona", str( ','.join(momento)))
-            imagens = [f"slogan_imagem_{i}.png" for i in range(1, len(slogans) + 1)]
+            data_campanha= request.form.get('data_campanha')
+            estado = request.form.get('estado')
+            cidade = request.form.get('cidade')
+            bairro = request.form.get('bairro')
+            real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro)
+            slogans, imagens = gerar_slogans(estado, cidade, bairro, data_campanha, momento, session['brand_name'])
+            #imagens = ultimos_slogan()
             slogans_imagens = list(zip(slogans, imagens))
+            print(slogans, '\n\n', imagens)
             return render_template('corona.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
         return render_template('corona.html')
     else:
         return redirect(url_for('login'))
+
 
 # Rota para a página exclusiva da Lacta
 @app.route('/lacta', methods=['GET', 'POST'])
 def lacta():
     if 'username' in session and session['brand_name'] == 'Lacta':
         real_time_data = None
-
         if request.method == 'POST':
             momento = request.form.getlist('time_range')
-            print(str( ','.join(momento)))
-            tema = request.form.get('tema')
-            localizacao = request.form.get('localizacao')
-            real_time_data = gerar_dados_em_tempo_real(localizacao)
-            slogans = gerar_slogans(localizacao, tema, "Lacta", str( ','.join(momento)))
-            imagens = [f"slogan_imagem_{i}.png" for i in range(1, len(slogans) + 1)]
+            data_campanha= request.form.get('data_campanha')
+            estado = request.form.get('estado')
+            cidade = request.form.get('cidade')
+            bairro = request.form.get('bairro')
+            real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro)
+            slogans, imagens = gerar_slogans(estado, cidade, bairro, data_campanha, momento, session['brand_name'])
+            #imagens = ultimos_slogan()
             slogans_imagens = list(zip(slogans, imagens))
+            print(slogans, '\n\n', imagens)
             return render_template('lacta.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
-        return render_template('lacta.html', real_time_data=real_time_data)
+        return render_template('lacta.html')
     else:
         return redirect(url_for('login'))
 
+
+@app.route('/avaliar_slogan', methods=['POST'])
+def avaliar_slogan():
+    # Obter a imagem e a avaliação (like/dislike)
+    imagem = request.form['slogan_image']
+    avaliacao = request.form['avaliacao']
+    user = session.get('username', 'anon')
+
+    # Carregar avaliações anteriores
+    avaliacoes = carregar_avaliacoes()
+
+    # Se o usuário não tiver um registro ainda, criar
+    if user not in avaliacoes:
+        avaliacoes[user] = {"like": [], "dislike": []}
+
+    # Registrar a avaliação
+    if avaliacao == 'like':
+        if imagem not in avaliacoes[user]['like']:
+            avaliacoes[user]['like'].append(imagem)
+        # Remover da lista de dislikes, se existir
+        if imagem in avaliacoes[user]['dislike']:
+            avaliacoes[user]['dislike'].remove(imagem)
+    elif avaliacao == 'dislike':
+        if imagem not in avaliacoes[user]['dislike']:
+            avaliacoes[user]['dislike'].append(imagem)
+        # Remover da lista de likes, se existir
+        if imagem in avaliacoes[user]['like']:
+            avaliacoes[user]['like'].remove(imagem)
+
+    # Salvar as avaliações no arquivo JSON
+    salvar_avaliacoes(avaliacoes)
+
+    return "Ok"  # Redireciona para a página inicial ou outra
+
+
+
+@app.route('/avaliados', methods=['POST'])
+def avaliados():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    avaliacoes = carregar_avaliacoes()
+    
+    # Obter a marca do usuário logado
+    marca = session.get('brand_name', 'anon')
+
+    # Passar apenas as avaliações da marca correspondente
+    if marca == 'Corona':
+        avaliacao_usuario = avaliacoes.get('corona', {'like': [], 'dislike': []})
+    elif marca == 'Lacta':
+        avaliacao_usuario = avaliacoes.get('lacta', {'like': [], 'dislike': []})
+    else:
+        avaliacao_usuario = {'like': [], 'dislike': []}
+
+    # Exibir na página web as imagens de "like" e "dislike" para a marca do usuário
+    return render_template('slogans_salvos.html', avaliacoes=avaliacao_usuario)
+
+    return render_template('slogans_salvos.html', avaliacoes=avaliacoes)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+
+    #ngrok http 5000

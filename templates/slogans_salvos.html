@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliações de Slogans</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .user-section {
+            margin-bottom: 30px;
+        }
+        .image-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .image-item {
+            width: 500px;
+            height: 150px;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Avaliações de Slogans</h1>
+
+    <!-- Seção para a marca do usuário logado (Corona ou Lacta) -->
+    <div class="user-section">
+        <h2>{{ session['brand_name'].capitalize() }}</h2>
+
+        <div>
+            <h3>Likes</h3>
+            <div class="image-list">
+                {% for image in avaliacoes['like'] %}
+                    <div class="image-item">
+                        <img src="{{ url_for('static', filename=image) }}" alt="Slogan Like">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div>
+            <h3>Dislikes</h3>
+            <div class="image-list">
+                {% for image in avaliacoes['dislike'] %}
+                    <div class="image-item">
+                        <img src="{{ url_for('static', filename=image) }}" alt="Slogan Dislike">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

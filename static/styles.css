@@ -1,235 +1,263 @@
-/* styles.css */
-
-/* Reset básico */
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
+/* Global Styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
     margin: 0;
     padding: 0;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: #1d1d1f;
-    background-color: #f8f8f8;
     line-height: 1.6;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
 }
 
-/* Container principal */
 .container {
-    width: 100%;
-    max-width: 1000px;
-    background-color: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-    padding: 2.5rem;
-    border: 1px solid #e0e0e0;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-/* Títulos */
+/* Headings */
 h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1d1d1f;
-    margin-bottom: 1.5rem;
+    font-size: 2.5em;
+    color: #1e1e1e;
     text-align: center;
+    margin-bottom: 20px;
 }
 
-.subtitle, h2 {
-    font-size: 1.4rem;
-    color: #333;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
+h2 {
+    font-size: 2em;
+    color: #2e2e2e;
     text-align: center;
+    margin-top: 40px;
 }
 
-/* Estilos do Formulário */
+/* Form Styles */
 form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+    background: #fff;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
 }
 
 label {
-    font-size: 1rem;
-    color: #333;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #555;
 }
 
 input[type="text"],
 select {
     width: 100%;
-    padding: 0.9rem;
-    font-size: 1rem;
-    border: 1px solid #d1d1d6;
-    border-radius: 8px;
-    background-color: #fafafa;
-    color: #333;
-    transition: border 0.2s ease;
+    padding: 10px 15px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.3s ease;
 }
 
 input[type="text"]:focus,
 select:focus {
-    outline: none;
     border-color: #007aff;
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
 }
 
-button[type="submit"] {
-    background-color: #007aff;
-    color: #ffffff;
-    font-weight: 600;
-    padding: 1rem;
-    font-size: 1.1rem;
-    border: none;
-    border-radius: 8px;
+/* Suggestions Dropdown */
+#suggestions {
+    z-index: 10;
+    border: 1px solid #ddd;
+    background: #fff;
+    max-height: 150px;
+    overflow-y: auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#suggestions li {
+    padding: 10px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    text-align: center;
 }
 
-button[type="submit"]:hover {
+#suggestions li:hover {
+    background-color: #007aff;
+    color: #fff;
+}
+
+/* Date Picker */
+.datepicker {
+    cursor: pointer;
+}
+
+/* Checkbox Styles */
+.time-ranges label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
+    accent-color: #007aff;
+}
+
+/* Buttons */
+button {
+    background: #007aff;
+    color: #fff;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
     background-color: #005bb5;
 }
 
-/* Seção de opções de criação */
-.slogan-options {
-    margin-top: 2.5rem;
+button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
 }
 
-.slogan-options h2 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: #1d1d1f;
-    margin-bottom: 2rem;
-}
-
-/* Caixa de slogan com estilo aprimorado */
-.slogan-box {
+/* Real-Time Data Buttons */
+.real-time-data {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background-color: #f8f8f8;
-    border: 1px solid #d1d1d6;
-    border-radius: 12px;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.data-button {
+    display: block;
+    text-align: center;
+    font-size: 0.9em;
+    color: #333;
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 8px;
+    flex: 1 0 45%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.data-button:hover {
+    transform: translateY(-5px);
+    background-color: #e9e9e9;
+}
+
+.data-button span {
+    display: block;
+    margin-top: 5px;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+/* Slogan Options - Coluna */
+.slogan-options {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column; /* Organizar em coluna */
+    gap: 30px; /* Espaçamento entre os contêineres */
+    align-items: center; /* Centralizar os contêineres na página */
+}
+
+.slogan-box {
+    background: #fff;
+    width: 100%; /* Ocupar toda a largura disponível */
+    max-width: 800px; /* Limitar o tamanho máximo */
+    padding: 30px; /* Espaçamento interno maior */
+    border-radius: 12px; /* Cantos arredondados */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Sombra para destaque */
+    text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .slogan-box:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+    transform: translateY(-10px); /* Efeito de elevação */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* Sombra mais forte ao passar o mouse */
 }
 
 .slogan-box h3 {
-    font-size: 1.4rem;
-    font-weight: 500;
-    color: #333;
-    text-align: center;
-    margin-bottom: 1rem;
+    font-size: 1em; /* Tamanho maior para o texto do slogan */
+    color: #222;
+    margin-bottom: 20px;
+    line-height: 1.4; /* Melhor espaçamento entre linhas */
 }
 
-.slogan-image {
-    width: 100%;
-    max-width: 500px;
+.slogan-box img {
+    max-width: 100%;
+    height: auto;
     border-radius: 10px;
-    margin-top: 0.8rem;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Opções de Real-Time Data */
-.real-time-data {
+.slogan-controls {
     display: flex;
-    gap: 1rem;
-    justify-content: space-between;
-    margin-bottom: 2.5rem;
+    justify-content: center;
+    gap: 20px; /* Espaço entre os botões */
+    margin-top: 20px; /* Espaçamento acima dos botões */
 }
 
-.real-time-data .data-item {
-    background-color: #f0f0f5;
-    padding: 1rem;
-    border-radius: 10px;
-    flex: 1;
-    text-align: center;
-    color: #007aff;
-    font-weight: 600;
-    font-size: 1rem;
-}
-
-/* Botões secundários */
-.secondary-button {
-    background-color: #e7e7e8;
-    color: #007aff;
+.slogan-controls button {
+    font-size: 2em; /* Botões maiores */
+    background: none;
     border: none;
-    padding: 0.9rem;
-    font-size: 1rem;
-    font-weight: 500;
-    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 1rem;
-    text-align: center;
+    transition: color 0.3s ease, transform 0.2s ease;
 }
 
-.secondary-button:hover {
-    background-color: #d0d0d5;
+.slogan-controls .like-button:hover {
+    color: green;
+    transform: scale(1.2); /* Efeito de zoom ao passar o mouse */
 }
 
-.secondary-button.green {
-    background-color: #34c759;
-    color: white;
-}
-
-.secondary-button.green:hover {
-    background-color: #28a745;
-}
-
-.secondary-button.purple {
-    background-color: #af52de;
-    color: white;
-}
-
-.secondary-button.purple:hover {
-    background-color: #9b42cb;
-}
-
-/* Footer e chamada para ação */
-footer {
-    margin-top: 2rem;
-    text-align: center;
-    padding: 1.5rem 0;
-    border-top: 1px solid #e0e0e0;
-}
-
-.cta {
-    font-size: 1.1rem;
-    color: #6e6e73;
+.slogan-controls .dislike-button:hover {
+    color: red;
+    transform: scale(1.2); /* Efeito de zoom ao passar o mouse */
 }
 
 /* Responsividade */
-@media (max-width: 600px) {
-    .container {
-        padding: 1.5rem;
-    }
-
-    h1 {
-        font-size: 1.7rem;
+@media (max-width: 768px) {
+    .slogan-box {
+        padding: 20px; /* Reduz o espaçamento interno em telas menores */
     }
 
     .slogan-box h3 {
-        font-size: 1.2rem;
+        font-size: 1.5em; /* Tamanho do texto reduzido para telas menores */
+    }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .slogan-options {
+        grid-template-columns: 1fr; /* Contêineres ocupam toda a largura em telas menores */
     }
 
-    .slogan-image {
-        width: 100%;
+    .slogan-box {
+        padding: 20px; /* Reduz o espaçamento interno em telas menores */
+    }
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .data-button {
+        flex: 1 0 100%;
+    }
+
+    .slogan-options {
+        grid-template-columns: 1fr;
     }
 }

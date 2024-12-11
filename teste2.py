@@ -1,15 +1,19 @@
-import openai
 
-openai.api_key = ""
+import os
+from datetime import datetime
 
-response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",  # Ou "gpt-4"
-    messages=[
-        {"role": "system", "content": "Você é um assistente útil."},
-        {"role": "user", "content": "Crie um slogan para uma empresa de tecnologia."}
-    ],
-    max_tokens=50
-)
 
-# Resultado
-print(response['choices'][0]['message']['content'].strip())
+dtnow = datetime.now()
+output_filename = f"slogan_imagem{dtnow.strftime('%Y%m%d%H%M%S')}{str(dtnow.microsecond)[:2]}.png"
+print(datetime.now(),'\n',output_filename,'\n\n')
+
+# Defina o diretório que deseja pesquisar
+diretorio = f'{os.path.dirname(os.path.abspath(__file__))}/static/'
+
+# Listar todos os arquivos .png no diretório
+arquivos_png = [arquivo for arquivo in os.listdir(diretorio) if arquivo.endswith('.png')]
+
+# Exibir os arquivos .png encontrados
+print("Arquivos .png encontrados:")
+for arquivo in arquivos_png:
+    print(arquivo)
