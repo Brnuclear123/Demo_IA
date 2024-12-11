@@ -3,35 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Gerador de Conteúdo AI</title>
+    <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="login-container">
-        <h1>Bem-vindo ao Gerador de Conteúdo AI</h1>
-        <p>Faça login para acessar sua conta</p>
-        
-        <form action="{{ url_for('login') }}" method="post">
-            <!-- Campo para nome de usuário -->
+        <h1>Login</h1>
+        <form action="#" method="post">
+            <!-- Campo de Usuário -->
             <div class="form-group">
-                <label for="username">Nome de Usuário</label>
-                <input type="text" id="username" name="username" required>
+                <label for="username">Usuário</label>
+                <select id="username" name="username" required>
+                    <option value="" disabled selected>Selecione</option>
+                    <option value="corona">Corona</option>
+                    <option value="lacta">Lacta</option>
+                </select>
             </div>
             
-            <!-- Campo para senha -->
+            <!-- Campo de Senha -->
             <div class="form-group">
                 <label for="password">Senha</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            
-            <!-- Botão de login -->
+
+            <!-- Botão de Login -->
             <button type="submit">Entrar</button>
         </form>
-        
-        <!-- Mensagem de erro (se houver) -->
-        {% if error %}
-            <p class="error">{{ error }}</p>
-        {% endif %}
     </div>
 </body>
 </html>

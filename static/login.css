@@ -1,80 +1,122 @@
-/* Estilos para a página de login */
+/* Global Styles */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f4f4f9;
-    display: flex;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #007aff, #00d4ff); /* Fundo com gradiente */
+    margin: 0;
+    height: 50vh; /* Altura total da tela */
+    display: flex; /* Centralizar o conteúdo */
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
+    color: #333;
 }
 
+/* Container Principal */
 .login-container {
-    background-color: #ffffff;
-    padding: 2rem;
-    width: 100%;
-    max-width: 400px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px; /* Bordas arredondadas */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra */
+    width: 50%;
+    max-width: 350px; /* Largura máxima */
     text-align: center;
 }
 
+/* Título */
 .login-container h1 {
-    font-size: 1.8rem;
-    color: #333;
-    margin-bottom: 0.5rem;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    color: #222;
 }
 
-.login-container p {
-    color: #6c757d;
-    margin-bottom: 1.5rem;
+/* Estilo do Formulário */
+form {
+    display: flex;
+    flex-direction: column; /* Campos em coluna */
+    gap: 15px; /* Espaçamento entre os campos */
 }
 
+/* Estilo do Grupo de Campos */
 .form-group {
-    margin-bottom: 1rem;
     text-align: left;
 }
 
-.form-group label {
-    font-size: 0.9rem;
-    color: #333;
-    font-weight: 500;
+/* Label */
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    color: #555;
 }
 
-.form-group input {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #d1d1d6;
+/* Campo de Seleção (Select) */
+select {
+    width: 50%;
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ccc;
     border-radius: 6px;
-    background-color: #f9f9f9;
-    transition: border 0.2s ease;
-}
-
-.form-group input:focus {
     outline: none;
-    border-color: #007aff;
+    transition: border-color 0.3s ease;
 }
 
-button[type="submit"] {
-    width: 100%;
-    padding: 0.9rem;
-    font-size: 1rem;
-    font-weight: 600;
+select:focus {
+    border-color: #007aff;
+    box-shadow: 0 0 5px rgba(0, 122, 255, 0.3);
+}
+
+/* Campo de Senha */
+input[type="password"] {
+    width: 50%;
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+input[type="password"]:focus {
+    border-color: #007aff;
+    box-shadow: 0 0 5px rgba(0, 122, 255, 0.3);
+}
+
+/* Botão */
+button {
+    background: #007aff;
     color: #fff;
-    background-color: #007aff;
+    font-size: 1.2em;
     border: none;
     border-radius: 6px;
+    padding: 10px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-button[type="submit"]:hover {
-    background-color: #005bb5;
+button:hover {
+    background: #005bb5;
+    transform: translateY(-2px); /* Efeito de elevação */
 }
 
-.error {
-    color: #ff3860;
-    font-size: 0.9rem;
-    margin-top: 1rem;
+button:active {
+    transform: translateY(0); /* Volta ao estado original ao clicar */
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 20px;
+    }
+
+    .login-container h1 {
+        font-size: 1.5em;
+    }
+
+    form {
+        gap: 10px;
+    }
+
+    button {
+        font-size: 1em;
+        padding: 8px;
+    }
 }

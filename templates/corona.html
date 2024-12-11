@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -75,7 +74,15 @@
             <form action="avaliados" method="post">
                 <button type="submit">Acessar slogans</button>
             </form>
-
+            <form id="refazer-form" action="/corona" method="POST" style="display:none;">
+                <input type="hidden" name="time_range" value="time_range">
+                <input type="hidden" name="data_campanha" value="data_campanha">
+                <input type="hidden" name="estado" value="estado">
+                <input type="hidden" name="cidade" value="cidade">
+                <input type="hidden" name="bairro" value="bairro">
+            </form>
+            
+            <button onclick="document.getElementById('refazer-form').submit();">Refazer</button>
 
             <!-- Seção de opções criativas de slogans -->
             <h2>Opções Criativas</h2>
