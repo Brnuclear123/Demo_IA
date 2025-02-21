@@ -3,12 +3,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from PIL import Image, ImageDraw, ImageFont
 import google.generativeai as genai
 from datetime import datetime
-from time import sleep
+import time
 import openai
 #from openai import OpenAI 
+import requests
 import json
 import os
 import re
+
+WEATHER_JSON = 'static/data/weather-cd.json' # ARQUIVO COM CÓDIGOS DA API DE WEATHER
 
 # Carregar a chave API do arquivo .env
 def js_read(filename: str):
@@ -73,44 +76,207 @@ def regex_info(string_response, regex_patterns):
     info = []
     return info
 
-# Função para criar uma imagem de slogan
-def criar_imagem_slogan(slogan_texto, brand_name):
-    dtnow = datetime.now()
-    output_filename = f"slogan_imagem{dtnow.strftime('%Y%m%d%H%M%S')}{str(dtnow.microsecond)[:2].zfill(2)}.png"
-    largura, altura = 960, 120
-    # Definições de estilo específicas para cada marca
-    if brand_name == "Corona":
-        bg_color = "#004AAD"
-        text_color = "white"
-    elif brand_name == "Lacta":
-        bg_color = "#4b2a6b"
-        text_color = "white"
+
+#FUNÇÕES DO WEATHER
+def get_coordinates(city, state, country:str="Brasil"):
+    url = "https://nominatim.openstreetmap.org/search"
+    params = {
+        'city': city,
+        'state': state,
+        'country': country,
+        'format': 'json'
+    }
+    headers = {
+        'User-Agent': 'YourAppName/1.0 (your@email.com)'  # Substitua por seu app e email
+    }
+    response = requests.get(url, params=params, headers=headers)
+    if response.status_code == 200:
+        data = response.json()
+        if data:
+            return data[0]['lat'], data[0]['lon']
+    return None, None
+
+def get_weather_description(code):
+    with open(WEATHER_JSON, 'r', encoding='utf-8') as file:
+        weather_codes_dict = json.load(file)
+    
+    if str(code) in weather_codes_dict:
+        return weather_codes_dict[str(code)]['description']
     else:
-        bg_color = "#333"
-        text_color = "white"
+        return "Código não encontrado."
 
-    imagem = Image.new("RGB", (largura, altura), bg_color)
-    draw = ImageDraw.Draw(imagem)
+def get_weather_call(date_forecast: list, lag_lon: list=[-10, -55]):
     try:
-        font = ImageFont.truetype("arial.ttf", 28)
+        # Verifica se a data fornecida está dentro de 7 dias de diferença da data atual
+        today_str = time.strftime("%Y-%m-%d", time.localtime())
+        today = datetime.strptime(today_str, "%Y-%m-%d")
+        input_date = datetime.strptime(date_forecast[0], "%Y-%m-%d")
+
+        date_diff = (input_date - today).days
+        if not (0 <= date_diff <= 7):
+            print(f"Data do input está fora da faixa de previsão de 7 dias")
+            return "null"
+        
+        # Chamada da API Open-Meteo
+        url = "https://api.open-meteo.com/v1/forecast"
+        params = {
+            "latitude": lag_lon[0],
+            "longitude": lag_lon[1],
+            "daily": ["weather_code", "temperature_2m_max", "temperature_2m_min"],
+            "timezone": "America/Sao_Paulo",
+            "start_date": date_forecast[0],  # yyyy-mm-dd
+            "end_date": date_forecast[1]     # yyyy-mm-dd
+        }
+        
+        response = requests.get(url, params=params)
+        response.raise_for_status()  # Verifica se a requisição retornou um código 4xx ou 5xx
+        
+        data = response.json()
+
+        # Extrai as informações diárias do JSON da API
+        daily_data = data.get("daily", {})
+        
+        # Pega o código de tempo e converte para descrição
+        wc_hold = daily_data.get("weather_code", [])
+        
+        if not wc_hold:
+            raise ValueError("Nenhum código de tempo encontrado")
+
+        temperature_max = daily_data.get("temperature_2m_max", [])[0]
+        temperature_min = daily_data.get("temperature_2m_min", [])[0]
+
+        weather_description = get_weather_description(wc_hold[0])
+
+        # Formata a saída conforme o desejado
+        weather_output = f"Max: {temperature_max}°C / Min: {temperature_min}°C\n{weather_description}"
+
+        return weather_output
+
+    except requests.exceptions.RequestException as e:
+        print(f"Erro de conexão ou requisição falhou: {e}")
+        return None
+
+    except KeyError as e:
+        print(f"Erro ao acessar o JSON retornado pela API. Chave não encontrada: {e}")
+        return None
+
+    except ValueError as e:
+        print(f"Erro ao processar a resposta: {e}")
+        return None
+
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
+        return None
+
+
+# Função para criar uma imagem de slogan
+def criar_gif_slogan_combinado(slogan_texto, brand_name):
+    dtnow = datetime.now()
+    base_filename = f"slogan_animado{dtnow.strftime('%Y%m%d%H%M%S')}{str(dtnow.microsecond)[:2].zfill(2)}"
+    largura, altura = 1920, 158
+
+    # Caminho da imagem de fundo personalizada
+    imagem_fundo_path = "static/meu_fundo.png.png"  # Certifique-se de que o caminho está correto
+
+    if os.path.exists(imagem_fundo_path):
+        imagem_base = Image.open(imagem_fundo_path)
+        imagem_base = imagem_base.resize((largura, altura))  # Redimensiona para 1920x158
+    else:
+        imagem_base = Image.new("RGB", (largura, altura), "#333")  # Fundo cinza se a imagem não existir
+
+    # Escolha da cor do texto baseada na marca
+    text_color = "white" if brand_name in ["Corona", "Lacta"] else "black"
+
+    try:
+        # Corrigindo o caminho da fonte e aumentando o tamanho da fonte para 48
+        font_path = "static/fonte/Ancient Medium.ttf"  # Caminho da fonte personalizada
+        font = ImageFont.truetype(font_path, 48)  # Tamanho da fonte
     except IOError:
-        font = ImageFont.load_default()
+        font = ImageFont.load_default()  # Fonte padrão se a personalizada não for encontrada
 
-    bbox = draw.textbbox((0, 0), slogan_texto, font=font)
-    text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    x = (largura - text_width) / 2
-    y = (altura - text_height) / 2
-    draw.text((x, y), slogan_texto, font=font, fill=text_color)
+    # Criar pasta para armazenar os frames
+    frames_path = os.path.join("static", "frames")
+    os.makedirs(frames_path, exist_ok=True)
 
-    output_path = os.path.join("static", output_filename)
-    os.makedirs("static", exist_ok=True)
-    imagem.save(output_path)
-    sleep(0.05)
-    return output_filename
-    #print(f"Imagem salva em {output_path}")
+    frames = []  # Lista para armazenar as imagens geradas
+
+    # Função para adicionar frames de texto estático
+    def adicionar_frames_estaticos(texto, duracao):
+        for _ in range(duracao):  # Mantém o texto estático por um tempo
+            imagem = imagem_base.copy()
+            draw = ImageDraw.Draw(imagem)
+
+            # Cálculo do tamanho do texto para centralização
+            bbox = draw.textbbox((0, 0), texto, font=font)
+            text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
+            x = (largura - text_width) / 2
+            y = (altura - text_height) / 2
+
+            # Adiciona o texto na imagem
+            draw.text((x, y), texto, font=font, fill=text_color)
+
+            # Salva o frame
+            frames.append(imagem)
+
+    # Função para adicionar frames de movimento lateral
+    def adicionar_frames_movimento_lateral(texto, duracao):
+        # Cálculo do tamanho do texto para centralização
+        imagem_temporaria = imagem_base.copy()
+        draw_temporario = ImageDraw.Draw(imagem_temporaria)
+        bbox = draw_temporario.textbbox((0, 0), texto, font=font)
+        text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
+        y = (altura - text_height) / 2
+
+        # Posição inicial do texto (centralizada)
+        x_inicial = (largura - text_width) / 2
+
+        for i in range(duracao):  # Move o texto para a direita
+            imagem = imagem_base.copy()
+            draw = ImageDraw.Draw(imagem)
+
+            # Movimento lateral: o texto se move para a direita a partir da posição centralizada
+            x = x_inicial + int((largura + text_width) * (i / duracao))
+
+            # Adiciona o texto na imagem
+            draw.text((x, y), texto, font=font, fill=text_color)
+
+            # Salva o frame
+            frames.append(imagem)
+
+    # Fase 1: Texto sendo "digitado"
+    for i in range(len(slogan_texto) + 1):
+        imagem = imagem_base.copy()
+        draw = ImageDraw.Draw(imagem)
+
+        # Texto parcial a ser exibido na imagem
+        texto_parcial = slogan_texto[:i]
+
+        # Cálculo do tamanho do texto para centralização
+        bbox = draw.textbbox((0, 0), texto_parcial, font=font)
+        text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
+        x = (largura - text_width) / 2
+        y = (altura - text_height) / 2
+
+        # Adiciona o texto na imagem
+        draw.text((x, y), texto_parcial, font=font, fill=text_color)
+
+        # Salva o frame
+        frames.append(imagem)
+
+    # Fase 2: Texto estático por um momento
+    adicionar_frames_estaticos(slogan_texto, 30)  # 30 frames de texto estático
+
+    # Fase 3: Texto deslizando para a direita a partir da posição centralizada
+    adicionar_frames_movimento_lateral(slogan_texto, 50)  # 50 frames de movimento lateral
+
+    # Criar o GIF animado com os frames gerados
+    gif_filename = os.path.join("static", f"{base_filename}.gif")
+    frames[0].save(gif_filename, save_all=True, append_images=frames[1:], duration=100, loop=0)
+
+    return gif_filename  # Retorna o caminho do GIF gerado
 
 # Função para gerar slogans usando a OpenAI
-def gerar_slogans(estado, cidade, bairro, data_campanha, momento, brand_name):
+def criar_gif_slogan_combinado(estado, cidade, bairro, data_campanha, momento, brand_name):
     slogans = []
     
     regex_patterns_gpt = [
@@ -188,7 +354,7 @@ def gerar_slogans(estado, cidade, bairro, data_campanha, momento, brand_name):
         # Criar imagens para cada slogan
         imgs = []
         for i, slogan in enumerate(slogans, start=1):
-            file_img = criar_imagem_slogan(slogan, brand_name)
+            file_img = criar_gif_slogan_combinado(slogan, brand_name)
             imgs.append(file_img)
             
         print("Mensagem GPT\n\n",slogans)
@@ -218,7 +384,7 @@ def gerar_slogans(estado, cidade, bairro, data_campanha, momento, brand_name):
             # Criar imagens para cada slogan
             imgs = []
             for i, slogan in enumerate(slogans, start=1):
-                file_img = criar_imagem_slogan(slogan, brand_name)
+                file_img = criar_gif_slogan_combinado(slogan, brand_name)
                 imgs.append(file_img)
 
             print("Mensagem GPT\n\n",slogans)
@@ -237,19 +403,22 @@ def gerar_slogans(estado, cidade, bairro, data_campanha, momento, brand_name):
             
             imgs = []
             for i, slogan in enumerate(slogans, start=1):
-                file_img = criar_imagem_slogan(slogan, brand_name)
+                file_img = criar_gif_slogan_combinado(slogan, brand_name)
                 imgs.append(file_img)
 
             return slogans[:4], imgs
 
 # Função para gerar dados em tempo real usando a OpenAI
-def gerar_dados_em_tempo_real(estado, cidade, bairro):
+def gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha):
     regex_patterns = [
         r"\d+\.\s*(.*)",
         r"\d+\.\s*([^\d\n]+)(?=\n\d+|\n\n|$)",
         r"\d+\.\s*([^\d]+)"
     ]
     
+    dates = [datetime.strptime(d.strip(), '%d/%m/%Y').strftime('%Y-%m-%d') for d in data_campanha.split("to")]
+    weather_response = get_weather_call(dates,get_coordinates(cidade, estado))
+    print(weather_response)
     
     prompt = (
         f"Baseado na localização '{estado, cidade, bairro}', forneça:\n"
@@ -272,8 +441,15 @@ def gerar_dados_em_tempo_real(estado, cidade, bairro):
         
         dados = regex_info(resposta, regex_patterns)
         
+        if weather_response:
+            weather_value = weather_response
+        elif len(dados) > 0:
+            weather_value = dados[0]
+        else:
+            weather_value = "Não disponível"
+        
         conjunto_add_info = {
-            "weather": dados[0] if len(dados) > 0 else "Não disponível",
+            "weather": weather_value,
             "trending": dados[1] if len(dados) > 1 else "Não disponível",
             "local_events": dados[2] if len(dados) > 2 else "Não disponível",
             "pop_culture": dados[3] if len(dados) > 3 else "Não disponível",
@@ -331,12 +507,12 @@ def corona():
             estado = request.form.get('estado')
             cidade = request.form.get('cidade')
             bairro = request.form.get('bairro')
-            real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro)
-            slogans, imagens = gerar_slogans(estado, cidade, bairro, data_campanha, momento, session['brand_name'])
+            real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
+            slogans, imagens = criar_gif_slogan_combinado(estado, cidade, bairro, data_campanha, momento, session['brand_name'])
             #imagens = ultimos_slogan()
-            slogans_imagens = list(zip(slogans, imagens))
+            criar_gif_slogan_combinado = list(zip(slogans, imagens))
             print(slogans, '\n\n', imagens)
-            return render_template('corona.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
+            return render_template('corona.html', criar_gif_slogan_combinado=criar_gif_slogan_combinado, real_time_date=real_time_data)
         return render_template('corona.html')
     else:
         return redirect(url_for('login'))
@@ -354,7 +530,7 @@ def lacta():
             cidade = request.form.get('cidade')
             bairro = request.form.get('bairro')
             real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro)
-            slogans, imagens = gerar_slogans(estado, cidade, bairro, data_campanha, momento, session['brand_name'])
+            slogans, imagens = criar_gif_slogan_combinado(estado, cidade, bairro, data_campanha, momento, session['brand_name'])
             #imagens = ultimos_slogan()
             slogans_imagens = list(zip(slogans, imagens))
             print(slogans, '\n\n', imagens)

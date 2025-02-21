@@ -1,0 +1,86 @@
+{
+    "0": {
+      "description": "Céu limpo"
+    },
+    "1": {
+      "description": "Principalmente claro"
+    },
+    "2": {
+      "description": "Parcialmente nublado"
+    },
+    "3": {
+      "description": "Encoberto"
+    },
+    "45": {
+      "description": "Nevoeiro"
+    },
+    "48": {
+      "description": "Nevoeiro com depósito de gelo"
+    },
+    "51": {
+      "description": "Chuvisco: Intensidade leve"
+    },
+    "53": {
+      "description": "Chuvisco: Intensidade moderada"
+    },
+    "55": {
+      "description": "Chuvisco: Intensidade densa"
+    },
+    "56": {
+      "description": "Chuvisco congelante: Intensidade leve"
+    },
+    "57": {
+      "description": "Chuvisco congelante: Intensidade densa"
+    },
+    "61": {
+      "description": "Chuva: Intensidade leve"
+    },
+    "63": {
+      "description": "Chuva: Intensidade moderada"
+    },
+    "65": {
+      "description": "Chuva: Intensidade forte"
+    },
+    "66": {
+      "description": "Chuva congelante: Intensidade leve"
+    },
+    "67": {
+      "description": "Chuva congelante: Intensidade forte"
+    },
+    "71": {
+      "description": "Neve: Intensidade leve"
+    },
+    "73": {
+      "description": "Neve: Intensidade moderada"
+    },
+    "75": {
+      "description": "Neve: Intensidade forte"
+    },
+    "77": {
+      "description": "Grãos de neve"
+    },
+    "80": {
+      "description": "Aguaceiros de chuva: Leves"
+    },
+    "81": {
+      "description": "Aguaceiros de chuva: Moderados"
+    },
+    "82": {
+      "description": "Aguaceiros de chuva: Violentos"
+    },
+    "85": {
+      "description": "Aguaceiros de neve: Leves"
+    },
+    "86": {
+      "description": "Aguaceiros de neve: Fortes"
+    },
+    "95": {
+      "description": "Trovoada leve ou moderada"
+    },
+    "96": {
+      "description": "Trovoada com granizo leve"
+    },
+    "99": {
+      "description": "Trovoada com granizo forte"
+    }
+  }
