@@ -91,7 +91,7 @@
                     {% for slogan, imagem in slogans_imagens %}
                         <div class="slogan-box">
                             <h3>{{ slogan }}</h3>
-                            <img src="{{ url_for('static', filename=imagem) }}" alt="{{ slogan }}" class="slogan-image">
+                            <img src="{{ imagem }}" alt="{{ slogan }}" class="slogan-image">
                             
                             <!-- Botões de avaliação e edição -->
                             <div class="slogan-controls">

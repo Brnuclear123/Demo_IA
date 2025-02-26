@@ -11,20 +11,22 @@ import json
 import os
 import re
 
+#CONSTANTS
 WEATHER_JSON = 'static/data/weather-cd.json' # ARQUIVO COM CÓDIGOS DA API DE WEATHER
 
-# Carregar a chave API do arquivo .env
+#CARREGAR CHAVE DO JSON
 def js_read(filename: str):
     with open(filename) as j_file:
         return json.load(j_file)
 
-data = js_read('env_variables.json')    
-        
+data = js_read('env_variables.json')
 openai.api_key = data['OPENAI_API_KEY']
 
 
+#START FLASK APP
 app = Flask(__name__)
 app.secret_key = 'secret_key'
+
 
 # Simulação de um banco de dados de usuários
 users = {
@@ -169,114 +171,91 @@ def get_weather_call(date_forecast: list, lag_lon: list=[-10, -55]):
         return None
 
 
-# Função para criar uma imagem de slogan
+#FUNÇÕES DE CRIAR GIFS DAS IMAGENS
 def criar_gif_slogan_combinado(slogan_texto, brand_name):
     dtnow = datetime.now()
     base_filename = f"slogan_animado{dtnow.strftime('%Y%m%d%H%M%S')}{str(dtnow.microsecond)[:2].zfill(2)}"
     largura, altura = 1920, 158
 
-    # Caminho da imagem de fundo personalizada
-    imagem_fundo_path = "static/meu_fundo.png.png"  # Certifique-se de que o caminho está correto
-
+    # Carregar ou criar imagem de fundo em modo RGBA
+    imagem_fundo_path = "static/meu_fundo.png.png"
     if os.path.exists(imagem_fundo_path):
-        imagem_base = Image.open(imagem_fundo_path)
-        imagem_base = imagem_base.resize((largura, altura))  # Redimensiona para 1920x158
+        imagem_base = Image.open(imagem_fundo_path).resize((largura, altura)).convert("RGBA")
     else:
-        imagem_base = Image.new("RGB", (largura, altura), "#333")  # Fundo cinza se a imagem não existir
+        imagem_base = Image.new("RGBA", (largura, altura), "#333")
 
-    # Escolha da cor do texto baseada na marca
+    # Define a cor do texto de acordo com a marca
     text_color = "white" if brand_name in ["Corona", "Lacta"] else "black"
 
+    # Tenta carregar a fonte personalizada
     try:
-        # Corrigindo o caminho da fonte e aumentando o tamanho da fonte para 48
-        font_path = "static/fonte/Ancient Medium.ttf"  # Caminho da fonte personalizada
-        font = ImageFont.truetype(font_path, 48)  # Tamanho da fonte
+        font_path = "static/fonte/Bison-Bold(PersonalUse).ttf"
+        font_size = 64
+        font = ImageFont.truetype(font_path, font_size)
     except IOError:
-        font = ImageFont.load_default()  # Fonte padrão se a personalizada não for encontrada
+        font = ImageFont.load_default()
 
-    # Criar pasta para armazenar os frames
-    frames_path = os.path.join("static", "frames")
-    os.makedirs(frames_path, exist_ok=True)
+    frames = []
+    # Cria um objeto temporário para medir o texto
+    temp_draw = ImageDraw.Draw(imagem_base)
+    
+    # Calcular a largura total do texto usando getbbox
+    total_text_width = 0
+    for letter in slogan_texto:
+        bbox = font.getbbox(letter)
+        letter_width = bbox[2] - bbox[0]
+        total_text_width += letter_width
 
-    frames = []  # Lista para armazenar as imagens geradas
+    final_x = (largura - total_text_width) / 2
 
-    # Função para adicionar frames de texto estático
-    def adicionar_frames_estaticos(texto, duracao):
-        for _ in range(duracao):  # Mantém o texto estático por um tempo
-            imagem = imagem_base.copy()
-            draw = ImageDraw.Draw(imagem)
+    # Calcular a posição vertical centralizada usando o bounding box do texto completo
+    full_bbox = temp_draw.textbbox((0, 0), slogan_texto, font=font)
+    text_height = full_bbox[3] - full_bbox[1]
+    final_y = (altura - text_height) / 2
 
-            # Cálculo do tamanho do texto para centralização
-            bbox = draw.textbbox((0, 0), texto, font=font)
-            text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
-            x = (largura - text_width) / 2
-            y = (altura - text_height) / 2
+    # Parâmetros da animação: cada letra tem um atraso e duração individuais
+    letter_delay_gap = 1           # atraso (em frames) entre cada letra
+    letter_animation_duration = 5       # duração da animação de cada letra (reduzido para 5 frames)
+    final_hold_frames = 30              # manter o frame final por 50 frames (5 segundos a 100ms/frame)
+    total_frames = (len(slogan_texto) - 1) * letter_delay_gap + letter_animation_duration + final_hold_frames
 
-            # Adiciona o texto na imagem
-            draw.text((x, y), texto, font=font, fill=text_color)
+    for frame in range(total_frames):
+        # Cria uma cópia do fundo para o frame atual
+        frame_img = imagem_base.copy()
+        # Cria um overlay transparente para desenhar as letras com efeito
+        overlay = Image.new("RGBA", (largura, altura), (255, 255, 255, 0))
+        draw_overlay = ImageDraw.Draw(overlay)
 
-            # Salva o frame
-            frames.append(imagem)
+        current_x = final_x
+        for idx, letter in enumerate(slogan_texto):
+            bbox_letter = font.getbbox(letter)
+            letter_width = bbox_letter[2] - bbox_letter[0]
+            letter_height = bbox_letter[3] - bbox_letter[1]
+            letter_delay = idx * letter_delay_gap
 
-    # Função para adicionar frames de movimento lateral
-    def adicionar_frames_movimento_lateral(texto, duracao):
-        # Cálculo do tamanho do texto para centralização
-        imagem_temporaria = imagem_base.copy()
-        draw_temporario = ImageDraw.Draw(imagem_temporaria)
-        bbox = draw_temporario.textbbox((0, 0), texto, font=font)
-        text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
-        y = (altura - text_height) / 2
+            if frame < letter_delay:
+                # Ainda não inicia a animação: não desenha nada
+                pass
+            elif frame < letter_delay + letter_animation_duration:
+                progress = (frame - letter_delay) / letter_animation_duration
+                offset_y = int((1 - progress) * 30)  # desloca 30 pixels abaixo inicialmente
+                alpha = int(progress * 255)
+                fill = (255, 255, 255, alpha) if text_color == "white" else (0, 0, 0, alpha)
+                draw_overlay.text((current_x, final_y + offset_y), letter, font=font, fill=fill)
+            else:
+                fill = (255, 255, 255, 255) if text_color == "white" else (0, 0, 0, 255)
+                draw_overlay.text((current_x, final_y), letter, font=font, fill=fill)
+            current_x += letter_width
 
-        # Posição inicial do texto (centralizada)
-        x_inicial = (largura - text_width) / 2
+        combined = Image.alpha_composite(frame_img, overlay)
+        frames.append(combined.convert("RGB"))
 
-        for i in range(duracao):  # Move o texto para a direita
-            imagem = imagem_base.copy()
-            draw = ImageDraw.Draw(imagem)
-
-            # Movimento lateral: o texto se move para a direita a partir da posição centralizada
-            x = x_inicial + int((largura + text_width) * (i / duracao))
-
-            # Adiciona o texto na imagem
-            draw.text((x, y), texto, font=font, fill=text_color)
-
-            # Salva o frame
-            frames.append(imagem)
-
-    # Fase 1: Texto sendo "digitado"
-    for i in range(len(slogan_texto) + 1):
-        imagem = imagem_base.copy()
-        draw = ImageDraw.Draw(imagem)
-
-        # Texto parcial a ser exibido na imagem
-        texto_parcial = slogan_texto[:i]
-
-        # Cálculo do tamanho do texto para centralização
-        bbox = draw.textbbox((0, 0), texto_parcial, font=font)
-        text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
-        x = (largura - text_width) / 2
-        y = (altura - text_height) / 2
-
-        # Adiciona o texto na imagem
-        draw.text((x, y), texto_parcial, font=font, fill=text_color)
-
-        # Salva o frame
-        frames.append(imagem)
-
-    # Fase 2: Texto estático por um momento
-    adicionar_frames_estaticos(slogan_texto, 30)  # 30 frames de texto estático
-
-    # Fase 3: Texto deslizando para a direita a partir da posição centralizada
-    adicionar_frames_movimento_lateral(slogan_texto, 50)  # 50 frames de movimento lateral
-
-    # Criar o GIF animado com os frames gerados
     gif_filename = os.path.join("static", f"{base_filename}.gif")
     frames[0].save(gif_filename, save_all=True, append_images=frames[1:], duration=100, loop=0)
-
-    return gif_filename  # Retorna o caminho do GIF gerado
+    return gif_filename
 
 # Função para gerar slogans usando a OpenAI
-def criar_gif_slogan_combinado(estado, cidade, bairro, data_campanha, momento, brand_name):
+def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_name):
     slogans = []
     
     regex_patterns_gpt = [
@@ -351,10 +330,10 @@ def criar_gif_slogan_combinado(estado, cidade, bairro, data_campanha, momento, b
 
         slogans = encontrar_slogans(string_response, regex_patterns_gpt)
 
-        # Criar imagens para cada slogan
+        # Criar GIFs para cada slogan
         imgs = []
-        for i, slogan in enumerate(slogans, start=1):
-            file_img = criar_gif_slogan_combinado(slogan, brand_name)
+        for slogan in slogans:
+            file_img = criar_gif_slogan_combinado(slogan, brand_name)  # <--- Agora está correto!
             imgs.append(file_img)
             
         print("Mensagem GPT\n\n",slogans)
@@ -380,11 +359,11 @@ def criar_gif_slogan_combinado(estado, cidade, bairro, data_campanha, momento, b
             string_response = str(response.text)
             
             slogans = encontrar_slogans(string_response, regex_patterns_gpt)
-            
-            # Criar imagens para cada slogan
+
+            # Criar GIFs para cada slogan
             imgs = []
-            for i, slogan in enumerate(slogans, start=1):
-                file_img = criar_gif_slogan_combinado(slogan, brand_name)
+            for slogan in slogans:
+                file_img = criar_gif_slogan_combinado(slogan, brand_name)  # <--- Agora está correto!
                 imgs.append(file_img)
 
             print("Mensagem GPT\n\n",slogans)
@@ -401,9 +380,10 @@ def criar_gif_slogan_combinado(estado, cidade, bairro, data_campanha, momento, b
                     'Slogan 4 é na bump media',
                     'Slogan 5 é na media_bump']
             
+            # Criar GIFs para cada slogan
             imgs = []
-            for i, slogan in enumerate(slogans, start=1):
-                file_img = criar_gif_slogan_combinado(slogan, brand_name)
+            for slogan in slogans:
+                file_img = criar_gif_slogan_combinado(slogan, brand_name)  # <--- Agora está correto!
                 imgs.append(file_img)
 
             return slogans[:4], imgs
@@ -416,7 +396,8 @@ def gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha):
         r"\d+\.\s*([^\d]+)"
     ]
     
-    dates = [datetime.strptime(d.strip(), '%d/%m/%Y').strftime('%Y-%m-%d') for d in data_campanha.split("to")]
+    dates = [datetime.strptime(d.strip(), '%d/%m/%Y').strftime('%Y-%m-%d') for d in data_campanha.split("to")]    
+    
     weather_response = get_weather_call(dates,get_coordinates(cidade, estado))
     print(weather_response)
     
@@ -504,15 +485,16 @@ def corona():
         if request.method == 'POST':
             momento = request.form.getlist('time_range')
             data_campanha= request.form.get('data_campanha')
+            print(data_campanha)
             estado = request.form.get('estado')
             cidade = request.form.get('cidade')
             bairro = request.form.get('bairro')
             real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
-            slogans, imagens = criar_gif_slogan_combinado(estado, cidade, bairro, data_campanha, momento, session['brand_name'])
+            slogans, imagens = gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, session['brand_name'])
             #imagens = ultimos_slogan()
             criar_gif_slogan_combinado = list(zip(slogans, imagens))
             print(slogans, '\n\n', imagens)
-            return render_template('corona.html', criar_gif_slogan_combinado=criar_gif_slogan_combinado, real_time_date=real_time_data)
+            return render_template('corona.html', slogans_imagens=criar_gif_slogan_combinado, real_time_date=real_time_data)
         return render_template('corona.html')
     else:
         return redirect(url_for('login'))

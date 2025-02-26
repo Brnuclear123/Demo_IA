@@ -50,7 +50,7 @@
             <div class="image-list">
                 {% for image in avaliacoes['like'] %}
                     <div class="image-item">
-                        <img src="{{ url_for('static', filename=image) }}" alt="Slogan Like">
+                        <img src="{{ image }}" alt="Slogan Like">
                     </div>
                 {% endfor %}
             </div>
@@ -61,7 +61,7 @@
             <div class="image-list">
                 {% for image in avaliacoes['dislike'] %}
                     <div class="image-item">
-                        <img src="{{ url_for('static', filename=image) }}" alt="Slogan Dislike">
+                        <img src="{{ image }}" alt="Slogan Dislike">
                     </div>
                 {% endfor %}
             </div>
