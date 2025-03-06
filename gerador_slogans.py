@@ -178,7 +178,7 @@ def criar_gif_slogan_combinado(slogan_texto, brand_name):
     largura, altura = 1920, 158
 
     # Carregar ou criar imagem de fundo em modo RGBA
-    imagem_fundo_path = "static/meu_fundo.png.png"
+    imagem_fundo_path = "static/frames/meu_fundo.png"
     if os.path.exists(imagem_fundo_path):
         imagem_base = Image.open(imagem_fundo_path).resize((largura, altura)).convert("RGBA")
     else:
