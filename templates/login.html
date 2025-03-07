@@ -1,24 +1,29 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
 </head>
 <body>
-    <div class="login-container">
-        <h1>Login</h1>
-        <form action="{{ url_for('routes.login') }}" method="post">
-            <div class="form-group">
-                <label for="username">Usuário</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Senha</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit">Entrar</button>
-        </form>
+    <div class="logo">
+        Bump
+    </div>       
+    <div class="container">
+        <div class="login-box">
+            <h1>Transforme dados em conexões reais.</h1>
+            <p>Crie mensagens que se adaptem e conversem com seu público naturalmente.</p>
+            <form action="{{ url_for('routes.login') }}" method="post">
+                <input type="text" name="username" placeholder="Usuário" required>
+                <input type="password" name="password" placeholder="Senha" required>
+                <button type="submit">ENTRAR</button>
+                <a href="#">Esqueci minha senha</a>
+            </form>
+        </div>
+        <div class="illustration">
+            <img src="{{ url_for('static', filename='login-image.png') }}" alt="Ilustração">
+        </div>
     </div>
 </body>
 </html>
