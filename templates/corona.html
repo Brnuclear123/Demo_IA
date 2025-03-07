@@ -2,98 +2,179 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Gerador de Conteúdo - Corona</title>
+    <title>Criador de Conteúdo - Corona</title>
+    <!-- Estilos -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Flatpickr (Calendário) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
-    <body>
-        <div class="container">
-            <!-- Título principal -->
-            <h1>Corona Content Generator</h1>
-    
-            <!-- Seção de formulário para configuração da campanha -->
-            <form action="{{ url_for('routes.corona') }}" method="post">
-                <!-- Campo de busca para a localização -->
-                <div class="form-group" style="position:relative;">
-                    <label for="localizacao">Localização</label>
-                    <input type="text" id="localizacao" placeholder="Digite Estado, Cidade ou Bairro" autocomplete="off" required>
-                    <ul id="suggestions" style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ccc; list-style:none; padding:0; margin:0; display:none;">
-                        <!-- Sugestões serão geradas aqui dinamicamente -->
-                    </ul>
-                </div>
-            
-                <!-- Campos ocultos que serão preenchidos dinamicamente -->
-                <input type="hidden" id="estado" name="estado">
-                <input type="hidden" id="cidade" name="cidade">
-                <input type="hidden" id="bairro" name="bairro">
 
+    <!-- Cabeçalho / Topo -->
+    <header class="header-bar">
+        <div class="header-logo">
+            <!-- Substitua por um logo real, se quiser -->
+            <img src="static/src/bump_small_logo.png" alt="bump">
+        </div>
+        <nav class="header-menu">
+            <ul>
+                <li><a href="{{ url_for('routes.corona') }}" class="active"><button id="generate-button">CRIAR CONTEÚDO</button></a></li>
+                <!-- Ajuste a rota para a sua view de slogans avaliados, se quiser -->
+                <li><a href="{{ url_for('routes.avaliados') }}"><button id="generate-button">AVALIADOS</button></a></li>
+            </ul>
+        </nav>
+    </header>
 
-                <!-- Aqui está o fechamento da div corrigido -->
+    <!-- Seção principal -->
+    <main class="container">
+
+        <!-- Título principal / Subtítulo -->
+        <section class="intro">
+            <h2>Criador de Conteúdo</h2>
+            <p>Comece a criar as mensagens certas para o momento certo. Aqui colocar mensagem do que o usuário precisa fazer antes de começar a criar conteúdo. Falar sobre conceito de “campanha” e explicar o recurso..</p>
+        </section>
+
+        <!-- Formulário principal -->
+        <form class="campaign-form" action="{{ url_for('routes.corona') }}" method="post">
+            <div class="form-row">
+                <!-- 1) Onde a oferta vai rodar? -->
                 <div class="form-group">
-                    <label for="loja">Lojas</label>
+                    <label for="localizacao">Com quem esse conteúdo vai falar?</label>
+                    <input 
+                        type="text" 
+                        id="localizacao" 
+                        placeholder="Digite Estado, Cidade ou Bairro" 
+                        autocomplete="off" 
+                        required
+                    >
+                    <ul 
+                        id="suggestions" 
+                        style="display:none;"
+                    >
+                        <!-- Sugestões geradas dinamicamente -->
+                    </ul>
+                    <!-- Campos ocultos preenchidos dinamicamente -->
+                    <input type="hidden" id="estado" name="estado">
+                    <input type="hidden" id="cidade" name="cidade">
+                    <input type="hidden" id="bairro" name="bairro">
+                </div>
+
+                <!-- 2) Com quem você quer falar? (loja) -->
+                <div class="form-group">
+                    <label for="loja">Quais pontos de venda vão receber esse conteúdo?</label>
                     <select id="loja" name="loja" required>
-                        <option value="" disabled selected>Selecione a Loja</option>
+                        <option value="" disabled selected>Selecione</option>
                         <option value="Store 1">Loja 1</option>
                         <option value="Store 2">Loja 2</option>
                     </select>
                 </div>
-    
-                <!-- Linha de datas de campanha (início e término) -->
+            </div>
+
+            <div class="form-row">
+                <!-- 3) Quando a oferta vai rodar? (intervalo de datas) -->
                 <div class="form-group">
-                    <label for="data_campanha">Período da Campanha</label>
-                    <input type="text" id="data_campanha" class="datepicker" name="data_campanha" placeholder="Selecione o intervalo de datas" required>
+                    <label for="data_campanha">Qual o período de visualização do conteúdo?</label>
+                    <input 
+                        type="text" 
+                        id="data_campanha" 
+                        class="datepicker" 
+                        name="data_campanha" 
+                        placeholder="Selecione o intervalo" 
+                        required
+                    >
                 </div>
-                    
-                <!-- Seção de seleção de horários -->
+
+                <!-- 4) Que momento do dia recebe essa mensagem? -->
                 <div class="form-group">
-                    <label>Momento de consumo</label>
+                    <label>Qual o melhor momento para a sua mensagem?</label>
                     <div class="time-ranges">
-                        <label><input type="checkbox" name="time_range" value="early_morning"> Manhã / Café da manhã </label>
-                        <label><input type="checkbox" name="time_range" value="before_lunch"> Antes do almoço </label>
-                        <label><input type="checkbox" name="time_range" value="after_lunch"> Depois do almoço </label>
-                        <label><input type="checkbox" name="time_range" value="afternoon"> Tarde </label>
-                        <label><input type="checkbox" name="time_range" value="happy_hour"> Happy Hour </label>
-                        <label><input type="checkbox" name="time_range" value="dinner"> Jantar </label>
-                        <label><input type="checkbox" name="time_range" value="late_night"> Noite </label>
+                        <label><input type="checkbox" name="time_range" value="early_morning"> Manhã</label>
+                        <label><input type="checkbox" name="time_range" value="afternoon"> Tarde</label>
+                        <label><input type="checkbox" name="time_range" value="night"> Noite</label>
+                        <label><input type="checkbox" name="time_range" value="late_at_night"> Madrugada</label>
+                        <label><input type="checkbox" name="time_range" value="full_day"> Dia todo</label>
+                        <label><input type="time" > Escolher outro horário</label>
                     </div>
                 </div>
-    
-                <!-- Dados em tempo real -->
-                <div class="real-time-data">
-                    <button class="data-button" data-type="weather">🌤️ Weather<br><span>{{ real_time_date.weather if real_time_date else "Loading..." }}</span></button>
-                    <button class="data-button" data-type="trending">#️⃣ Trending<br><span>{{ real_time_date.trending if real_time_date else "Loading..." }}</span></button>
-                    <button class="data-button" data-type="local-events">📅 Local Events<br><span>{{ real_time_date.local_events if real_time_date else "Loading..." }}</span></button>
-                    <button class="data-button" data-type="pop-culture">🎬 Pop Culture<br><span>{{ real_time_date.pop_culture if real_time_date else "Loading..." }}</span></button>
-                </div>                
-    
-                <!-- Botão para gerar conteúdo -->
-                <button type="submit">Generate Content</button>
+            </div>
+
+            <!-- Botão para gerar conteúdo -->
+            <div class="buttons-container">
+                <button 
+                    id="generate-button" 
+                    type="submit"
+                >
+                    CRIAR CONTEÚDO
+                </button>
+            </div>
+        </form>
+
+        <label>Deixe seu conteúdo mais relevante, conectando com dados em tempo real:</label>
+        <!-- Seção de dados em tempo real (caso queira manter) -->
+        <div class="real-time-data">
+            <label class="checkbox-container">
+                🌤️ <strong>CLIMA LOCAL</strong><br>
+                <input type="checkbox" class="data-checkbox" data-type="weather">
+                <span class="checkmark"></span>
+                <span class="data-text">{{ real_time_date.weather if real_time_date else "Carregando..." }}</span>
+            </label>
+            <label class="checkbox-container">
+                #️⃣ <strong>SOCIAL TRENDS</strong><br>
+                <input type="checkbox" class="data-checkbox" data-type="trending">
+                <span class="checkmark"></span>
+                <span class="data-text">{{ real_time_date.trending if real_time_date else "Carregando..." }}</span>
+            </label>
+            <label class="checkbox-container">
+                📅 <strong>EVENTOS LOCAIS</strong><br>
+                <input type="checkbox" class="data-checkbox" data-type="local-events">
+                <span class="checkmark"></span>
+                <span class="data-text">{{ real_time_date.local_events if real_time_date else "Carregando..." }}</span>
+            </label>
+            <label class="checkbox-container">
+                🎬 <strong>AGENDA CULTURAL</strong><br>
+                <input type="checkbox" class="data-checkbox" data-type="pop-culture">
+                <span class="checkmark"></span>
+                <span class="data-text">{{ real_time_date.pop_culture if real_time_date else "Carregando..." }}</span>
+            </label>
+        </div>
+
+
+        <!-- Botões adicionais (Avaliados e Refazer) -->
+        <div class="buttons-container">
+            <form action="{{ url_for('routes.avaliados') }}" method="post">
+                <button id="slogans-button" type="submit">
+                    VER OPÇÕES AVALIADAS
+                </button>
             </form>
-            
-            <form action="avaliados" method="post">
-                <button type="submit">Acessar slogans</button>
-            </form>
-            <form id="refazer-form" action="/corona" method="POST" style="display:none;">
+            <form id="refazer-form" action="{{ url_for('routes.corona') }}" method="POST" style="display:inline-block;">
+                <!-- Esses inputs são apenas placeholders caso precise re-enviar -->
                 <input type="hidden" name="time_range" value="time_range">
                 <input type="hidden" name="data_campanha" value="data_campanha">
                 <input type="hidden" name="estado" value="estado">
                 <input type="hidden" name="cidade" value="cidade">
                 <input type="hidden" name="bairro" value="bairro">
+                <button id="refazer-button" type="submit">
+                    CRIAR NOVAS OPÇÕES
+                </button>
             </form>
-            
-            <button onclick="document.getElementById('refazer-form').submit();">Refazer</button>
+        </div>
 
-            <!-- Seção de opções criativas de slogans -->
+        <!-- Seção de opções criativas de slogans -->
+        <section class="slogan-section">
             <h2>Opções Criativas</h2>
             <div class="slogan-options">
                 {% if slogans_imagens %}
                     {% for slogan, imagem in slogans_imagens %}
                         <div class="slogan-box">
-                            <h3>{{ slogan }}</h3>
-                            <img src="{{ imagem }}" alt="{{ slogan }}" class="slogan-image">
+                            <img 
+                                src="{{ imagem }}" 
+                                alt="Slogan Placeholder" 
+                                class="slogan-image"
+                            >
+                            <img src="static/src/corona_baseplate.png" alt="Corona_baseplate" class="slogan-image">
                             
-                            <!-- Botões de avaliação e edição -->
+                            
+                            <!-- Botões de avaliação -->
                             <div class="slogan-controls">
                                 <button class="like-button" data-imagem="{{ imagem }}" data-avaliacao="like">👍</button>
                                 <button class="dislike-button" data-imagem="{{ imagem }}" data-avaliacao="dislike">👎</button>
@@ -101,171 +182,125 @@
                         </div>
                     {% endfor %}
                 {% else %}
-                    <p>Conteúdo não gerado ainda. Preencha o formulário e gere conteúdo.</p>
+                    <p>Nenhum conteúdo gerado ainda. Preencha o formulário acima e clique em "CRIAR CONTEÚDO".</p>
                 {% endif %}
             </div>
-        </div>
-        
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const input = document.getElementById('localizacao');
-                const suggestions = document.getElementById('suggestions');
-                const estadoInput = document.getElementById('estado');
-                const cidadeInput = document.getElementById('cidade');
-                const bairroInput = document.getElementById('bairro');
-        
-                // Carregar os dados do JSON
-                fetch('/static/data/estados_cidades_bairros.json')
-                    .then(response => response.json())
-                    .then(data => {
-                        // Atualizar sugestões conforme o usuário digita
-                        input.addEventListener('input', () => {
-                            const query = input.value.toLowerCase();
-                            suggestions.innerHTML = ''; // Limpa sugestões anteriores
-        
-                            if (query.length < 2) {
-                                suggestions.style.display = 'none';
-                                return;
-                            }
-        
-                            // Filtrar os dados para encontrar correspondências
-                            const matches = [];
-                            for (const [estado, cidades] of Object.entries(data)) {
-                                for (const [cidade, bairros] of Object.entries(cidades)) {
-                                    if (estado.toLowerCase().includes(query) || cidade.toLowerCase().includes(query)) {
-                                        matches.push(`${estado} - ${cidade}`);
-                                    }
-                                    bairros.forEach(bairro => {
-                                        if (bairro.toLowerCase().includes(query)) {
-                                            matches.push(`${estado} - ${cidade} - ${bairro}`);
-                                        }
-                                    });
-                                }
-                            }
-        
-                            // Exibir as sugestões encontradas
-                            if (matches.length > 0) {
-                                matches.forEach(match => {
-                                    const li = document.createElement('li');
-                                    li.textContent = match;
-                                    li.style.padding = '8px';
-                                    li.style.cursor = 'pointer';
-                                    li.addEventListener('click', () => {
-                                        input.value = match;
-                                        suggestions.style.display = 'none';
-        
-                                        // Preencher os campos ocultos
-                                        const parts = match.split(' - ');
-                                        estadoInput.value = parts[0] || '';
-                                        cidadeInput.value = parts[1] || '';
-                                        bairroInput.value = parts[2] || '';
-                                    });
-                                    suggestions.appendChild(li);
-                                });
-                                suggestions.style.display = 'block';
-                            } else {
-                                suggestions.style.display = 'none';
-                            }
-                        });
-        
-                        // Esconder as sugestões ao clicar fora
-                        document.addEventListener('click', (e) => {
-                            if (!e.target.closest('.form-group')) {
-                                suggestions.style.display = 'none';
-                            }
-                        });
-                    })
-                    .catch(error => console.error('Erro ao carregar os dados:', error));
-            });
-        </script>
-        
+        </section>
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                flatpickr("#data_campanha", {
-                    mode: "range", // Permite selecionar um intervalo de datas
-                    dateFormat: "d/m/Y", // Formato da data
-                    minDate: "today", // Começa a partir de hoje
-                    locale: {
-                        firstDayOfWeek: 0, // Domingo como o primeiro dia
-                        weekdays: {
-                            shorthand: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
-                            longhand: ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"]
-                        },
-                        months: {
-                            shorthand: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
-                            longhand: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
-                        }
-                    },
-                    onChange: function(selectedDates, dateStr, instance) {
-                        console.log("Datas selecionadas:", dateStr); // Retorna o intervalo no formato escolhido
-                    }
-                });
-            });
-        </script>
-        
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="footer-bar">
+        <p>© Bump® is the AI Retail Media Platform. All rights reserved to Bump® - 2025.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const estadoSelect = document.getElementById('estado');
-            const cidadeSelect = document.getElementById('cidade');
-            const bairroSelect = document.getElementById('bairro');
-
-            // Carregar JSON de estados, cidades e bairros
+        // SUGESTÕES DE LOCALIZAÇÃO
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('localizacao');
+            const suggestions = document.getElementById('suggestions');
+            const estadoInput = document.getElementById('estado');
+            const cidadeInput = document.getElementById('cidade');
+            const bairroInput = document.getElementById('bairro');
+    
+            // Carregar os dados do JSON
             fetch('/static/data/estados_cidades_bairros.json')
                 .then(response => response.json())
                 .then(data => {
-                    // Preencher estados
-                    Object.keys(data).forEach(estado => {
-                        const option = document.createElement('option');
-                        option.value = estado;
-                        option.textContent = estado;
-                        estadoSelect.appendChild(option);
+                    // Atualizar sugestões conforme o usuário digita
+                    input.addEventListener('input', () => {
+                        const query = input.value.toLowerCase();
+                        suggestions.innerHTML = '';
+    
+                        if (query.length < 2) {
+                            suggestions.style.display = 'none';
+                            return;
+                        }
+    
+                        // Filtrar os dados para encontrar correspondências
+                        const matches = [];
+                        for (const [estado, cidades] of Object.entries(data)) {
+                            for (const [cidade, bairros] of Object.entries(cidades)) {
+                                if (estado.toLowerCase().includes(query) || cidade.toLowerCase().includes(query)) {
+                                    matches.push(`${estado} - ${cidade}`);
+                                }
+                                bairros.forEach(bairro => {
+                                    if (bairro.toLowerCase().includes(query)) {
+                                        matches.push(`${estado} - ${cidade} - ${bairro}`);
+                                    }
+                                });
+                            }
+                        }
+    
+                        // Exibir as sugestões
+                        if (matches.length > 0) {
+                            matches.forEach(match => {
+                                const li = document.createElement('li');
+                                li.textContent = match;
+                                li.addEventListener('click', () => {
+                                    input.value = match;
+                                    suggestions.style.display = 'none';
+    
+                                    // Preencher campos hidden
+                                    const parts = match.split(' - ');
+                                    estadoInput.value = parts[0] || '';
+                                    cidadeInput.value = parts[1] || '';
+                                    bairroInput.value = parts[2] || '';
+                                });
+                                suggestions.appendChild(li);
+                            });
+                            suggestions.style.display = 'block';
+                        } else {
+                            suggestions.style.display = 'none';
+                        }
                     });
-
-                    // Quando o estado for selecionado
-                    estadoSelect.addEventListener('change', function () {
-                        const estadoSelecionado = this.value;
-                        cidadeSelect.innerHTML = '<option selected disabled>Selecione a Cidade</option>';
-                        bairroSelect.innerHTML = '<option selected disabled>Selecione o Bairro</option>';
-
-                        // Preencher cidades do estado selecionado
-                        Object.keys(data[estadoSelecionado]).forEach(cidade => {
-                            const option = document.createElement('option');
-                            option.value = cidade;
-                            option.textContent = cidade;
-                            cidadeSelect.appendChild(option);
-                        });
-                    });
-
-                    // Quando a cidade for selecionada
-                    cidadeSelect.addEventListener('change', function () {
-                        const estadoSelecionado = estadoSelect.value;
-                        const cidadeSelecionada = this.value;
-                        bairroSelect.innerHTML = '<option selected disabled>Selecione o Bairro</option>';
-
-                        // Preencher bairros da cidade selecionada
-                        data[estadoSelecionado][cidadeSelecionada].forEach(bairro => {
-                            const option = document.createElement('option');
-                            option.value = bairro;
-                            option.textContent = bairro;
-                            bairroSelect.appendChild(option);
-                        });
+    
+                    // Esconder as sugestões ao clicar fora
+                    document.addEventListener('click', (e) => {
+                        if (!e.target.closest('.form-group')) {
+                            suggestions.style.display = 'none';
+                        }
                     });
                 })
                 .catch(error => console.error('Erro ao carregar os dados:', error));
         });
     </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Adicionar evento aos botões de like/dislike
+        // DATEPICKER (FLATPICKR)
+        document.addEventListener("DOMContentLoaded", function() {
+            flatpickr("#data_campanha", {
+                mode: "range",
+                dateFormat: "d/m/Y",
+                minDate: "today",
+                locale: {
+                    firstDayOfWeek: 0,
+                    weekdays: {
+                        shorthand: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+                        longhand: ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"]
+                    },
+                    months: {
+                        shorthand: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
+                        longhand: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+                    }
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                    console.log("Datas selecionadas:", dateStr);
+                }
+            });
+        });
+    </script>
+
+    <script>
+        // BOTÕES LIKE/DISLIKE
+        document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.like-button, .dislike-button').forEach(button => {
                 button.addEventListener('click', function() {
                     const imagem = this.getAttribute('data-imagem');
                     const avaliacao = this.getAttribute('data-avaliacao');
                     
-                    // Enviar os dados via Fetch
                     fetch('/avaliar_slogan', {
                         method: 'POST',
                         body: new URLSearchParams({
@@ -279,11 +314,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
-                            // Exibir uma mensagem de sucesso
                             alert(data.message);
-
-                            // Atualizar as listas de like e dislike na página
-                            // Se você tiver elementos de exibição dos likes e dislikes, atualize-os aqui.
                             console.log('Likes:', data.likes);
                             console.log('Dislikes:', data.dislikes);
                         } else {
@@ -296,7 +327,6 @@
                 });
             });
         });
-
     </script>
 
 </body>
