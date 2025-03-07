@@ -8,5 +8,4 @@ venv/
 ngrok.exe
 
 # Ignorar arquivos gerados ou de teste
-*.png
 teste.py
