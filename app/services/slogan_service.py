@@ -7,8 +7,10 @@ import json
 import re
 import time
 import requests
+import numpy as np
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
+from moviepy import ImageSequenceClip
 import openai
 import google.generativeai as genai
 
@@ -138,40 +140,49 @@ def criar_gif_slogan_combinado(slogan_texto, brand_name):
     dtnow = datetime.now()
     base_filename = f"slogan_animado{dtnow.strftime('%Y%m%d%H%M%S')}{str(dtnow.microsecond)[:2].zfill(2)}"
     largura, altura = 1920, 158
-    # Usando o caminho da imagem de fundo definido em config
+    
     if os.path.exists(FUNDO_IMAGEM_PATH):
         imagem_base = Image.open(FUNDO_IMAGEM_PATH).resize((largura, altura)).convert("RGBA")
     else:
         imagem_base = Image.new("RGBA", (largura, altura), "#333")
+        
     text_color = "white" if brand_name in ["Corona", "Lacta"] else "black"
+    
     try:
         font = ImageFont.truetype(FONT_PATH, 64)
     except IOError:
         font = ImageFont.load_default()
+    
     frames = []
     temp_draw = ImageDraw.Draw(imagem_base)
     total_text_width = 0
+    
     for letter in slogan_texto:
         bbox = font.getbbox(letter)
         letter_width = bbox[2] - bbox[0]
         total_text_width += letter_width
+    
     final_x = (largura - total_text_width) / 2
     full_bbox = temp_draw.textbbox((0, 0), slogan_texto, font=font)
     text_height = full_bbox[3] - full_bbox[1]
     final_y = (altura - text_height) / 2
+    
     letter_delay_gap = 1           # atraso (em frames) entre cada letra
     letter_animation_duration = 5  # duração da animação de cada letra (em frames)
     final_hold_frames = 30         # mantém o frame final por 30 frames (~3 segundos a 100ms/frame)
     total_frames = (len(slogan_texto) - 1) * letter_delay_gap + letter_animation_duration + final_hold_frames
+    
     for frame in range(total_frames):
         frame_img = imagem_base.copy()
         overlay = Image.new("RGBA", (largura, altura), (255, 255, 255, 0))
         draw_overlay = ImageDraw.Draw(overlay)
         current_x = final_x
+        
         for idx, letter in enumerate(slogan_texto):
             bbox_letter = font.getbbox(letter)
             letter_width = bbox_letter[2] - bbox_letter[0]
             letter_delay = idx * letter_delay_gap
+            
             if frame < letter_delay:
                 pass  # A letra ainda não iniciou animação
             elif frame < letter_delay + letter_animation_duration:
@@ -183,12 +194,20 @@ def criar_gif_slogan_combinado(slogan_texto, brand_name):
             else:
                 fill = (255, 255, 255, 255) if text_color == "white" else (0, 0, 0, 255)
                 draw_overlay.text((current_x, final_y), letter, font=font, fill=fill)
+                
             current_x += letter_width
+        
         combined = Image.alpha_composite(frame_img, overlay)
         frames.append(combined.convert("RGB"))
-    gif_filename = os.path.join("static", f"{base_filename}.gif")
-    frames[0].save(gif_filename, save_all=True, append_images=frames[1:], duration=100, loop=0)
-    return gif_filename
+    
+    # Cria um clipe de vídeo a partir das imagens
+    clip = ImageSequenceClip([np.array(frame) for frame in frames], fps=10)
+    video_filename = os.path.join("static", f"{base_filename}.mp4")
+    
+    # Salva o vídeo
+    clip.write_videofile(video_filename, codec="libx264", fps=24)
+    
+    return video_filename
 
 # Função para gerar slogans e GIFs a partir do prompt
 def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_name):

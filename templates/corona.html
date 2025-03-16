@@ -166,11 +166,11 @@
                 {% if slogans_imagens %}
                     {% for slogan, imagem in slogans_imagens %}
                         <div class="slogan-box">
-                            <img 
-                                src="{{ imagem }}" 
-                                alt="Slogan Placeholder" 
-                                class="slogan-image"
-                            >
+                            <video controls class="slogan-image">
+                                <source src="{{ imagem }}" type="video/mp4">
+                                Seu navegador não suporta o elemento de vídeo.
+                            </video>
+
                             <img src="static/src/corona_baseplate.png" alt="Corona_baseplate" class="slogan-image">
                             
                             
@@ -179,6 +179,9 @@
                                 <button class="like-button" data-imagem="{{ imagem }}" data-avaliacao="like">👍</button>
                                 <button class="dislike-button" data-imagem="{{ imagem }}" data-avaliacao="dislike">👎</button>
                             </div>
+                            <button id="publish-button" data-imagem="{{ imagem }}" type="button">
+                                PUBLICAR
+                            </button>
                         </div>
                     {% endfor %}
                 {% else %}
@@ -324,6 +327,39 @@
                     .catch(error => {
                         console.error('Erro ao avaliar slogan:', error);
                     });
+                });
+            });
+        });
+    </script>
+
+        <!-- Publicar na tela -->
+    <script>
+        // PUBLICAÇÃO DE CONTEÚDO
+        document.querySelectorAll('#publish-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const videoPath = this.getAttribute('data-imagem');
+                
+                fetch('/publish-content', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        file_path: videoPath
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        alert('Conteúdo publicado com sucesso!');
+                    } else {
+                        alert('Erro na publicação: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro na comunicação com o servidor');
                 });
             });
         });

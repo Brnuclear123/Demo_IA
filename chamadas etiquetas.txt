@@ -1,0 +1,146 @@
+get_items_frombump()
+"
+curl 'https://esl-eu.zkong.com/lcd/content/list?pageNum=1&pageSize=10' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7' \
+  -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDE5Mjk5NjUsInRpbWVzdGFtcCI6MTc0MTkyNjM2NTI2MX0.ZpyiWSQ7IrJYZMnbEqsF_xyQ9ioHsIrL9YWmpL1WgrE' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/json;charset=UTF-8' \
+  -H 'Language: en' \
+  -H 'Origin: https://esl-eu.zkong.com' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  --data-raw '{"width":"","labelIds":[],"name":"","merchantId":1741766483922,"storeId":0}' \
+  --compressed
+"
+
+upload_item_tobump()
+"
+curl 'https://esl-eu.zkong.com/lcd/content/uploadVideo?parentId=0&isSystem=false' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7' \
+  -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDE5Mjk5NjUsInRpbWVzdGFtcCI6MTc0MTkyNjM2NTI2MX0.ZpyiWSQ7IrJYZMnbEqsF_xyQ9ioHsIrL9YWmpL1WgrE' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryEfu4nlfiD2lZaP9h' \
+  -H 'Language: en' \
+  -H 'Origin: https://esl-eu.zkong.com' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  --data-raw $'------WebKitFormBoundaryEfu4nlfiD2lZaP9h\r\nContent-Disposition: form-data; name="file"; filename="slogan_animado2025031401312725.mp4"\r\nContent-Type: video/mp4\r\n\r\n\r\n------WebKitFormBoundaryEfu4nlfiD2lZaP9h--\r\n' \
+  --compressed
+"
+
+delete_item_frombump()
+"
+curl 'https://esl-eu.zkong.com/lcd/content/delete?id=5488' \
+  -X 'DELETE' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7' \
+  -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDE5Mjk5NjUsInRpbWVzdGFtcCI6MTc0MTkyNjM2NTI2MX0.ZpyiWSQ7IrJYZMnbEqsF_xyQ9ioHsIrL9YWmpL1WgrE' \
+  -H 'Connection: keep-alive' \
+  -H 'Language: en' \
+  -H 'Origin: https://esl-eu.zkong.com' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  --compressed
+"
+
+tag_entity_atbump()
+"
+curl 'https://esl-eu.zkong.com/lcd/label/labelEntity' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7' \
+  -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDE5Mjk5NjUsInRpbWVzdGFtcCI6MTc0MTkyNjM2NTI2MX0.ZpyiWSQ7IrJYZMnbEqsF_xyQ9ioHsIrL9YWmpL1WgrE' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/json;charset=UTF-8' \
+  -H 'Language: en' \
+  -H 'Origin: https://esl-eu.zkong.com' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  --data-raw '{"type":2,"entityIds":[5493],"labelIds":[]}' \
+  --compressed
+"
+
+criar_tag_pai()
+"
+curl 'https://esl-eu.zkong.com/lcd/label/saveOrUpdate' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7' \
+  -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDE5Mjk5NjUsInRpbWVzdGFtcCI6MTc0MTkyNjM2NTI2MX0.ZpyiWSQ7IrJYZMnbEqsF_xyQ9ioHsIrL9YWmpL1WgrE' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/json;charset=UTF-8' \
+  -H 'Language: en' \
+  -H 'Origin: https://esl-eu.zkong.com' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  --data-raw '{"name":"VAZIO","pid":190,"id":null}' \
+  --compressed
+"
+
+delete_tag()
+"
+curl 'https://esl-eu.zkong.com/lcd/label/delete?id=192' \
+  -X 'POST' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7' \
+  -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDE5Mjk5NjUsInRpbWVzdGFtcCI6MTc0MTkyNjM2NTI2MX0.ZpyiWSQ7IrJYZMnbEqsF_xyQ9ioHsIrL9YWmpL1WgrE' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Length: 0' \
+  -H 'Language: en' \
+  -H 'Origin: https://esl-eu.zkong.com' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  --compressed
+"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

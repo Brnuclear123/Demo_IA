@@ -1,0 +1,105 @@
+Listar campanha:
+"
+curl 'https://esl-eu.zkong.com/lcd/publication/list?pageNum=1&pageSize=10' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7' \
+  -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDE5NzA4NDcsInRpbWVzdGFtcCI6MTc0MTk2NzI0NzY2Mn0.5_FvoOm8EXybqSbu2uQtwjgq51hnV_5mFEX-BQOHnkY' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/json;charset=UTF-8' \
+  -H 'Language: en' \
+  -H 'Origin: https://esl-eu.zkong.com' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  --data-raw '{"isDraft":1,"storeId":1741922345748,"status":null,"auditStatus":null,"startDate":"2025-3-8 00:00:00","endDate":"2025-3-14 23:59:59","expired":0}' \
+  --compressed
+"
+
+Criar campanha:
+"
+curl 'https://esl-eu.zkong.com/lcd/publication/save' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7' \
+  -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDE5NzA4NDcsInRpbWVzdGFtcCI6MTc0MTk2NzI0NzY2Mn0.5_FvoOm8EXybqSbu2uQtwjgq51hnV_5mFEX-BQOHnkY' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/json;charset=UTF-8' \
+  -H 'Language: en' \
+  -H 'Origin: https://esl-eu.zkong.com' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  --data-raw '{"merchantId":1741766483922,"agencyId":1558577702698,"storeId":1741922345748,"isDraft":1,"name":"teste2doDiogo","audioSettings":[],"defaultStoreList":[{"storeId":1741922345748,"storeName":"BumpMedia"}],"displaySettingVos":[{"content":{"id":5492,"parentId":0,"contentType":1,"name":"slogan_animado2025031401312725.mp4","agencyId":1558577702698,"merchantId":1741766483922,"storeId":0,"createdTime":1741926727000,"updatedTime":1741926727000,"description":null,"url":"group1/M00/31/96/CgAAXWfTsUaASe7GAAF1JxHmg1w131.mp4","compressUrl":"group1/M00/31/96/CgAAXWfTsUiAferiAAakr3rHsXA823.mp4","timeLength":9,"width":1920,"height":158,"size":95527,"contentCount":1,"thumbnailUrl":"group1/M00/31/96/CgAAXWfTsUaACxBvAAAE_ypwQOI330.jpg","auditStatus":2,"createUserId":8357,"parent":null,"eslUsed":0,"publishStatus":null},"showTimeInSecond":300,"type":1}],"publicationScope":1,"publicationTargets":[{"storeVo":{"storeId":1741922345748,"storeName":"BumpMedia"},"targetDetails":[]}],"playTimeRule":{"type":1,"playTimes":[{"startDateTime":"2025-03-14 05:00","endDateTime":"2025-03-15 00:00"}]}}' \
+  --compressed
+"
+
+Alterar campanha:
+"
+curl 'https://esl-eu.zkong.com/lcd/publication/save' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7' \
+  -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDE5NzA4NDcsInRpbWVzdGFtcCI6MTc0MTk2NzI0NzY2Mn0.5_FvoOm8EXybqSbu2uQtwjgq51hnV_5mFEX-BQOHnkY' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/json;charset=UTF-8' \
+  -H 'Language: en' \
+  -H 'Origin: https://esl-eu.zkong.com' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  --data-raw '{"id":7835,"merchantId":1741766483922,"agencyId":1558577702698,"storeId":1741922345748,"isDraft":1,"name":"teste1diogo","audioSettings":[],"defaultStoreList":[{"storeId":1741922345748,"storeName":"BumpMedia","timeZone":null}],"displaySettingVos":[{"type":1,"layout":null,"content":{"id":5493,"parentId":0,"contentType":1,"name":"slogan_animado2025031401312334.mp4","agencyId":1558577702698,"merchantId":1741766483922,"storeId":0,"createdTime":1741926803000,"updatedTime":1741926803000,"description":null,"url":"group1/M00/31/96/CgAAXWfTsZOACRuuAAFv1xAR2HQ678.mp4","compressUrl":"group1/M00/31/96/CgAAXWfTsZSAJd27AAXokj_T5Hg513.mp4","timeLength":8,"width":1920,"height":158,"size":94167,"contentCount":1,"thumbnailUrl":"group1/M00/31/96/CgAAXWfTsZOAAKmaAAAFApxnHn8323.jpg","auditStatus":2,"createUserId":8357,"parent":null,"eslUsed":0,"publishStatus":null},"showTimeInSecond":9994}],"publicationScope":1,"publicationTargets":[{"storeVo":{"storeId":1741922345748,"storeName":"BumpMedia","externalStoreId":null,"merchantId":1741766483922,"timeZone":null},"targetDetails":[{"targetCode":"1741922345748","detail":null}]}],"playTimeRule":{"type":2,"startDate":"2025-03-14","endDate":"2025-03-21","playTimes":[{"startTime":"17:00","endTime":"18:59"}]}}' \
+  --compressed
+"
+
+Deletar campanha:
+"
+curl 'https://esl-eu.zkong.com/lcd/publication/batchDelete' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7' \
+  -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDE5NzA4NDcsInRpbWVzdGFtcCI6MTc0MTk2NzI0NzY2Mn0.5_FvoOm8EXybqSbu2uQtwjgq51hnV_5mFEX-BQOHnkY' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/json;charset=UTF-8' \
+  -H 'Language: en' \
+  -H 'Origin: https://esl-eu.zkong.com' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  --data-raw '[7834]' \
+  --compressed
+"
+
+Deletar campanhas:
+"
+curl 'https://esl-eu.zkong.com/lcd/publication/batchDelete' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7' \
+  -H 'Authorization: eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDE5NzA4NDcsInRpbWVzdGFtcCI6MTc0MTk2NzI0NzY2Mn0.5_FvoOm8EXybqSbu2uQtwjgq51hnV_5mFEX-BQOHnkY' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/json;charset=UTF-8' \
+  -H 'Language: en' \
+  -H 'Origin: https://esl-eu.zkong.com' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  --data-raw '[7836,7835]' \
+  --compressed
+"
+
