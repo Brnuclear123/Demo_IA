@@ -6,7 +6,7 @@ class Config:
     DEBUG = False
 
     # Caminhos e arquivos usados no projeto
-    BEARER_TOKEN = os.getenv('BEARER_TOKEN', 'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDIxNTk1OTUsInRpbWVzdGFtcCI6MTc0MjE1NTk5NTg4N30.DGSalk0JOsbgkoit3BzWAijNcToW_wPb8dl1gd-h3fk')
+    BEARER_TOKEN = os.getenv('BEARER_TOKEN', 'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDI0MTI4MzMsInRpbWVzdGFtcCI6MTc0MjQwOTIzMzc4NH0.0DbBbY28u9NxfoK0zsMz8bRuB099u2zvDo_qb3rH-Kk')
     WEATHER_JSON = os.getenv('WEATHER_JSON', 'static/data/weather-cd.json')
     AVALIACOES_PATH = os.getenv('AVALIACOES_PATH', 'static/data/avaliacoes.json')
     FONT_PATH = os.getenv('FONT_PATH', 'static/fonte/Bison-Bold(PersonalUse).ttf')

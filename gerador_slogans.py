@@ -215,8 +215,8 @@ def criar_gif_slogan_combinado(slogan_texto, brand_name):
 
     # Parâmetros da animação: cada letra tem um atraso e duração individuais
     letter_delay_gap = 1           # atraso (em frames) entre cada letra
-    letter_animation_duration = 5       # duração da animação de cada letra (reduzido para 5 frames)
-    final_hold_frames = 30              # manter o frame final por 50 frames (5 segundos a 100ms/frame)
+    letter_animation_duration = 10       # duração da animação de cada letra (reduzido para 5 frames)
+    final_hold_frames = 60              # manter o frame final por 50 frames (5 segundos a 100ms/frame)
     total_frames = (len(slogan_texto) - 1) * letter_delay_gap + letter_animation_duration + final_hold_frames
 
     for frame in range(total_frames):
@@ -277,15 +277,18 @@ def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_n
         f"A mensagem é direcionada ao público de 18 a 35 anos, O público-alvo é composto majoritariamente por jovens, conectados com experiências sensoriais e culturais, como eventos de música e esportes."
         f"A mensagem é para o gênero predominante: masculino."
         f"Sempre tente colocar o nome da marca Corona nos slogans, para não ser confundido com outra marca de cerveja."
-        f"Ajustar a linguagem e o seu apelo para se conectar efetivamente com esse público e coisas relacionadas a ele."
+        f"Ajustar a linguagem e o seu apelo para se conectar efetivamente com esse público e coisas relacionadas a ele e a localidade em que o '{estado}', '{cidade}', '{bairro}'."
         f"Construa a mensagem relacionando ela ao momento do dia."
-        f"Use o estado '{estado}, '{cidade}', '{bairro}' para criar frases que tenha contexto com a localidade."
+        f"considere incluir na mensagem parques de grande circulação como ambientes de consumo de corona"
+        f"Use o estado '{estado}, '{cidade}', '{bairro}' para criar frases que fale com o publico local."
+        f"não se esqueça de usar os social trends para poder criar as mensagem"
         f"Mantenha a mensagem concisa, criativa e impactante usando até 70 caracteres."
         f"A mensagem não precisa necessariamente ter o nome da marca Corona na sua construção."
         f"Apesar de considerar a temperatura local, não precisa incluir o numero da temperatura na mensagem."
         f"Apesar de considerar o dia da semana, não precisa obrigatoriamente incluir ele na escrita da mensagem."
         f"Apesar de considerar a cidade e estado para a criação da mensagem, não precisa incluir isso necessariamente na escrita."
         f"não é para escrever as datas nos slogans, apenas use ela a seu favor."
+        f" Use o '{gerar_dados_em_tempo_real}' para poder gerar conteudos de acordo com os trigers selecionados"
         f"Utilize o tom de voz da marca de forma consistente."
         f"não coloque as informações de manha/tarde/noite nos slogans."
         f"quero apenas o slogan e nada mais, para podermos extrair o melhor de cada frase." 

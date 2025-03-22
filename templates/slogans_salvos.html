@@ -36,6 +36,9 @@
             max-height: 100%;
             border-radius: 8px;
         }
+        video{
+            width: 500px
+        }
     </style>
 </head>
 <body>
@@ -50,7 +53,10 @@
             <div class="image-list">
                 {% for image in avaliacoes['like'] %}
                     <div class="image-item">
-                        <img src="{{ image }}" alt="Slogan Like">
+                        <video autoplay loop muted class="slogan-image">
+                            <source src="{{ image }}" type="video/mp4">
+                            Seu navegador não suporta o elemento de vídeo.
+                        </video>
                     </div>
                 {% endfor %}
             </div>
@@ -61,7 +67,10 @@
             <div class="image-list">
                 {% for image in avaliacoes['dislike'] %}
                     <div class="image-item">
-                        <img src="{{ image }}" alt="Slogan Dislike">
+                        <video autoplay loop muted class="slogan-image">
+                            <source src="{{ image }}" type="video/mp4">
+                            Seu navegador não suporta o elemento de vídeo.
+                        </video>
                     </div>
                 {% endfor %}
             </div>

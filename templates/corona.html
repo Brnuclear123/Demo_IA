@@ -166,7 +166,7 @@
                 {% if slogans_imagens %}
                     {% for slogan, imagem in slogans_imagens %}
                         <div class="slogan-box">
-                            <video controls class="slogan-image">
+                            <video autoplay loop muted class="slogan-image">
                                 <source src="{{ imagem }}" type="video/mp4">
                                 Seu navegador não suporta o elemento de vídeo.
                             </video>
