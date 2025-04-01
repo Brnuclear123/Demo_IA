@@ -93,6 +93,7 @@ def get_weather_description(code):
         return "Código não encontrado."
 
 def get_weather_call(date_forecast: list, lag_lon=[-10, -55]):
+    print(date_forecast,"\n\n","data do dia")
     try:
         today_str = time.strftime("%Y-%m-%d", time.localtime())
         today = datetime.strptime(today_str, "%Y-%m-%d")
@@ -134,6 +135,17 @@ def get_weather_call(date_forecast: list, lag_lon=[-10, -55]):
     except Exception as e:
         print(f"Erro inesperado: {e}")
         return None
+
+def dia_da_semana(date_str):
+    dates = [datetime.strptime(d.strip(), '%d/%m/%Y').strftime('%Y-%m-%d') for d in date_str.split("to")]
+    print(dates)
+    dayofweek = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo']
+    date = datetime.strptime(dates[0], '%Y-%m-%d').date()
+    return dayofweek[date.weekday()]
+
+def evento_social():
+    #função do evento social
+    pass
 
 # Função para criar GIF animado dos slogans
 def criar_gif_slogan_combinado(slogan_texto, brand_name):
@@ -210,7 +222,8 @@ def criar_gif_slogan_combinado(slogan_texto, brand_name):
     return video_filename
 
 # Função para gerar slogans e GIFs a partir do prompt
-def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_name):
+def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_name, real_time_data):
+    #real_time_data.weather
     regex_patterns_gpt = [
         r'(.+?)\s{2,}',
         r'"([^"]+)"',
@@ -220,32 +233,30 @@ def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_n
     ]
     
     if brand_name == "Corona":
-        prompt = (
-        f"Assuma que você é um redador publicitário especialista em mensagens curtas, rápidas e inteligentes para a marca Corona."
-        f"Escreva 4 versões de uma mensagem publicitária para serem exibidas em uma tela de mídia localizada no ponto de venda de um supermercado. As opções de mensagem devem seguir as seguintes diretrizes."
-        f"A mensagem deve ter um tom de voz que enfatiza a conexão da marca com a natureza e a experiência sensorial, especialmente relacionada ao sol e à praia."
-        f"A mensagem deve explorar essa conexão que a marca tem com a natureza. Pois a cerveja Corona se apresenta como uma cerveja 'nascida na praia e feita da natureza', estabelecendo uma forte ligação com elementos naturais."
-        f"O tom da mensagem deve provocar reflexões em seu público sobre o 'poder transformador do sol', criando uma associação entre o produto e experiências positivas ao ar livre."
-        f"A mensagem pode sugerir um tom de voz que valoriza a responsabilidade ambiental, alinhando-se com tendências de consumo consciente."
-        f"A mensagem é direcionada ao público de 18 a 35 anos, O público-alvo é composto majoritariamente por jovens, conectados com experiências sensoriais e culturais, como eventos de música e esportes."
-        f"A mensagem é para o gênero predominante: masculino."
-        f"Sempre tente colocar o nome da marca Corona nos slogans, para não ser confundido com outra marca de cerveja."
-        f"Ajustar a linguagem e o seu apelo para se conectar efetivamente com esse público e coisas relacionadas a ele."
-        f"Construa a mensagem relacionando ela ao momento do dia."
-        f"Use o estado '{estado}, '{cidade}', '{bairro}' para criar frases que tenha contexto com a localidade."
-        f"Mantenha a mensagem concisa, criativa e impactante usando até 70 caracteres."
-        f"A mensagem não precisa necessariamente ter o nome da marca Corona na sua construção."
-        f"Apesar de considerar a temperatura local, não precisa incluir o numero da temperatura na mensagem."
-        f"Apesar de considerar o dia da semana, não precisa obrigatoriamente incluir ele na escrita da mensagem."
-        f"Apesar de considerar a cidade e estado para a criação da mensagem, não precisa incluir isso necessariamente na escrita."
-        f"não é para escrever as datas nos slogans, apenas use ela a seu favor."
-        f"Utilize o tom de voz da marca de forma consistente."
-        f"não coloque as informações de manha/tarde/noite nos slogans."
-        f"quero apenas o slogan e nada mais, para podermos extrair o melhor de cada frase." 
-        f"não use as informaçoes de 'localização e :'"
-        f"Use '{data_campanha}' para poder te ajudar a gerar algumas frases de acordo com o periodo que os slogans vao ficar ao ar."
-        f"Considere na criação do slogan o horario que vai ser consumido o produto: {momento}'"
-        )
+        prompt = (f"""
+            Você é uma inteligência criativa especializada em redigir mensagens curtas, impactantes e sensoriais para a marca de cerveja Corona no Brasil.
+            Crie 5 variações de mensagens publicitárias com no máximo 75 caracteres para exibição em tela digital no ponto de venda.
+            Use os seguintes dados dinâmicos como contexto de inspiração:
+            - Temperatura: {real_time_data['weather']}°C
+            - Horário: {momento}
+            - Dia da semana: {dia_da_semana(data_campanha)}
+            - Localização: '{estado}, '{cidade}', '{bairro}'
+
+            A mensagem deve refletir o estilo e tom de voz da marca Corona:
+            → Leve, sensorial, inspirador
+            → Evocar natureza: sol, mar, brisa, céu, areia, limão
+            → Estilo de vida livre, ao ar livre, com frescor e pausa
+            → Público jovem (18-35), ligado à música, sunset, esportes, natureza
+            → Não pode conter emojis
+
+            Frase-conceito de fundo: "Corona é inspirada na natureza, não feita da natureza."
+
+            Importante: evite soar como propaganda direta. A mensagem deve parecer uma fala espontânea de alguém relaxando ao ar livre com uma cerveja gelada.
+
+            Exemplos de boas saídas:
+            - "O pôr-do-sol é só o começo. Brinde com o que vem depois."
+            - "Sol na pele, limão na garrafa, e o tempo jogando a favor."
+            """)
         
     elif brand_name == "Lacta":
         prompt = (
@@ -317,23 +328,27 @@ def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_n
                 imgs.append(file_img)
             return slogans[:4], imgs
 
+
+
+
 # Função para gerar dados em tempo real usando a OpenAI
 def gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha):
     regex_patterns = [
-        r"\d+\.\s*(.*)",
-        r"\d+\.\s*([^\d\n]+)(?=\n\d+|\n\n|$)",
-        r"\d+\.\s*([^\d]+)"
+        r"^\d+\.\s(.+)$",
+        r"^\d+-\s(.+)$",
+        r"^\d+:\s(.+)$",
+        r"^- (.+)$"
     ]
     dates = [datetime.strptime(d.strip(), '%d/%m/%Y').strftime('%Y-%m-%d') for d in data_campanha.split("to")]
     weather_response = get_weather_call(dates, get_coordinates(cidade, estado))
     print(weather_response)
     prompt = (
         f"Baseado na localização '{estado}', '{cidade}', '{bairro}', forneça:\n"
-        "1. Clima atual\n"
+        "1. Temperatura máxima e mínima e clima atual\n"
         "2. Hashtags de tendências\n"
         "3. Um evento local relevante\n"
         "4. Um tópico popular de cultura pop atual.\n"
-        "Retorne algo similar a: 1. Ensolarado / 2. #rock&rio #sextou / 3. Festa de são joão / 4. Novo albúm da Taylor Swift"
+        "Retorne algo similar a: 1. Max 25°C e Max 20°C Ensolarado / 2. #rock&rio #sextou / 3. Festa de são joão / 4. Novo albúm da Taylor Swift"
     )
     try:
         response = openai.ChatCompletion.create(
@@ -345,6 +360,7 @@ def gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha):
         )
         resposta = str(response['choices'][0]['message']['content'])
         print("Resposta do CLIMA GPT")
+        print(resposta)
         dados = regex_info(resposta, regex_patterns)
         if weather_response:
             weather_value = weather_response

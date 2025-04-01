@@ -11,7 +11,7 @@ def corona():
             cidade = request.form.get('cidade')
             bairro = request.form.get('bairro')
             real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
-            slogans, imagens = gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, session['brand_name'])
+            slogans, imagens = gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, session['brand_name'], real_time_data)
             slogans_imagens = list(zip(slogans, imagens))
             return render_template('corona.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
         return render_template('corona.html')

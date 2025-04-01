@@ -1,12 +1,11 @@
 {
     "corona": {
         "like": [
-            "static\\slogan_animado2025032211533853.mp4",
-            "static\\slogan_animado2025032211533990.mp4",
-            "static\\slogan_animado2025032211534126.mp4"
+            "static/slogan_animado2025040102351477.mp4",
+            "static/slogan_animado2025040102351977.mp4"
         ],
         "dislike": [
-            "static\\slogan_animado2025032211534251.mp4"
+            "static/slogan_animado2025040102350967.mp4"
         ]
     },
     "lacta": {
