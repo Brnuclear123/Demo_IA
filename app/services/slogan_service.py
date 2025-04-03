@@ -179,9 +179,9 @@ def criar_gif_slogan_combinado(slogan_texto, brand_name):
     text_height = full_bbox[3] - full_bbox[1]
     final_y = (altura - text_height) / 2
     
-    letter_delay_gap = 1           # atraso (em frames) entre cada letra
-    letter_animation_duration = 5  # duração da animação de cada letra (em frames)
-    final_hold_frames = 30         # mantém o frame final por 30 frames (~3 segundos a 100ms/frame)
+    letter_delay_gap = 0           # atraso (em frames) entre cada letra
+    letter_animation_duration = 1  # duração da animação de cada letra (em frames)
+    final_hold_frames = 200         # mantém o frame final por 30 frames (~3 segundos a 100ms/frame)
     total_frames = (len(slogan_texto) - 1) * letter_delay_gap + letter_animation_duration + final_hold_frames
     
     for frame in range(total_frames):
@@ -213,7 +213,7 @@ def criar_gif_slogan_combinado(slogan_texto, brand_name):
         frames.append(combined.convert("RGB"))
     
     # Cria um clipe de vídeo a partir das imagens
-    clip = ImageSequenceClip([np.array(frame) for frame in frames], fps=10)
+    clip = ImageSequenceClip([np.array(frame) for frame in frames], fps=12)
     video_filename = os.path.join("static", f"{base_filename}.mp4")
     
     # Salva o vídeo
@@ -236,6 +236,9 @@ def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_n
         prompt = (f"""
             Você é uma inteligência criativa especializada em redigir mensagens curtas, impactantes e sensoriais para a marca de cerveja Corona no Brasil.
             Crie 5 variações de mensagens publicitárias com no máximo 75 caracteres para exibição em tela digital no ponto de venda.
+            Não enumere os slogans, não use aspas nos slogans e evite usar pontuações desnecesarias para não ficar carregado.
+            Use {dia_da_semana(data_campanha)} para criar slogans com dias especiais como pro exemplo 5 de junho dia mundial do meio ambiente.
+            evite repetir o nome do {estado}, '{cidade}', '{bairro} nos slogans, seja mais criativo e use de outros recursos para elaborar o slogan.
             Use os seguintes dados dinâmicos como contexto de inspiração:
             - Temperatura: {real_time_data['weather']}°C
             - Horário: {momento}
@@ -279,7 +282,7 @@ def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_n
         )
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4o",
+            model="gpt-4-turbo",
             messages=[
                 {"role": "system", "content": "Assuma que você é um redator publicitário especialista em mensagens curtas, rápidas e inteligentes."},
                 {"role": "user", "content": prompt}

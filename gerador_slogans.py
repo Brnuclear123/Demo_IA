@@ -268,33 +268,21 @@ def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_n
     
     if brand_name == "Corona":
         prompt = (
-        f"Assuma que você é um redador publicitário especialista em mensagens curtas, rápidas e inteligentes para a marca Corona."
-        f"Escreva 4 versões de uma mensagem publicitária para serem exibidas em uma tela de mídia localizada no ponto de venda de um supermercado. As opções de mensagem devem seguir as seguintes diretrizes."
-        f"A mensagem deve ter um tom de voz que enfatiza a conexão da marca com a natureza e a experiência sensorial, especialmente relacionada ao sol e à praia."
-        f"A mensagem deve explorar essa conexão que a marca tem com a natureza. Pois a cerveja Corona se apresenta como uma cerveja 'nascida na praia e feita da natureza', estabelecendo uma forte ligação com elementos naturais."
-        f"O tom da mensagem deve provocar reflexões em seu público sobre o 'poder transformador do sol', criando uma associação entre o produto e experiências positivas ao ar livre."
-        f"A mensagem pode sugerir um tom de voz que valoriza a responsabilidade ambiental, alinhando-se com tendências de consumo consciente."
-        f"A mensagem é direcionada ao público de 18 a 35 anos, O público-alvo é composto majoritariamente por jovens, conectados com experiências sensoriais e culturais, como eventos de música e esportes."
-        f"A mensagem é para o gênero predominante: masculino."
-        f"Sempre tente colocar o nome da marca Corona nos slogans, para não ser confundido com outra marca de cerveja."
-        f"Ajustar a linguagem e o seu apelo para se conectar efetivamente com esse público e coisas relacionadas a ele e a localidade em que o '{estado}', '{cidade}', '{bairro}'."
-        f"Construa a mensagem relacionando ela ao momento do dia."
-        f"considere incluir na mensagem parques de grande circulação como ambientes de consumo de corona"
-        f"Use o estado '{estado}, '{cidade}', '{bairro}' para criar frases que fale com o publico local."
-        f"não se esqueça de usar os social trends para poder criar as mensagem"
-        f"Mantenha a mensagem concisa, criativa e impactante usando até 70 caracteres."
-        f"A mensagem não precisa necessariamente ter o nome da marca Corona na sua construção."
-        f"Apesar de considerar a temperatura local, não precisa incluir o numero da temperatura na mensagem."
-        f"Apesar de considerar o dia da semana, não precisa obrigatoriamente incluir ele na escrita da mensagem."
-        f"Apesar de considerar a cidade e estado para a criação da mensagem, não precisa incluir isso necessariamente na escrita."
-        f"não é para escrever as datas nos slogans, apenas use ela a seu favor."
-        f" Use o '{gerar_dados_em_tempo_real}' para poder gerar conteudos de acordo com os trigers selecionados"
-        f"Utilize o tom de voz da marca de forma consistente."
-        f"não coloque as informações de manha/tarde/noite nos slogans."
-        f"quero apenas o slogan e nada mais, para podermos extrair o melhor de cada frase." 
-        f"não use as informaçoes de 'localização e :'"
-        f"Use '{data_campanha}' para poder te ajudar a gerar algumas frases de acordo com o periodo que os slogans vao ficar ao ar."
-        f"Considere na criação do slogan o horario que vai ser consumido o produto: {momento}'"
+    f"Você é uma inteligência artificial criativa especializada em redigir mensagens publicitárias curtas, impactantes e contextuais para a marca de cerveja Corona, no Brasil."
+    f"Crie variações de mensagens para exibição em telas digitais localizadas no ponto de venda (PDV) de supermercados e lojas de conveniência. Cada mensagem deve seguir rigorosamente as seguintes diretrizes:"
+    f"Estilo e Tom de Voz: A comunicação deve ser leve, inspiradora, sensorial e naturalmente conectada à natureza, ao pôr-do-sol e à experiência de beber uma cerveja gelada ao ar livre. O tom pode provocar reflexão sobre o 'poder transformador do sol' e deve transmitir a ideia de pausa, liberdade e frescor."
+    f"Posicionamento da Marca: A Corona se apresenta como uma cerveja 'nascida na praia e feita da natureza', associando-se à preservação ambiental e ao lifestyle ao ar livre. Utilize mensagens que evoquem elementos como sol, mar, areia, brisa, limão e o céu aberto. Explore a frase-conceito: 'Corona é inspirada na natureza, não feita da natureza.'"
+    f"Público-alvo: Jovens de 18 a 35 anos, predominantemente homens, conectados a experiências sensoriais, culturais e esportivas, como música, surfe, sunsets e celebrações ao ar livre. Use uma linguagem contemporânea e emocionalmente conectada com esse estilo de vida."
+    f"Dados contextuais dinâmicos (use como gatilhos):"
+    f"não utilize numeros e nem aspas e evite pontuação desnecesaria nos slogans"
+    f"Temperatura (priorize mensagens para dias acima de 26ºC, exaltando o calor para o consumo de Corona)"
+    f"Horário (antes das 17h em dias ensolarados: crie expectativa para o brinde, ou para o pôr-do-sol, ou para o happy hour ao ar livre; depois das 17h em dias ensolarados: convide para o fim de tarde perfeito)"
+    f"Localização (use '{estado}', '{cidade}', '{bairro}' como contexto, sem precisar citar o nome do local diretamente)"
+    f"Dia da semana use '{data_campanha}' (sábado, domingo e feriados prolongados são mais especiais; use de forma implícita; às quintas e sextas exalte a expectativa de um fim de semana na praia ou ao ar livre)"
+    f"Datas e Eventos (se aplicável ao dia atual, insira referências indiretas ou temas criativos relacionados):"
+    f"Eventos como (use arquivo); somente use o nome dos eventos em que a Corona é patrocinadora; nos demais faça menções genéricas"
+    f"Explore datas como Dia Mundial do Meio Ambiente, quando no '{data_campanha}' aparecer o dia 5 de junho."
+    f"Campanhas sazonais como 'Corona Sunsets', 'Olympic Sunsets', ou ações em datas como Réveillon"
         )
 
     elif brand_name == "Lacta":
@@ -322,9 +310,9 @@ def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_n
         client = openai
         
         response = client.ChatCompletion.create(
-            model="gpt-4o",
+            model="gpt-4-turbo",
             messages=[
-                {"role":"system", "content": "Assuma que você é um redador publicitário especialista em mensagens curtas, rápidas e inteligentes"},
+                {"role":"system", "content": "Assuma que você é um redador publicitário especialista em mensagens curtas, rápidas e inteligentes sem precisar que enumere os slogans, sem a utilização de aspas e evita pontuações desnecesarias, um publicitario que é atento aos calendadriaos festivos que fazem sentido para a marcaS"},
                 {"role":"user", "content": prompt}
             ]
         )
