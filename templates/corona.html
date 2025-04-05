@@ -182,6 +182,21 @@
                             <button id="publish-button" data-imagem="{{ imagem }}" type="button">
                                 PUBLICAR
                             </button>
+                            <button class="edit-button" data-imagem="{{ imagem }}" data-slogan="{{ slogan }}">
+                                EDITAR
+                            </button>
+                            
+
+                            <!-- Modal de Edição -->
+                            <div class="modal edit-modal" style="display:none;">
+                                <div class="modal-content">
+                                    <span class="close" style="font-size: 35px; color: red">&times;</span>
+                                    <h3>EDITAR SLOGAN</h3>
+                                    <input type="text" class="new-slogan-input" placeholder="Digite o novo slogan">
+                                    <button class="save-slogan-btn">SALVAR</button>
+                                </div>
+                            </div>
+                            
                         </div>
                     {% endfor %}
                 {% else %}
@@ -348,6 +363,74 @@
 
 
     </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Para cada botão "EDITAR", ao ser clicado, localize o modal relativo à mesma .slogan-box
+        document.querySelectorAll('.edit-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Encontra o container pai (a div .slogan-box)
+                const sloganBox = this.closest('.slogan-box');
+                // Seleciona o modal dentro desse container
+                const editModal = sloganBox.querySelector('.edit-modal');
+                // Preenche o input com o slogan atual, se estiver armazenado no botão
+                const newSloganInput = sloganBox.querySelector('.new-slogan-input');
+                newSloganInput.value = this.getAttribute('data-slogan');
+                // Exibe o modal
+                editModal.style.display = 'block';
+                
+                // Fecha o modal ao clicar no elemento com a classe "close"
+                sloganBox.querySelector('.close').addEventListener('click', () => {
+                    editModal.style.display = 'none';
+                });
+
+                // Ao clicar no botão "Salvar" dentro do modal, envie a atualização
+                sloganBox.querySelector('.save-slogan-btn').addEventListener('click', () => {
+                    const novoSlogan = newSloganInput.value;
+                    // Obtenha o caminho atual do vídeo (por exemplo, do <source> dentro do vídeo deste container)
+                    const currentVideoElement = sloganBox.querySelector('video');
+                    const oldVideoPath = currentVideoElement.querySelector('source').getAttribute('src');
+
+                    fetch('/editar_slogan', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            video_path: oldVideoPath,
+                            novo_slogan: novoSlogan
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.status === 'success') {
+                            const novoVideoPath = data.novo_video_path;
+                            // Atualiza o src do vídeo
+                            const sourceElement = currentVideoElement.querySelector('source');
+                            sourceElement.setAttribute('src', novoVideoPath);
+                            currentVideoElement.load();
+
+                            // Atualiza os atributos data-imagem e data-slogan dos botões do container
+                            sloganBox.querySelectorAll('.like-button, .dislike-button, #publish-button, .edit-button').forEach(btn => {
+                                btn.dataset.imagem = novoVideoPath;
+                            });
+                            // Atualiza o botão "EDITAR" com o novo slogan
+                            this.setAttribute('data-slogan', novoSlogan);
+                            alert('Vídeo atualizado com sucesso!');
+                        } else {
+                            alert('Erro ao atualizar slogan: ' + data.message);
+                        }
+                        editModal.style.display = 'none';
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        editModal.style.display = 'none';
+                    });
+                });
+            });
+        });
+    });
+
+    </script>
+    
 
         <!-- Publicar na tela -->
     <script>

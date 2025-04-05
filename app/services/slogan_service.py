@@ -102,6 +102,7 @@ def get_weather_call(date_forecast: list, lag_lon=[-10, -55]):
         if not (0 <= date_diff <= 7):
             print("Data do input está fora da faixa de previsão de 7 dias")
             return "null"
+        
         url = "https://api.open-meteo.com/v1/forecast"
         params = {
             "latitude": lag_lon[0],
@@ -113,13 +114,17 @@ def get_weather_call(date_forecast: list, lag_lon=[-10, -55]):
         }
         response = requests.get(url, params=params)
         response.raise_for_status()
+        
         data = response.json()
+        
         daily_data = data.get("daily", {})
         wc_hold = daily_data.get("weather_code", [])
         if not wc_hold:
             raise ValueError("Nenhum código de tempo encontrado")
+        
         temperature_max = daily_data.get("temperature_2m_max", [])[0]
         temperature_min = daily_data.get("temperature_2m_min", [])[0]
+        
         weather_description = get_weather_description(wc_hold[0])
         weather_output = f"Max: {temperature_max}°C / Min: {temperature_min}°C\n{weather_description}"
         return weather_output
@@ -247,7 +252,7 @@ def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_n
     if brand_name == "Corona":
         prompt = (f"""
             Você é uma inteligência criativa especializada em redigir mensagens curtas, impactantes e sensoriais para a marca de cerveja Corona no Brasil.
-            Crie 5 variações de mensagens publicitárias com no máximo 75 caracteres para exibição em tela digital no ponto de venda.
+            Crie 4 variações de mensagens publicitárias com no máximo 75 caracteres para exibição em tela digital no ponto de venda.
             Não enumere os slogans, não use aspas nos slogans e evite usar pontuações desnecesarias para não ficar carregado.
             Use {dia_da_semana(data_campanha)} para criar slogans com dias especiais como pro exemplo 5 de junho dia mundial do meio ambiente.
             evite repetir o nome do {estado}, '{cidade}', '{bairro} nos slogans, seja mais criativo e use de outros recursos para elaborar o slogan.
@@ -349,27 +354,29 @@ def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_n
 # Função para gerar dados em tempo real usando a OpenAI
 def gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha):
     regex_patterns = [
+        r"^- (.+)$",
         r"^\d+\.\s(.+)$",
         r"^\d+-\s(.+)$",
         r"^\d+:\s(.+)$",
-        r"^- (.+)$"
+        r"^- (.+)$",
+        r"([^/]+)"
     ]
     dates = [datetime.strptime(d.strip(), '%d/%m/%Y').strftime('%Y-%m-%d') for d in data_campanha.split("to")]
     weather_response = get_weather_call(dates, get_coordinates(cidade, estado))
     print(weather_response)
     prompt = (
         f"Baseado na localização '{estado}', '{cidade}', '{bairro}', forneça:\n"
-        "1. Temperatura máxima e mínima e clima atual\n"
-        "2. Hashtags de tendências\n"
-        "3. Um evento local relevante\n"
-        "4. Um tópico popular de cultura pop atual.\n"
-        "Retorne algo similar a: 1. Max 25°C e Max 20°C Ensolarado / 2. #rock&rio #sextou / 3. Festa de são joão / 4. Novo albúm da Taylor Swift"
+        "- Temperatura máxima e mínima e clima atual\n"
+        "- Hashtags de tendências\n"
+        "- Um evento local relevante\n"
+        "- Um tópico popular de cultura pop atual.\n"
+        "Retorne algo similar a: Max 25°C e Max 20°C Ensolarado / #rock&rio #sextou / Festa de são joão & Festa de aniversário da cidade / Novo albúm da Taylor Swift"
     )
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "Você está puxando informações baseado no nome de estado."},
+                {"role": "system", "content": "Você está puxando informações baseado no nome de estado. O retorno é feito com tópicos e separado por '/'"},
                 {"role": "user", "content": prompt}
             ]
         )

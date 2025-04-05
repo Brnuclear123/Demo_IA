@@ -1,5 +1,5 @@
-from flask import redirect, url_for, request, session, render_template
-from app.services.slogan_service import gerar_slogans_e_gifs, gerar_dados_em_tempo_real, carregar_avaliacoes, salvar_avaliacoes
+from flask import redirect, url_for, request, session, render_template, jsonify
+from app.services.slogan_service import gerar_slogans_e_gifs, gerar_dados_em_tempo_real, carregar_avaliacoes, salvar_avaliacoes, criar_gif_slogan_combinado
 
 def corona():
     if 'username' in session and session['brand_name'] == 'Corona':
@@ -90,3 +90,23 @@ def avaliados():
 
     return render_template('slogans_salvos.html', avaliacoes=avaliacoes)
 
+def editar_slogan():
+    data = request.get_json()
+    video_path = data.get('video_path')
+    novo_slogan = data.get('novo_slogan')
+    brand_name = "Corona"  # ou recuperar dinamicamente se necessário
+
+    try:
+        # Gere o novo vídeo com base no novo slogan
+        novo_video_path = criar_gif_slogan_combinado(novo_slogan, brand_name)
+        # Se houver necessidade, atualize o registro do slogan no banco de dados ou arquivo
+        
+        return jsonify({
+            'status': 'success',
+            'novo_video_path': novo_video_path
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
