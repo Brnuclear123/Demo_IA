@@ -157,6 +157,12 @@ def criar_gif_slogan_combinado(slogan_texto, brand_name):
         imagem_base = Image.open(FUNDO_IMAGEM_PATH).resize((largura, altura)).convert("RGBA")
     else:
         imagem_base = Image.new("RGBA", (largura, altura), "#333")
+    
+    baseplate_path = "static/src/corona_baseplate.png"
+    if os.path.exists(baseplate_path):
+        baseplate_img = Image.open(baseplate_path).resize((largura, altura)).convert("RGBA")
+    else:
+        baseplate_img = None
         
     text_color = "white" if brand_name in ["Corona", "Lacta"] else "black"
     
@@ -179,10 +185,12 @@ def criar_gif_slogan_combinado(slogan_texto, brand_name):
     text_height = full_bbox[3] - full_bbox[1]
     final_y = (altura - text_height) / 2
     
-    letter_delay_gap = 0           # atraso (em frames) entre cada letra
-    letter_animation_duration = 1  # duração da animação de cada letra (em frames)
-    final_hold_frames = 200         # mantém o frame final por 30 frames (~3 segundos a 100ms/frame)
-    total_frames = (len(slogan_texto) - 1) * letter_delay_gap + letter_animation_duration + final_hold_frames
+    letter_delay_gap = 1           # atraso (em frames) entre cada letra
+    letter_animation_duration = 5  # duração da animação de cada letra (em frames)
+    final_hold_frames = 30         # mantém o frame final por 30 frames (~3 segundos a 100ms/frame)
+    baseplate_frames = 70          # número de frames para mostrar a baseplate (adicione esta linha)
+
+    total_frames = (len(slogan_texto) - 1) * letter_delay_gap + letter_animation_duration + final_hold_frames + baseplate_frames
     
     for frame in range(total_frames):
         frame_img = imagem_base.copy()
@@ -211,6 +219,10 @@ def criar_gif_slogan_combinado(slogan_texto, brand_name):
         
         combined = Image.alpha_composite(frame_img, overlay)
         frames.append(combined.convert("RGB"))
+    
+    if baseplate_img:
+        for _ in range(baseplate_frames):
+            frames.append(baseplate_img.convert("RGB"))
     
     # Cria um clipe de vídeo a partir das imagens
     clip = ImageSequenceClip([np.array(frame) for frame in frames], fps=12)
@@ -284,7 +296,7 @@ def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_n
         response = openai.ChatCompletion.create(
             model="gpt-4-turbo",
             messages=[
-                {"role": "system", "content": "Assuma que você é um redator publicitário especialista em mensagens curtas, rápidas e inteligentes."},
+                {"role": "system", "content": "Assuma que você é um redador publicitário especialista em mensagens curtas, rápidas e inteligentes sem precisar que enumere os slogans, sem a utilização de aspas e evita pontuações desnecesarias, um publicitario que é atento aos calendadriaos festivos que fazem sentido para a marcas"},
                 {"role": "user", "content": prompt}
             ]
         )

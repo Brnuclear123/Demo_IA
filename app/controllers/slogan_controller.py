@@ -16,7 +16,7 @@ def corona():
             return render_template('corona.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
         return render_template('corona.html')
     else:
-        return redirect(url_for('login'))
+        return redirect(url_for('routes.login'))
 
 def lacta():
     if 'username' in session and session['brand_name'] == 'Lacta':
@@ -33,7 +33,7 @@ def lacta():
             return render_template('lacta.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
         return render_template('lacta.html')
     else:
-        return redirect(url_for('login'))
+        return redirect(url_for('routes.login'))
     
 def avaliar_slogan():
     # Obter a imagem e a avaliação (like/dislike)
@@ -70,7 +70,7 @@ def avaliar_slogan():
 
 def avaliados():
     if 'username' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('routes.login'))
     
     avaliacoes = carregar_avaliacoes()
     

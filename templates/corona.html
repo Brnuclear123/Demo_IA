@@ -166,7 +166,7 @@
                 {% if slogans_imagens %}
                     {% for slogan, imagem in slogans_imagens %}
                         <div class="slogan-box">
-                            <video autoplay muted loop class="slogan-image">
+                            <video autoplay muted loop class="slogan-image" id="slogan-video-player">
                                 <source src="{{ imagem }}" type="video/mp4">
                                 Seu navegador não suporta o elemento de vídeo.
                             </video>
@@ -330,6 +330,23 @@
                 });
             });
         });
+    </script>
+
+    <script>
+        // Fazer o vídeo pausar e ficar só uma imagem
+        var videos = document.querySelectorAll('#slogan-video-player');
+
+        var startAtSecond = 10;
+
+        videos.forEach(function(video) {
+            video.onloadedmetadata = function() {
+                video.currentTime = startAtSecond;
+                video.pause();
+                video.controls = false;
+            };
+        });
+
+
     </script>
 
         <!-- Publicar na tela -->
