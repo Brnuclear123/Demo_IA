@@ -228,6 +228,10 @@ def concatenate_videos(base_path_clip_1, base_path_clip_2):
     return output_filename
 
 def process_and_add_text(first_clip_path, slogan_text):
+    import cv2
+    import numpy as np
+    from PIL import ImageFont, ImageDraw, Image
+    
     # Create output directory if it doesn't exist
     output_dir = "static/processed"
     os.makedirs(output_dir, exist_ok=True)
@@ -237,14 +241,8 @@ def process_and_add_text(first_clip_path, slogan_text):
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     output_path = f"{output_dir}/video_with_text_{timestamp}.mp4"
     
-    # Font path
-    font_path = 'static/fonte/Bison-Bold(PersonalUse).ttf'
-    if not os.path.exists(font_path):
-        # Fallback to a system font if the specific font doesn't exist
-        font_path = cv2.FONT_HERSHEY_SIMPLEX
-        use_pil_font = False
-    else:
-        use_pil_font = True
+    # Use the font path from the constant
+    font_path = FONT_PATH
     
     # Open the video
     cap = cv2.VideoCapture(first_clip_path)
@@ -258,22 +256,105 @@ def process_and_add_text(first_clip_path, slogan_text):
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     
+    print(f"Video dimensions: {width}x{height}")
+    
     # Configure output video
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
     
-    # Font settings
-    font_size = height // 4  # Adjust font size based on video height
-    if use_pil_font:
+    # For a 1920x158 video, we want to ensure text is centered
+    # Define border spacing (margin from edges)
+    horizontal_margin = int(width * 0.05)  # 5% margin on each side
+    
+    # Calculate maximum available space for text width
+    max_text_width = width - (2 * horizontal_margin)
+    
+    # For height, we'll use a percentage of the video height
+    # but ensure we calculate vertical position precisely
+    max_text_height = int(height * 0.7)  # Reduced from 80% to 70% of height
+    
+    # Find the optimal font size that fits the text within the available space
+    # For a narrow banner video (1920x158), we need to be careful with height
+    font_size = height // 3  # Start with a smaller initial guess (1/3 instead of 1/2)
+    font = None
+    text_width = width + 1  # Initialize larger than max to enter the loop
+    text_height = height + 1
+    
+    # Binary search to find optimal font size
+    min_size = 10
+    max_size = height
+    
+    while min_size <= max_size:
+        mid_size = (min_size + max_size) // 2
         try:
-            font = ImageFont.truetype(font_path, font_size)
+            test_font = ImageFont.truetype(font_path, mid_size)
+            # Create a temporary image to measure text
+            temp_img = Image.new("RGB", (1, 1))
+            temp_draw = ImageDraw.Draw(temp_img)
+            bbox = temp_draw.textbbox((0, 0), slogan_text, font=test_font)
+            current_width = bbox[2] - bbox[0]
+            current_height = bbox[3] - bbox[1]
+            
+            if current_width <= max_text_width and current_height <= max_text_height:
+                # This size fits, try a larger one
+                font = test_font
+                font_size = mid_size
+                text_width = current_width
+                text_height = current_height
+                min_size = mid_size + 1
+            else:
+                # Too big, try smaller
+                max_size = mid_size - 1
         except IOError:
-            print(f"Error loading font {font_path}, using default")
-            font = ImageFont.load_default()
+            print(f"Error loading font at size {mid_size}, trying smaller")
+            max_size = mid_size - 1
+    
+    # If we couldn't find a suitable font, use the default
+    if font is None:
+        print(f"Could not find suitable font size, using default")
+        font = ImageFont.load_default()
+        # Measure the default font
+        temp_img = Image.new("RGB", (1, 1))
+        temp_draw = ImageDraw.Draw(temp_img)
+        bbox = temp_draw.textbbox((0, 0), slogan_text, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+    
+    # Reduce the font size by 25% to make it significantly smaller than the maximum possible
+    # This ensures better visual balance in a narrow banner
+    if font_size > 10:
+        reduced_font_size = int(font_size * 0.75)  # Reduced from 85% to 75%
+        try:
+            font = ImageFont.truetype(font_path, reduced_font_size)
+            # Recalculate text dimensions with the reduced font
+            temp_img = Image.new("RGB", (1, 1))
+            temp_draw = ImageDraw.Draw(temp_img)
+            bbox = temp_draw.textbbox((0, 0), slogan_text, font=font)
+            text_width = bbox[2] - bbox[0]
+            text_height = bbox[3] - bbox[1]
+            font_size = reduced_font_size
+        except IOError:
+            # Keep the original font if there's an error
+            pass
+    
+    print(f"Selected font size: {font_size} for text dimensions: {text_width}x{text_height}")
     
     # Calculate how many frames to show text (10 seconds or entire video if shorter)
     text_duration_seconds = 10
     max_text_frames = min(int(fps * text_duration_seconds), total_frames)
+    
+    # Calculate the exact center position for the text
+    text_x = (width - text_width) // 2
+    
+    # For vertical centering, calculate the mathematical center first
+    mathematical_center_y = (height - text_height) // 2
+    
+    # Apply a significant upward adjustment to compensate for visual perception
+    # For a 158px height video, move text up by about 10-15% of the height
+    vertical_adjustment = -int(height * 0.1)  # Move up by 10% of video height
+    text_y = mathematical_center_y + vertical_adjustment
+    
+    print(f"Text position: x={text_x}, y={text_y} (adjusted up by {abs(vertical_adjustment)}px)")
     
     frame_number = 0
     while cap.isOpened():
@@ -285,14 +366,6 @@ def process_and_add_text(first_clip_path, slogan_text):
         if frame_number < max_text_frames:
             # Convert OpenCV frame to PIL Image for better text rendering
             pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            draw = ImageDraw.Draw(pil_img)
-            
-            # Center the text
-            text_size = draw.textbbox((0, 0), slogan_text, font=font)
-            text_width = text_size[2] - text_size[0]
-            text_height = text_size[3] - text_size[1]
-            text_x = (width - text_width) // 2
-            text_y = (height - text_height) // 2
             
             # Add text with animation effect (fade in/out)
             alpha = 255
@@ -301,8 +374,15 @@ def process_and_add_text(first_clip_path, slogan_text):
             elif frame_number > max_text_frames - fps:  # Fade out during last second
                 alpha = int(255 * (max_text_frames - frame_number) / fps)
             
-            # Draw text with calculated alpha
-            draw.text((text_x, text_y), slogan_text, font=font, fill=(255, 255, 255, alpha))
+            # Create a temporary transparent image for text with alpha
+            text_overlay = Image.new("RGBA", pil_img.size, (0, 0, 0, 0))
+            text_draw = ImageDraw.Draw(text_overlay)
+            
+            # Draw text with calculated alpha at the adjusted position
+            text_draw.text((text_x, text_y), slogan_text, font=font, fill=(255, 255, 255, alpha))
+            
+            # Composite the text overlay onto the original image
+            pil_img = Image.alpha_composite(pil_img.convert("RGBA"), text_overlay).convert("RGB")
             
             # Convert back to OpenCV format
             frame = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
