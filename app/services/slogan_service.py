@@ -231,6 +231,7 @@ def process_and_add_text(first_clip_path, slogan_text):
     import cv2
     import numpy as np
     from PIL import ImageFont, ImageDraw, Image
+    import math
     
     # Create output directory if it doesn't exist
     output_dir = "static/processed"
@@ -344,17 +345,29 @@ def process_and_add_text(first_clip_path, slogan_text):
     max_text_frames = min(int(fps * text_duration_seconds), total_frames)
     
     # Calculate the exact center position for the text
-    text_x = (width - text_width) // 2
+    text_x_center = width // 2
     
-    # For vertical centering, calculate the mathematical center first
-    mathematical_center_y = (height - text_height) // 2
+    # For vertical centering, we need to account for font metrics and visual balance
+    # For a 158px height video, move text up by about 15% of the height
+    # This creates better visual balance, especially for banner-style videos
+    vertical_adjustment = -int(height * 0.15)  # Move up by 15% of video height
+    text_y_center = height // 2 + vertical_adjustment
     
-    # Apply a significant upward adjustment to compensate for visual perception
-    # For a 158px height video, move text up by about 10-15% of the height
-    vertical_adjustment = -int(height * 0.1)  # Move up by 10% of video height
-    text_y = mathematical_center_y + vertical_adjustment
+    print(f"Text position: x={text_x_center}, y={text_y_center} (moved up by {abs(vertical_adjustment)}px)")
     
-    print(f"Text position: x={text_x}, y={text_y} (adjusted up by {abs(vertical_adjustment)}px)")
+    # Cinematic entrance effect parameters
+    entrance_duration_seconds = 1.5  # Duration of the entrance effect
+    entrance_frames = int(fps * entrance_duration_seconds)
+    max_scale = 2.5  # Text starts at 2.5x its final size
+    
+    # Create a larger version of the font for the entrance effect
+    large_font_size = int(font_size * max_scale)
+    large_font = None
+    try:
+        large_font = ImageFont.truetype(font_path, large_font_size)
+    except IOError:
+        print(f"Could not load large font for entrance effect, using regular font")
+        large_font = font
     
     frame_number = 0
     while cap.isOpened():
@@ -367,19 +380,53 @@ def process_and_add_text(first_clip_path, slogan_text):
             # Convert OpenCV frame to PIL Image for better text rendering
             pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             
-            # Add text with animation effect (fade in/out)
+            # Create a temporary transparent image for text with alpha
+            text_overlay = Image.new("RGBA", pil_img.size, (0, 0, 0, 0))
+            text_draw = ImageDraw.Draw(text_overlay)
+            
+            # Calculate alpha for fade in/out
             alpha = 255
             if frame_number < fps:  # Fade in during first second
                 alpha = int(255 * (frame_number / fps))
             elif frame_number > max_text_frames - fps:  # Fade out during last second
                 alpha = int(255 * (max_text_frames - frame_number) / fps)
             
-            # Create a temporary transparent image for text with alpha
-            text_overlay = Image.new("RGBA", pil_img.size, (0, 0, 0, 0))
-            text_draw = ImageDraw.Draw(text_overlay)
-            
-            # Draw text with calculated alpha at the adjusted position
-            text_draw.text((text_x, text_y), slogan_text, font=font, fill=(255, 255, 255, alpha))
+            # Apply cinematic entrance effect (starts big and shrinks to final size)
+            if frame_number < entrance_frames:
+                # Calculate the current scale factor based on frame number
+                progress = frame_number / entrance_frames
+                # Use an easing function for smoother animation (ease-out)
+                eased_progress = 1 - (1 - progress) ** 2  # Quadratic ease-out
+                
+                # Calculate current scale (from max_scale to 1.0)
+                current_scale = max_scale - (max_scale - 1.0) * eased_progress
+                
+                # Calculate current font size
+                current_font_size = int(font_size * current_scale)
+                
+                # Load font at current size
+                try:
+                    current_font = ImageFont.truetype(font_path, current_font_size)
+                except IOError:
+                    # Fallback to interpolating between large and regular font
+                    current_font = large_font if current_scale > 1.5 else font
+                
+                # Measure current text dimensions
+                bbox = text_draw.textbbox((0, 0), slogan_text, font=current_font)
+                current_text_width = bbox[2] - bbox[0]
+                current_text_height = bbox[3] - bbox[1]
+                
+                # Calculate position to keep text centered
+                current_x = text_x_center - (current_text_width // 2)
+                current_y = text_y_center - (current_text_height // 2)
+                
+                # Draw text with current font and alpha
+                text_draw.text((current_x, current_y), slogan_text, font=current_font, fill=(255, 255, 255, alpha))
+            else:
+                # After entrance effect, use the final font and position
+                text_x = text_x_center - (text_width // 2)
+                text_y = text_y_center - (text_height // 2)
+                text_draw.text((text_x, text_y), slogan_text, font=font, fill=(255, 255, 255, alpha))
             
             # Composite the text overlay onto the original image
             pil_img = Image.alpha_composite(pil_img.convert("RGBA"), text_overlay).convert("RGB")
