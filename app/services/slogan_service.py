@@ -10,15 +10,17 @@ import requests
 import numpy as np
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
-from moviepy import ImageSequenceClip
+from moviepy.editor import ImageSequenceClip, VideoFileClip, concatenate_videoclips, vfx, CompositeVideoClip, ImageClip
+from moviepy.editor import vfx  # Add this line to import vfx
 import openai
 import google.generativeai as genai
+import cv2
 
 # CONSTANTES retiradas do config.py
 WEATHER_JSON = conf.WEATHER_JSON            # ex.: 'static/data/weather-cd.json'
 AVALIACOES_PATH = conf.AVALIACOES_PATH      # ex.: 'avaliacoes.json'
 FONT_PATH = conf.FONT_PATH                  # ex.: 'static/fonte/Bison-Bold(PersonalUse).ttf'
-FUNDO_IMAGEM_PATH = conf.FUNDO_IMAGEM_PATH  # ex.: 'static/frames/meu_fundo.png'
+FUNDO_IMAGEM_PATH = "static/frames/fundo_1.mp4" # ex.: 'static/frames/meu_fundo.png'
 ENVIROMENT_DATA = conf.ENVIROMENT_DATA      
 
 # Função para ler arquivos JSON
@@ -154,89 +156,167 @@ def evento_social():
 
 # Função para criar GIF animado dos slogans
 def criar_gif_slogan_combinado(slogan_texto, brand_name):
-    dtnow = datetime.now()
-    base_filename = f"slogan_animado{dtnow.strftime('%Y%m%d%H%M%S')}{str(dtnow.microsecond)[:2].zfill(2)}"
-    largura, altura = 1920, 158
-    
-    if os.path.exists(FUNDO_IMAGEM_PATH):
-        imagem_base = Image.open(FUNDO_IMAGEM_PATH).resize((largura, altura)).convert("RGBA")
-    else:
-        imagem_base = Image.new("RGBA", (largura, altura), "#333")
-    
-    baseplate_path = "static/src/corona_baseplate.png"
-    if os.path.exists(baseplate_path):
-        baseplate_img = Image.open(baseplate_path).resize((largura, altura)).convert("RGBA")
-    else:
-        baseplate_img = None
-        
-    text_color = "white" if brand_name in ["Corona", "Lacta"] else "black"
-    
-    try:
-        font = ImageFont.truetype(FONT_PATH, 64)
-    except IOError:
-        font = ImageFont.load_default()
-    
-    frames = []
-    temp_draw = ImageDraw.Draw(imagem_base)
-    total_text_width = 0
-    
-    for letter in slogan_texto:
-        bbox = font.getbbox(letter)
-        letter_width = bbox[2] - bbox[0]
-        total_text_width += letter_width
-    
-    final_x = (largura - total_text_width) / 2
-    full_bbox = temp_draw.textbbox((0, 0), slogan_texto, font=font)
-    text_height = full_bbox[3] - full_bbox[1]
-    final_y = (altura - text_height) / 2
-    
-    letter_delay_gap = 1           # atraso (em frames) entre cada letra
-    letter_animation_duration = 5  # duração da animação de cada letra (em frames)
-    final_hold_frames = 30         # mantém o frame final por 30 frames (~3 segundos a 100ms/frame)
-    baseplate_frames = 70          # número de frames para mostrar a baseplate (adicione esta linha)
+    print("Slogan Texto: ", slogan_texto)
 
-    total_frames = (len(slogan_texto) - 1) * letter_delay_gap + letter_animation_duration + final_hold_frames + baseplate_frames
+    # TODO: change this refernce
+    base_path_clip_1 = "static/frames/fundo_1.mp4"
+    image_path_clip_2 = "static/src/corona_baseplate.png"
+
+    base_path_clip_2 = create_image_clip(image_path_clip_2, 5)
+     
+    # TODO: write this function
+    processed_clip_path = process_and_add_text(base_path_clip_1, slogan_texto)
+
+    return concatenate_videos(processed_clip_path, base_path_clip_2)
+
+def create_image_clip(baseplate_path, duration):
+    from PIL import Image
+    import numpy as np
+    from moviepy.editor import ImageClip
+    import os
     
-    for frame in range(total_frames):
-        frame_img = imagem_base.copy()
-        overlay = Image.new("RGBA", (largura, altura), (255, 255, 255, 0))
-        draw_overlay = ImageDraw.Draw(overlay)
-        current_x = final_x
+    # Create directory if it doesn't exist
+    os.makedirs("temp", exist_ok=True)
+    
+    output_filename = "temp/final_video_baseplace_final.mp4"
+    
+    # Manually resize the image with PIL first
+    try:
+        # For newer versions of Pillow
+        pil_image = Image.open(baseplate_path).resize((1920, 158), Image.LANCZOS)
+    except AttributeError:
+        try:
+            # For newer versions with different naming
+            pil_image = Image.open(baseplate_path).resize((1920, 158), Image.Resampling.LANCZOS)
+        except AttributeError:
+            # For older versions of Pillow
+            pil_image = Image.open(baseplate_path).resize((1920, 158), Image.ANTIALIAS)
+    
+    # Convert PIL image to numpy array
+    img_array = np.array(pil_image)
+    
+    # Create image clip from numpy array
+    image_clip = ImageClip(img_array).set_duration(duration)
+    
+    # Set fps explicitly when writing the video file
+    fps = 24  # Standard video frame rate
+    image_clip.write_videofile(output_filename, codec="libx264", audio_codec="aac", fps=fps)
+    
+    return output_filename
+
+def concatenate_videos(base_path_clip_1, base_path_clip_2):
+    output_filename = "output_video_final.mp4";
+
+    clip1 = VideoFileClip(base_path_clip_1)
+    clip2 = VideoFileClip(base_path_clip_2)
+
+    # Set the duration for the fade effect
+    fade_duration = 2  # seconds
+
+    # Create fade-out effect for the first clip
+    clip1_fadeout = clip1.fx(vfx.fadeout, fade_duration)
+
+    # Create fade-in effect for the second clip
+    clip2_fadein = clip2.fx(vfx.fadein, fade_duration)
+
+    # Concatenate the clips with the transitions
+    final_clip = concatenate_videoclips([clip1_fadeout, clip2_fadein], method="compose")
+
+    # Write the result to a file
+    final_clip.write_videofile(output_filename, codec="libx264", audio_codec="aac")
+
+    return output_filename
+
+def process_and_add_text(first_clip_path, slogan_text):
+    # Create output directory if it doesn't exist
+    output_dir = "static/processed"
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Generate unique output filename
+    from datetime import datetime
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    output_path = f"{output_dir}/video_with_text_{timestamp}.mp4"
+    
+    # Font path
+    font_path = 'static/fonte/Bison-Bold(PersonalUse).ttf'
+    if not os.path.exists(font_path):
+        # Fallback to a system font if the specific font doesn't exist
+        font_path = cv2.FONT_HERSHEY_SIMPLEX
+        use_pil_font = False
+    else:
+        use_pil_font = True
+    
+    # Open the video
+    cap = cv2.VideoCapture(first_clip_path)
+    if not cap.isOpened():
+        print(f"Error: Could not open video file {first_clip_path}")
+        return first_clip_path  # Return original path if can't process
+    
+    # Get video properties
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    
+    # Configure output video
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+    
+    # Font settings
+    font_size = height // 4  # Adjust font size based on video height
+    if use_pil_font:
+        try:
+            font = ImageFont.truetype(font_path, font_size)
+        except IOError:
+            print(f"Error loading font {font_path}, using default")
+            font = ImageFont.load_default()
+    
+    # Calculate how many frames to show text (10 seconds or entire video if shorter)
+    text_duration_seconds = 10
+    max_text_frames = min(int(fps * text_duration_seconds), total_frames)
+    
+    frame_number = 0
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
         
-        for idx, letter in enumerate(slogan_texto):
-            bbox_letter = font.getbbox(letter)
-            letter_width = bbox_letter[2] - bbox_letter[0]
-            letter_delay = idx * letter_delay_gap
+        # Add text only for the first 10 seconds
+        if frame_number < max_text_frames:
+            # Convert OpenCV frame to PIL Image for better text rendering
+            pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            draw = ImageDraw.Draw(pil_img)
             
-            if frame < letter_delay:
-                pass  # A letra ainda não iniciou animação
-            elif frame < letter_delay + letter_animation_duration:
-                progress = (frame - letter_delay) / letter_animation_duration
-                offset_y = int((1 - progress) * 30)
-                alpha = int(progress * 255)
-                fill = (255, 255, 255, alpha) if text_color == "white" else (0, 0, 0, alpha)
-                draw_overlay.text((current_x, final_y + offset_y), letter, font=font, fill=fill)
-            else:
-                fill = (255, 255, 255, 255) if text_color == "white" else (0, 0, 0, 255)
-                draw_overlay.text((current_x, final_y), letter, font=font, fill=fill)
-                
-            current_x += letter_width
+            # Center the text
+            text_size = draw.textbbox((0, 0), slogan_text, font=font)
+            text_width = text_size[2] - text_size[0]
+            text_height = text_size[3] - text_size[1]
+            text_x = (width - text_width) // 2
+            text_y = (height - text_height) // 2
+            
+            # Add text with animation effect (fade in/out)
+            alpha = 255
+            if frame_number < fps:  # Fade in during first second
+                alpha = int(255 * (frame_number / fps))
+            elif frame_number > max_text_frames - fps:  # Fade out during last second
+                alpha = int(255 * (max_text_frames - frame_number) / fps)
+            
+            # Draw text with calculated alpha
+            draw.text((text_x, text_y), slogan_text, font=font, fill=(255, 255, 255, alpha))
+            
+            # Convert back to OpenCV format
+            frame = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
         
-        combined = Image.alpha_composite(frame_img, overlay)
-        frames.append(combined.convert("RGB"))
+        # Write the frame
+        out.write(frame)
+        frame_number += 1
     
-    if baseplate_img:
-        for _ in range(baseplate_frames):
-            frames.append(baseplate_img.convert("RGB"))
+    # Release resources
+    cap.release()
+    out.release()
     
-    # Cria um clipe de vídeo a partir das imagens
-    clip = ImageSequenceClip([np.array(frame) for frame in frames], fps=12)
-    video_filename = os.path.join("static", f"{base_filename}.mp4")
-    
-    # Salva o vídeo
-    clip.write_videofile(video_filename, codec="libx264", fps=24)
-    
-    return video_filename
+    print(f"✅ Video with text successfully generated: {output_path}")
+    return output_path
 
 # Função para gerar slogans e GIFs a partir do prompt
 def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_name, real_time_data):
@@ -299,7 +379,8 @@ def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_n
         )
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4-turbo",
+            # model="gpt-4-turbo",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "Assuma que você é um redador publicitário especialista em mensagens curtas, rápidas e inteligentes sem precisar que enumere os slogans, sem a utilização de aspas e evita pontuações desnecesarias, um publicitario que é atento aos calendadriaos festivos que fazem sentido para a marcas"},
                 {"role": "user", "content": prompt}
