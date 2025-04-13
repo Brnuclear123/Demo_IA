@@ -15,6 +15,8 @@ from moviepy.editor import vfx  # Add this line to import vfx
 import openai
 import google.generativeai as genai
 import cv2
+import random
+import math
 
 # CONSTANTES retiradas do config.py
 WEATHER_JSON = conf.WEATHER_JSON            # ex.: 'static/data/weather-cd.json'
@@ -232,6 +234,7 @@ def process_and_add_text(first_clip_path, slogan_text):
     import numpy as np
     from PIL import ImageFont, ImageDraw, Image
     import math
+    import random
     
     # Create output directory if it doesn't exist
     output_dir = "static/processed"
@@ -369,6 +372,26 @@ def process_and_add_text(first_clip_path, slogan_text):
         print(f"Could not load large font for entrance effect, using regular font")
         large_font = font
     
+    # Generate random movement patterns for each letter
+    letter_movements = []
+    for i in range(len(slogan_text)):
+        # Each letter gets its own movement pattern
+        # Format: [amplitude_x, amplitude_y, frequency_x, frequency_y, phase_x, phase_y]
+        letter_movements.append([
+            random.uniform(1.0, 3.0),      # amplitude_x (1-3 pixels)
+            random.uniform(0.5, 2.0),      # amplitude_y (0.5-2 pixels)
+            random.uniform(0.5, 1.5),      # frequency_x (cycles per second)
+            random.uniform(0.5, 1.5),      # frequency_y (cycles per second)
+            random.uniform(0, 2*math.pi),  # phase_x (random starting point)
+            random.uniform(0, 2*math.pi)   # phase_y (random starting point)
+        ])
+    
+    # Pre-calculate letter widths for individual letter positioning
+    letter_widths = []
+    for letter in slogan_text:
+        bbox = ImageDraw.Draw(Image.new("RGB", (1, 1))).textbbox((0, 0), letter, font=font)
+        letter_widths.append(bbox[2] - bbox[0])
+    
     frame_number = 0
     while cap.isOpened():
         ret, frame = cap.read()
@@ -423,10 +446,36 @@ def process_and_add_text(first_clip_path, slogan_text):
                 # Draw text with current font and alpha
                 text_draw.text((current_x, current_y), slogan_text, font=current_font, fill=(255, 255, 255, alpha))
             else:
-                # After entrance effect, use the final font and position
-                text_x = text_x_center - (text_width // 2)
-                text_y = text_y_center - (text_height // 2)
-                text_draw.text((text_x, text_y), slogan_text, font=font, fill=(255, 255, 255, alpha))
+                # After entrance effect, apply individual letter movement
+                current_time = frame_number / fps  # Time in seconds
+                
+                # Calculate the starting x position for the first letter
+                # to ensure the entire text remains centered
+                total_width = sum(letter_widths)
+                start_x = text_x_center - (total_width // 2)
+                
+                # Draw each letter individually with its own movement
+                x_pos = start_x
+                for i, letter in enumerate(slogan_text):
+                    # Skip spaces but maintain their width
+                    if letter == ' ':
+                        x_pos += letter_widths[i]
+                        continue
+                    
+                    # Calculate movement offsets based on sine waves
+                    amp_x, amp_y, freq_x, freq_y, phase_x, phase_y = letter_movements[i]
+                    offset_x = amp_x * math.sin(2 * math.pi * freq_x * current_time + phase_x)
+                    offset_y = amp_y * math.sin(2 * math.pi * freq_y * current_time + phase_y)
+                    
+                    # Apply movement to letter position
+                    letter_x = x_pos + offset_x
+                    letter_y = text_y_center - (text_height // 2) + offset_y
+                    
+                    # Draw the letter
+                    text_draw.text((letter_x, letter_y), letter, font=font, fill=(255, 255, 255, alpha))
+                    
+                    # Move to the next letter position
+                    x_pos += letter_widths[i]
             
             # Composite the text overlay onto the original image
             pil_img = Image.alpha_composite(pil_img.convert("RGBA"), text_overlay).convert("RGB")
