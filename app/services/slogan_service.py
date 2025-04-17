@@ -252,31 +252,39 @@ def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_n
     if brand_name == "Corona":
         prompt = (f"""
             Você é uma inteligência criativa especializada em redigir mensagens curtas, impactantes e sensoriais para a marca de cerveja Corona no Brasil.
-            Crie 4 variações de mensagens publicitárias com no máximo 75 caracteres para exibição em tela digital no ponto de venda.
-            Não enumere os slogans, não use aspas nos slogans e evite usar pontuações desnecesarias para não ficar carregado.
-            Use {dia_da_semana(data_campanha)} para criar slogans com dias especiais como pro exemplo 5 de junho dia mundial do meio ambiente.
-            evite repetir o nome do {estado}, '{cidade}', '{bairro} nos slogans, seja mais criativo e use de outros recursos para elaborar o slogan.
-            Use os seguintes dados dinâmicos como contexto de inspiração:
+
+            Sua tarefa:
+            → Crie 4 variações de slogans publicitários para exibição em telas digitais no ponto de venda.
+            → Cada slogan deve ter entre 30 e 75 caracteres.
+            → Não enumere, não use aspas e evite pontuação desnecessária.
+
+            Diretrizes de estilo:
+            → Mensagens leves, inspiradoras, sensoriais.
+            → Evocar elementos da natureza: sol, mar, brisa, céu, areia, limão.
+            → Estilo de vida livre, descontraído e ao ar livre.
+            → Público-alvo: jovens de 18 a 35 anos, ligados à música, sunset, esportes e natureza.
+            → Sem emojis. 
+            → Evitar soar como propaganda direta: as mensagens devem parecer falas espontâneas de alguém relaxando com uma Corona gelada.
+
+            Contexto para inspiração:
             - Temperatura: {real_time_data['weather']}°C
             - Horário: {momento}
             - Dia da semana: {dia_da_semana(data_campanha)}
-            - Localização: '{estado}, '{cidade}', '{bairro}'
+            - Localização: {estado}, {cidade}, {bairro}
 
-            A mensagem deve refletir o estilo e tom de voz da marca Corona:
-            → Leve, sensorial, inspirador
-            → Evocar natureza: sol, mar, brisa, céu, areia, limão
-            → Estilo de vida livre, ao ar livre, com frescor e pausa
-            → Público jovem (18-35), ligado à música, sunset, esportes, natureza
-            → Não pode conter emojis
+            Instruções específicas:
+            - Adapte o tom dos slogans conforme o dia da semana ({dia_da_semana(data_campanha)}).
+            - Se houver algum evento cultural ou mundial relevante no período, use-o de forma natural (sem forçar datas comemorativas aleatórias).
+            - Não repita o nome da cidade, estado ou bairro nos slogans. Use outros recursos para criar conexão com o local.
+            - Como Corona é uma marca bem pra frente, carregue os slogans de animação, frescor e otimismo.
 
-            Frase-conceito de fundo: "Corona é inspirada na natureza, não feita da natureza."
-
-            Importante: evite soar como propaganda direta. A mensagem deve parecer uma fala espontânea de alguém relaxando ao ar livre com uma cerveja gelada.
+            Referência conceitual: "Corona é inspirada na natureza, não feita da natureza."
 
             Exemplos de boas saídas:
-            - "O pôr-do-sol é só o começo. Brinde com o que vem depois."
-            - "Sol na pele, limão na garrafa, e o tempo jogando a favor."
+            - Sol na pele, limão na garrafa, e o tempo jogando a favor
+            - O pôr-do-sol é só o começo Brinde com o que vem depois
             """)
+
         
     elif brand_name == "Lacta":
         prompt = (
