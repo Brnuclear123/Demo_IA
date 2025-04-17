@@ -9,5 +9,3 @@ ngrok.exe
 
 # Ignorar arquivos gerados ou de teste
 teste.py
-
-*.mp4
