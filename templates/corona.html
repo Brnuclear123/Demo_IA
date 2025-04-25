@@ -287,6 +287,49 @@
     </script>
 
     <script>
+        // Função que chama o endpoint e atualiza o span do clima
+        async function updateWeather() {
+        const estado = document.getElementById('estado').value;
+        const cidade = document.getElementById('cidade').value;
+        const bairro = document.getElementById('bairro').value;
+        const dataCampanha = document.getElementById('data_campanha').value;
+        if (!estado || !cidade || !dataCampanha) return;  // só executa se tiver tudo
+    
+        try {
+            const params = new URLSearchParams({
+            estado, cidade, bairro,
+            data_campanha: dataCampanha
+            });
+            const res = await fetch(`/real_time_data?${params.toString()}`);
+            const json = await res.json();
+            // Seleciona o label de clima e atualiza o texto
+            const label = document.querySelector('.checkbox-container input[data-type="weather"]')
+                                .closest('.checkbox-container');
+            label.querySelector('.data-text').innerText = json.weather;
+        } catch (err) {
+            console.error('Erro ao atualizar clima:', err);
+        }
+        }
+    
+        document.addEventListener('DOMContentLoaded', () => {
+        // 1) Chamar ao selecionar sugestão de localização
+        document.getElementById('suggestions').addEventListener('click', () => {
+            // Delay para garantir que os campos hidden já foram preenchidos
+            setTimeout(updateWeather, 100);
+        });
+    
+        // 2) Chamar ao mudar o intervalo de datas
+        //flatpickr("#data_campanha", {
+        //    /* ... suas opções ... */
+        //    onChange: function(selectedDates, dateStr) {
+        //    updateWeather();
+        //    }
+        //});
+        });
+    </script>
+  
+
+    <script>
         // DATEPICKER (FLATPICKR)
         document.addEventListener("DOMContentLoaded", function() {
             flatpickr("#data_campanha", {
@@ -305,6 +348,7 @@
                     }
                 },
                 onChange: function(selectedDates, dateStr, instance) {
+                    updateWeather();
                     console.log("Datas selecionadas:", dateStr);
                 }
             });
