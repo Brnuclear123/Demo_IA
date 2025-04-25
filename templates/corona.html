@@ -118,19 +118,19 @@
                 <span class="checkmark"></span>
                 <span class="data-text">{{ real_time_date.weather if real_time_date else "Carregando..." }}</span>
             </label>
-            <label class="checkbox-container">
+            <label class="checkbox-container disabled">
                 #️⃣ <strong>SOCIAL TRENDS</strong><br>
                 <input type="checkbox" class="data-checkbox" data-type="trending">
                 <span class="checkmark"></span>
                 <span class="data-text">{{ real_time_date.trending if real_time_date else "Carregando..." }}</span>
             </label>
-            <label class="checkbox-container">
+            <label class="checkbox-container disabled">
                 📅 <strong>EVENTOS LOCAIS</strong><br>
                 <input type="checkbox" class="data-checkbox" data-type="local-events">
                 <span class="checkmark"></span>
                 <span class="data-text">{{ real_time_date.local_events if real_time_date else "Carregando..." }}</span>
             </label>
-            <label class="checkbox-container">
+            <label class="checkbox-container disabled">
                 🎬 <strong>AGENDA CULTURAL</strong><br>
                 <input type="checkbox" class="data-checkbox" data-type="pop-culture">
                 <span class="checkmark"></span>
@@ -317,14 +317,7 @@
             // Delay para garantir que os campos hidden já foram preenchidos
             setTimeout(updateWeather, 100);
         });
-    
-        // 2) Chamar ao mudar o intervalo de datas
-        //flatpickr("#data_campanha", {
-        //    /* ... suas opções ... */
-        //    onChange: function(selectedDates, dateStr) {
-        //    updateWeather();
-        //    }
-        //});
+
         });
     </script>
   

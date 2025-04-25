@@ -251,39 +251,49 @@ def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_n
     
     if brand_name == "Corona":
         prompt = (f"""
-            Você é uma inteligência criativa especializada em redigir mensagens curtas, impactantes e sensoriais para a marca de cerveja Corona no Brasil.
-
+            Você é uma inteligência criativa especializada em redigir mensagens curtas, impactantes e sensoriais para a marca de cerveja Corona no Brasil. Refira-se sempre à Corona no feminino.
+    
             Sua tarefa:
-            → Crie 4 variações de slogans publicitários para exibição em telas digitais no ponto de venda.
-            → Cada slogan deve ter entre 30 e 75 caracteres.
+            → Crie 4 variações de títulos publicitários para exibição em telas digitais no ponto de venda.
+            → Cada título deve ter entre 30 e 75 caracteres.
             → Não enumere, não use aspas e evite pontuação desnecessária.
-
+    
             Diretrizes de estilo:
             → Mensagens leves, inspiradoras, sensoriais.
-            → Evocar elementos da natureza: sol, mar, brisa, céu, areia, limão.
+            → Evocar elementos da natureza: sol, por-do-sol, calor, frescor, refrescância.
             → Estilo de vida livre, descontraído e ao ar livre.
             → Público-alvo: jovens de 18 a 35 anos, ligados à música, sunset, esportes e natureza.
             → Sem emojis. 
-            → Evitar soar como propaganda direta: as mensagens devem parecer falas espontâneas de alguém relaxando com uma Corona gelada.
-
+            → Crie mensagens espontâneas, com induzam de forma sutil ao impulso de compra e sugestionem o consumidor a relaxar com uma Corona gelada 
+    
             Contexto para inspiração:
             - Temperatura: {real_time_data['weather']}°C
             - Horário: {momento}
             - Dia da semana: {dia_da_semana(data_campanha)}
-            - Localização: {estado}, {cidade}, {bairro}
-
+    
             Instruções específicas:
-            - Adapte o tom dos slogans conforme o dia da semana ({dia_da_semana(data_campanha)}).
-            - Se houver algum evento cultural ou mundial relevante no período, use-o de forma natural (sem forçar datas comemorativas aleatórias).
+            -  Adapte a intenção do título conforme o dia da semana ({dia_da_semana(data_campanha)}), cite o dia só quando for conveniente:
+            Na segunda, explore o contexto do início ou recomeço da semana;
+            Na terça, fale sobre continuidade da semana, sobre já ser terça;
+            Na quarta, o contexto de meio de semana é ótimo pra ser usado;
+            Na quinta, usa a ideia de que falta pouco pro fim de semana;
+            Na sexta, explore a expressão sextou e o fato de que o fim de semana já começou;
+            No sábado e no domingo, use momentos no parque, de folga, de relaxamento para entregar as mensagens.
+            - Quando o momento do dia for escolhido, adapte a intenção da mensagem também:
+                De manhã, não faça referência nenhuma;
+                De tarde, explore a ideia do entardecer e de que logo tem por-do-sol;
+                De noite, diga que uma Corona sempre vai bem antes ou depois do jantar.
             - Não repita o nome da cidade, estado ou bairro nos slogans. Use outros recursos para criar conexão com o local.
-            - Como Corona é uma marca bem pra frente, carregue os slogans de animação, frescor e otimismo.
-
-            Referência conceitual: "Corona é inspirada na natureza, não feita da natureza."
-
+            - Corona é uma marca solar, animada, otimista, refrescante, que sempre vê a vida com um olhar otimista e positivo.
+    
+            Referência conceitual: "Corona. A vida é aqui fora" / "Corona. Há 100 anos fazendo da praia um palco"
+    
             Exemplos de boas saídas:
-            - Sol na pele, limão na garrafa, e o tempo jogando a favor
-            - O pôr-do-sol é só o começo Brinde com o que vem depois
+            - Sol na pele, limão na garrafa, e um brinde à vida.
+            - O pôr-do-sol é só o começo. Um brinde ao que vem depois.
             """)
+
+
 
         
     elif brand_name == "Lacta":

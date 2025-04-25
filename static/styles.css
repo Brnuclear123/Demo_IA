@@ -255,6 +255,19 @@ button:disabled {
     border-radius: 10px;
     background-color: #f9f9f9; /* Fundo neutro */
 }
+    /*DESATIVADO*/
+    .checkbox-container.disabled {
+        background-color: #eeeeee; /* fundo mais claro */
+        color: #919191;            /* texto em cinza */
+        cursor: not-allowed;       /* cursor de proibido */
+        pointer-events: none;      /* impede clique */
+        opacity: 0.7;              /* opcional: aparência "desativada" */
+    }
+
+    .checkbox-container.disabled .checkmark {
+        background-color: #ccc !important;
+        border-color: #ccc !important;
+    }
 
 /* Ocultar o checkbox padrão */
 .checkbox-container input {
