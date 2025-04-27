@@ -11,3 +11,5 @@ def real_time_data():
     real = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
     # Retorna apenas o clima (ou todo o JSON, se desejar)
     return jsonify({ 'weather': real.get('weather', 'Não disponível') })
+
+#real_time_checado

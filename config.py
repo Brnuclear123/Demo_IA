@@ -2,16 +2,40 @@ import os
 
 class Config:
     # Configurações gerais
-    SECRET_KEY = os.getenv('SECRET_KEY', 'my_secret_key')  # Chave secreta para segurança da sessão
+    SECRET_KEY = os.getenv('SECRET_KEY', 'my_secret_key')
     DEBUG = False
+    BEARER_TOKEN = os.getenv('BEARER_TOKEN', 'your_token_here')
+    
+    # Configurações por marca
+    
+    FONT_PATH = {'lacta': 'static/brands/lacta/fonts/Bison-Bold.ttf',
+                 'bauducco': 'static/brands/bauducco/fonts/Bison-Bold.ttf',
+                 'corona': 'static/brands/corona/fonts/Bison-Bold.ttf'}
+    
+    LOGOS_PATH = {'lacta': 'static/brands/lacta/logos/',
+                 'bauducco': 'static/brands/bauducco/logos/',
+                 'corona': 'static/brands/corona/logos/'}
+    
+    VIDEOS_PATH = {'lacta': 'static/brands/lacta/videos/',
+                 'bauducco': 'static/brands/bauducco/videos/',
+                 'corona': 'static/brands/corona/videos/'}
+    
+    FUNDO_IMAGEM_PATH = {'lacta': 'static/brands/lacta/frames/fundo_lct.jpeg',
+                 'bauducco': 'static/brands/bauducco/frames/fundo_bdc.jpeg',
+                 'corona': 'static/brands/corona/frames/fundo_crn.jpeg'}
+    
+    IMAGEM_FINAL_PATH = {'lacta': 'static/brands/lacta/frames/baseplate_lct.jpeg',
+                 'bauducco': 'static/brands/bauducco/frames/baseplate_bdc.jpeg',
+                 'corona': 'static/brands/corona/frames/baseplate_crn.jpeg'}
 
-    # Caminhos e arquivos usados no projeto
-    BEARER_TOKEN = os.getenv('BEARER_TOKEN', 'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDI0MTI4MzMsInRpbWVzdGFtcCI6MTc0MjQwOTIzMzc4NH0.0DbBbY28u9NxfoK0zsMz8bRuB099u2zvDo_qb3rH-Kk')
-    WEATHER_JSON = os.getenv('WEATHER_JSON', 'static/data/weather-cd.json')
-    AVALIACOES_PATH = os.getenv('AVALIACOES_PATH', 'static/data/avaliacoes.json')
-    FONT_PATH = os.getenv('FONT_PATH', 'static/fonte/Bison-Bold(PersonalUse).ttf')
-    FUNDO_IMAGEM_PATH = os.getenv('FUNDO_IMAGEM_PATH', 'static/frames/meu_fundo.png')
-    ENVIROMENT_DATA = os.getenv('ENVIROMENT_DATA', 'static/data/env_variables.json')
+    BOTTOM_IMAGEM_PATH = {'lacta': 'static/brands/lacta/bottom/bottom_lct.jpeg',
+                 'bauducco': 'static/brands/bauducco/bottom/bottom_bdc.jpeg',
+                 'corona': 'static/brands/corona/bottom/bottom_crn.png'}
+    
+    # Arquivos compartilhados
+    WEATHER_JSON = 'static/data/weather-cd.json'
+    AVALIACOES_PATH = 'static/data/avaliacoes.json'
+    ENVIROMENT_DATA = 'static/data/env_variables.json'
 
 class DevelopmentConfig(Config):
     DEBUG = True
@@ -21,7 +45,6 @@ class ProductionConfig(Config):
     DEBUG = False
     ENV = 'production'
 
-# Um dicionário para facilmente selecionar as configurações com base no ambiente
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,

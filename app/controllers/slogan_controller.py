@@ -1,5 +1,9 @@
 from flask import redirect, url_for, request, session, render_template, jsonify
-from app.services.slogan_service import gerar_slogans_e_gifs, gerar_dados_em_tempo_real, carregar_avaliacoes, salvar_avaliacoes, criar_gif_slogan_combinado
+from app.services.brands.corona import gerar_slogans_corona
+from app.services.brands.lacta import  gerar_slogans_lacta
+from app.services.brands.bauducco import gerar_slogans_bauducco
+from app.services.slogan_service import gerar_dados_em_tempo_real, carregar_avaliacoes, salvar_avaliacoes, criar_gif_slogan_combinado
+
 
 def corona():
     if 'username' in session and session['brand_name'] == 'Corona':
@@ -11,7 +15,7 @@ def corona():
             cidade = request.form.get('cidade')
             bairro = request.form.get('bairro')
             real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
-            slogans, imagens = gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, session['brand_name'], real_time_data)
+            slogans, imagens = gerar_slogans_corona(estado, cidade, bairro, data_campanha, momento, real_time_data)
             slogans_imagens = list(zip(slogans, imagens))
             return render_template('corona.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
         return render_template('corona.html')
@@ -28,13 +32,30 @@ def lacta():
             cidade = request.form.get('cidade')
             bairro = request.form.get('bairro')
             real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
-            slogans, imagens = gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, session['brand_name'])
+            slogans, imagens = gerar_slogans_lacta(estado, cidade, bairro, data_campanha, momento, real_time_data)
             slogans_imagens = list(zip(slogans, imagens))
             return render_template('lacta.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
         return render_template('lacta.html')
     else:
         return redirect(url_for('routes.login'))
-    
+
+def bauducco():
+    if 'username' in session and session['brand_name'] == 'Bauducco':
+        real_time_data = None
+        if request.method == 'POST':
+            momento = request.form.getlist('time_range')
+            data_campanha = request.form.get('data_campanha')
+            estado = request.form.get('estado')
+            cidade = request.form.get('cidade')
+            bairro = request.form.get('bairro')
+            real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
+            slogans, imagens = gerar_slogans_bauducco(estado, cidade, bairro, data_campanha, momento, real_time_data)
+            slogans_imagens = list(zip(slogans, imagens))
+            return render_template('bauducco.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
+        return render_template('bauducco.html')
+    else:
+        return redirect(url_for('routes.login'))
+
 def avaliar_slogan():
     # Obter a imagem e a avaliação (like/dislike)
     imagem = request.form['slogan_image']
@@ -110,3 +131,5 @@ def editar_slogan():
             'status': 'error',
             'message': str(e)
         }), 500
+
+#slogan_controller checado 

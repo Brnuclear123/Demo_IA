@@ -1,5 +1,4 @@
-from config import config
-# Usaremos a configuração de desenvolvimento (ou a que preferir)
+from config import config 
 conf = config['development']
 
 import os
@@ -12,415 +11,339 @@ from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 from moviepy import ImageSequenceClip
 import openai
-import google.generativeai as genai
 
-# CONSTANTES retiradas do config.py
-WEATHER_JSON = conf.WEATHER_JSON            # ex.: 'static/data/weather-cd.json'
-AVALIACOES_PATH = conf.AVALIACOES_PATH      # ex.: 'avaliacoes.json'
-FONT_PATH = conf.FONT_PATH                  # ex.: 'static/fonte/Bison-Bold(PersonalUse).ttf'
-FUNDO_IMAGEM_PATH = conf.FUNDO_IMAGEM_PATH  # ex.: 'static/frames/meu_fundo.png'
-ENVIROMENT_DATA = conf.ENVIROMENT_DATA      
+# ======================================================================
+# CONSTANTES E CONFIGURAÇÕES
+# ======================================================================
+WEATHER_JSON = conf.WEATHER_JSON            # 'static/data/weather-cd.json'
+AVALIACOES_PATH = conf.AVALIACOES_PATH      # 'avaliacoes.json'
 
-# Função para ler arquivos JSON
-def js_read(filename: str):
-    with open(filename) as j_file:
+FONT_PATH = conf.FONT_PATH                  # 'static/fonte/Bison-Bold.ttf'
+LOGOS_PATH = conf.LOGOS_PATH
+VIDEOS_PATH = conf.VIDEOS_PATH
+FUNDO_IMAGEM_PATH = conf.FUNDO_IMAGEM_PATH  # 'static/frames/meu_fundo.png'
+IMAGEM_FINAL_PATH = conf.IMAGEM_FINAL_PATH
+
+ENVIROMENT_DATA = conf.ENVIROMENT_DATA      # 'env_variables.json'
+
+# ======================================================================
+# FUNÇÕES UTILITÁRIAS (GENÉRICAS)
+# ======================================================================
+
+def gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha):
+    """
+    Gera dados em tempo real (clima, tendências, eventos) para campanhas.
+    
+    Args:
+        estado (str): Estado da campanha (ex: "SP").
+        cidade (str): Cidade da campanha (ex: "São Paulo").
+        bairro (str): Bairro da campanha (ex: "Centro").
+        data_campanha (str): Data no formato "DD/MM/YYYY" ou "DD/MM/YYYY to DD/MM/YYYY".
+    
+    Returns:
+        dict: Dados formatados com:
+            - weather (str): Clima atual.
+            - trending (str): Hashtags em tendência.
+            - local_events (str): Eventos locais.
+            - pop_culture (str): Tópico de cultura pop.
+    """
+    # --- 1. Tratamento da Data ---
+    dates = []
+    try:
+        if "to" in data_campanha:
+            date_parts = data_campanha.split("to")
+            for date_part in date_parts:
+                date_obj = datetime.strptime(date_part.strip(), '%d/%m/%Y')
+                dates.append(date_obj.strftime('%Y-%m-%d'))
+        else:
+            date_obj = datetime.strptime(data_campanha.strip(), '%d/%m/%Y')
+            dates.append(date_obj.strftime('%Y-%m-%d'))
+    except Exception as e:
+        print(f"Erro ao processar datas: {e}")
+        dates = [datetime.now().strftime('%Y-%m-%d')]  # Fallback para data atual
+
+    # --- 2. Obter Dados de Clima (API Externa) ---
+    weather_data = None
+    try:
+        coordinates = get_coordinates(cidade, estado)  # Função fictícia (substitua pela sua)
+        weather_data = get_weather_call(dates, coordinates)  # Função fictícia
+        print(f"Dados do clima obtidos: {weather_data}")
+    except Exception as e:
+        print(f"Erro ao buscar clima: {e}")
+
+    # --- 3. Gerar Prompt para o GPT ---
+    prompt = f"""
+    Para a localização: {cidade}, {bairro}, {estado}, retorne EXATAMENTE no formato:
+    TEMPERATURA: Max [valor]°C e Min [valor]°C [clima] /
+    HASHTAGS: #[tag1] #[tag2] /
+    EVENTO: [nome do evento] /
+    CULTURA POP: [tópico]
+
+    Dados reais do clima (se disponível): {weather_data}
+    """
+
+    # --- 4. Chamada ao GPT-4 ---
+    gpt_response = None
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "Siga estritamente o formato solicitado."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7
+        )
+        gpt_response = str(response['choices'][0]['message']['content'])
+        print(f"Resposta do GPT: {gpt_response}")
+    except Exception as e:
+        print(f"Erro ao chamar GPT: {e}")
+        return {
+            "weather": "Erro: Dados indisponíveis",
+            "trending": "Erro: Dados indisponíveis",
+            "local_events": "Erro: Dados indisponíveis",
+            "pop_culture": "Erro: Dados indisponíveis"
+        }
+
+    # --- 5. Parsear Resposta do GPT ---
+    def parse_gpt_response(response_text):
+        weather = trending = local_events = pop_culture = "Dados indisponíveis"
+
+        try:
+            temp_match = re.search(r"TEMPERATURA:\s*(.*?)\s*/", response_text)
+            hashtags_match = re.search(r"HASHTAGS:\s*(.*?)\s*/", response_text)
+            evento_match = re.search(r"EVENTO:\s*(.*?)\s*/", response_text)
+            cultura_match = re.search(r"CULTURA POP:\s*(.*)", response_text)
+
+            if temp_match:
+                weather = temp_match.group(1).strip()
+            if hashtags_match:
+                trending = hashtags_match.group(1).strip()
+            if evento_match:
+                local_events = evento_match.group(1).strip()
+            if cultura_match:
+                pop_culture = cultura_match.group(1).strip()
+
+        except Exception as e:
+            print(f"Erro ao parsear resposta do GPT: {e}")
+
+        return {
+            "weather": weather,
+            "trending": trending,
+            "local_events": local_events,
+            "pop_culture": pop_culture
+        }
+
+    return parse_gpt_response(gpt_response)
+
+def js_read(filename: str) -> dict:
+    """Lê arquivos JSON."""
+    with open(filename, 'r', encoding='utf-8') as j_file:
         return json.load(j_file)
 
-# Carrega variáveis de ambiente (arquivo 'env_variables.json')
-data = js_read(ENVIROMENT_DATA)
-openai.api_key = data['OPENAI_API_KEY']
-
-# Funções de avaliação
-def carregar_avaliacoes():
+def carregar_avaliacoes() -> dict:
+    """Carrega avaliações salvas."""
     if os.path.exists(AVALIACOES_PATH):
         with open(AVALIACOES_PATH, 'r') as file:
             return json.load(file)
     return {}
 
-def salvar_avaliacoes(avaliacoes):
+def salvar_avaliacoes(avaliacoes: dict) -> None:
+    """Salva avaliações no arquivo JSON."""
     with open(AVALIACOES_PATH, 'w') as file:
         json.dump(avaliacoes, file, indent=4)
 
-def ultimos_slogan():
+def ultimos_slogans() -> list:
+    """Retorna os últimos 4 slogans gerados (arquivos PNG)."""
     diretorio = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'static')
-    arquivos_png = [arquivo for arquivo in os.listdir(diretorio) if arquivo.endswith('.png')]
+    arquivos_png = [f for f in os.listdir(diretorio) if f.endswith('.png')]
     return arquivos_png[-4:]
 
-# Funções para processamento de texto e extração de slogans
-def encontrar_slogans(string_response, regex_patterns):
-    for regex_pattern in regex_patterns:
-        slogans = re.findall(regex_pattern, string_response)
-        print(f"Testando padrão: {regex_pattern}")
-        print(f"Resultados encontrados: {slogans}\n\n")
-        if len(slogans) == 4:
-            return slogans
-    return ["Slogan adicional não disponível."] * 4
-
-def regex_info(string_response, regex_patterns):
-    for regex_pattern in regex_patterns:
-        info = re.findall(regex_pattern, string_response, re.DOTALL)
-        print(f"Testando padrão: {regex_pattern}")
-        print(f"Resultados encontrados: {info}\n\n")
-        if len(info) == 4:
-            return info
-    return []
-
-# Funções relacionadas ao Weather
-def get_coordinates(city, state, country="Brasil"):
+# ======================================================================
+# FUNÇÕES DE WEATHER (GENÉRICAS)
+# ======================================================================
+def get_coordinates(city: str, state: str, country: str = "Brasil") -> tuple:
+    """Obtém coordenadas geográficas via OpenStreetMap."""
     url = "https://nominatim.openstreetmap.org/search"
-    params = {
-        'city': city,
-        'state': state,
-        'country': country,
-        'format': 'json'
-    }
-    headers = {
-        'User-Agent': 'YourAppName/1.0 (your@email.com)'
-    }
-    response = requests.get(url, params=params, headers=headers)
-    if response.status_code == 200:
-        data = response.json()
-        if data:
-            return data[0]['lat'], data[0]['lon']
-    return None, None
+    params = {'city': city, 'state': state, 'country': country, 'format': 'json'}
+    headers = {'User-Agent': 'YourAppName/1.0 (your@email.com)'}
 
-def get_weather_description(code):
-    with open(WEATHER_JSON, 'r', encoding='utf-8') as file:
-        weather_codes_dict = json.load(file)
-    if str(code) in weather_codes_dict:
-        return weather_codes_dict[str(code)]['description']
-    else:
-        return "Código não encontrado."
-
-def get_weather_call(date_forecast: list, lag_lon=[-10, -55]):
-    print(date_forecast,"\n\n","data do dia")
     try:
-        today_str = time.strftime("%Y-%m-%d", time.localtime())
-        today = datetime.strptime(today_str, "%Y-%m-%d")
-        input_date = datetime.strptime(date_forecast[0], "%Y-%m-%d")
-        date_diff = (input_date - today).days
-        if not (0 <= date_diff <= 7):
-            print("Data do input está fora da faixa de previsão de 7 dias")
-            return "null"
-        
-        url = "https://api.open-meteo.com/v1/forecast"
+        response = requests.get(url, params=params, headers=headers)
+        if response.status_code == 200 and response.json():
+            data = response.json()[0]
+            return (data['lat'], data['lon'])
+    except Exception as e:
+        print(f"Erro ao obter coordenadas: {e}")
+    return (None, None)
+
+def get_weather_description(code: int) -> str:
+    """Traduz código de clima para descrição."""
+    with open(WEATHER_JSON, 'r', encoding='utf-8') as file:
+        weather_codes = json.load(file)
+    return weather_codes.get(str(code), {}).get('description', "Código não encontrado.")
+
+def get_weather_call(date_forecast: list, lat_lon: list = [-10, -55]) -> str:
+    """Obtém previsão do tempo para uma data específica."""
+    try:
+        today = datetime.now().date()
+        target_date = datetime.strptime(date_forecast[0], '%Y-%m-%d').date()
+        days_diff = (target_date - today).days
+
+        if not 0 <= days_diff <= 7:
+            return "Previsão disponível apenas para os próximos 7 dias."
+
         params = {
-            "latitude": lag_lon[0],
-            "longitude": lag_lon[1],
+            "latitude": lat_lon[0],
+            "longitude": lat_lon[1],
             "daily": ["weather_code", "temperature_2m_max", "temperature_2m_min"],
             "timezone": "America/Sao_Paulo",
             "start_date": date_forecast[0],
             "end_date": date_forecast[1]
         }
-        response = requests.get(url, params=params)
+
+        response = requests.get("https://api.open-meteo.com/v1/forecast", params=params)
         response.raise_for_status()
-        
-        data = response.json()
-        
-        daily_data = data.get("daily", {})
-        wc_hold = daily_data.get("weather_code", [])
-        if not wc_hold:
-            raise ValueError("Nenhum código de tempo encontrado")
-        
-        temperature_max = daily_data.get("temperature_2m_max", [])[0]
-        temperature_min = daily_data.get("temperature_2m_min", [])[0]
-        
-        weather_description = get_weather_description(wc_hold[0])
-        weather_output = f"Max: {temperature_max}°C / Min: {temperature_min}°C\n{weather_description}"
-        return weather_output
-    except requests.exceptions.RequestException as e:
-        print(f"Erro de conexão ou requisição falhou: {e}")
-        return None
-    except KeyError as e:
-        print(f"Erro ao acessar o JSON retornado pela API. Chave não encontrada: {e}")
-        return None
-    except ValueError as e:
-        print(f"Erro ao processar a resposta: {e}")
-        return None
+
+        daily = response.json().get('daily', {})
+        weather_code = daily.get('weather_code', [None])[0]
+        temp_max = daily.get('temperature_2m_max', [None])[0]
+        temp_min = daily.get('temperature_2m_min', [None])[0]
+
+        if None in [weather_code, temp_max, temp_min]:
+            raise ValueError("Dados meteorológicos incompletos.")
+
+        description = get_weather_description(weather_code)
+        return f"Max: {temp_max} °C / Min: {temp_min} °C\n{description}"
+
     except Exception as e:
-        print(f"Erro inesperado: {e}")
-        return None
+        print(f"Erro na API de clima: {e}")
+        return "Dados meteorológicos indisponíveis."
 
-def dia_da_semana(date_str):
-    dates = [datetime.strptime(d.strip(), '%d/%m/%Y').strftime('%Y-%m-%d') for d in date_str.split("to")]
-    print(dates)
-    dayofweek = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo']
-    date = datetime.strptime(dates[0], '%Y-%m-%d').date()
-    return dayofweek[date.weekday()]
-
-def evento_social():
-    #função do evento social
-    pass
-
-# Função para criar GIF animado dos slogans
-def criar_gif_slogan_combinado(slogan_texto, brand_name):
-    dtnow = datetime.now()
-    base_filename = f"slogan_animado{dtnow.strftime('%Y%m%d%H%M%S')}{str(dtnow.microsecond)[:2].zfill(2)}"
-    largura, altura = 1920, 158
-    
-    if os.path.exists(FUNDO_IMAGEM_PATH):
-        imagem_base = Image.open(FUNDO_IMAGEM_PATH).resize((largura, altura)).convert("RGBA")
-    else:
-        imagem_base = Image.new("RGBA", (largura, altura), "#333")
-    
-    baseplate_path = "static/src/corona_baseplate.png"
-    if os.path.exists(baseplate_path):
-        baseplate_img = Image.open(baseplate_path).resize((largura, altura)).convert("RGBA")
-    else:
-        baseplate_img = None
-        
-    text_color = "white" if brand_name in ["Corona", "Lacta"] else "black"
-    
-    try:
-        font = ImageFont.truetype(FONT_PATH, 64)
-    except IOError:
-        font = ImageFont.load_default()
-    
-    frames = []
-    temp_draw = ImageDraw.Draw(imagem_base)
-    total_text_width = 0
-    
-    for letter in slogan_texto:
-        bbox = font.getbbox(letter)
-        letter_width = bbox[2] - bbox[0]
-        total_text_width += letter_width
-    
-    final_x = (largura - total_text_width) / 2
-    full_bbox = temp_draw.textbbox((0, 0), slogan_texto, font=font)
-    text_height = full_bbox[3] - full_bbox[1]
-    final_y = (altura - text_height) / 2
-    
-    letter_delay_gap = 1           # atraso (em frames) entre cada letra
-    letter_animation_duration = 5  # duração da animação de cada letra (em frames)
-    final_hold_frames = 30         # mantém o frame final por 30 frames (~3 segundos a 100ms/frame)
-    baseplate_frames = 70          # número de frames para mostrar a baseplate (adicione esta linha)
-
-    total_frames = (len(slogan_texto) - 1) * letter_delay_gap + letter_animation_duration + final_hold_frames + baseplate_frames
-    
-    for frame in range(total_frames):
-        frame_img = imagem_base.copy()
-        overlay = Image.new("RGBA", (largura, altura), (255, 255, 255, 0))
-        draw_overlay = ImageDraw.Draw(overlay)
-        current_x = final_x
-        
-        for idx, letter in enumerate(slogan_texto):
-            bbox_letter = font.getbbox(letter)
-            letter_width = bbox_letter[2] - bbox_letter[0]
-            letter_delay = idx * letter_delay_gap
-            
-            if frame < letter_delay:
-                pass  # A letra ainda não iniciou animação
-            elif frame < letter_delay + letter_animation_duration:
-                progress = (frame - letter_delay) / letter_animation_duration
-                offset_y = int((1 - progress) * 30)
-                alpha = int(progress * 255)
-                fill = (255, 255, 255, alpha) if text_color == "white" else (0, 0, 0, alpha)
-                draw_overlay.text((current_x, final_y + offset_y), letter, font=font, fill=fill)
-            else:
-                fill = (255, 255, 255, 255) if text_color == "white" else (0, 0, 0, 255)
-                draw_overlay.text((current_x, final_y), letter, font=font, fill=fill)
-                
-            current_x += letter_width
-        
-        combined = Image.alpha_composite(frame_img, overlay)
-        frames.append(combined.convert("RGB"))
-    
-    if baseplate_img:
-        for _ in range(baseplate_frames):
-            frames.append(baseplate_img.convert("RGB"))
-    
-    # Cria um clipe de vídeo a partir das imagens
-    clip = ImageSequenceClip([np.array(frame) for frame in frames], fps=12)
-    video_filename = os.path.join("static", f"{base_filename}.mp4")
-    
-    # Salva o vídeo
-    clip.write_videofile(video_filename, codec="libx264", fps=24)
-    
-    return video_filename
-
-# Função para gerar slogans e GIFs a partir do prompt
-def gerar_slogans_e_gifs(estado, cidade, bairro, data_campanha, momento, brand_name, real_time_data):
-    #real_time_data.weather
-    regex_patterns_gpt = [
-        r'(.+?)\s{2,}',
-        r'"([^"]+)"',
-        r'\d+\.\s*(.+?)(?=\n|$)',
-        r'^(.+?)$',
-        r'(.+?)(?:\s{2,}|(?=\n|$))'
-    ]
+# ======================================================================
+# FUNÇÕES DE GIF (GENÉRICAS)
+# ======================================================================
+def criar_gif_slogan_combinado(slogan_texto: str, brand_name: str) -> str:
+    # = = = = = = = = = = = = = = = =
+    # Config da variavel de ambiente
+    # = = = = = = = = = = = = = = = =
     
     if brand_name == "Corona":
-        prompt = (f"""
-            Você é uma inteligência criativa especializada em redigir mensagens curtas, impactantes e sensoriais para a marca de cerveja Corona no Brasil. Refira-se sempre à Corona no feminino.
-    
-            Sua tarefa:
-            → Crie 4 variações de títulos publicitários para exibição em telas digitais no ponto de venda.
-            → Cada título deve ter entre 30 e 75 caracteres.
-            → Não enumere, não use aspas e evite pontuação desnecessária.
-    
-            Diretrizes de estilo:
-            → Mensagens leves, inspiradoras, sensoriais.
-            → Evocar elementos da natureza: sol, por-do-sol, calor, frescor, refrescância.
-            → Estilo de vida livre, descontraído e ao ar livre.
-            → Público-alvo: jovens de 18 a 35 anos, ligados à música, sunset, esportes e natureza.
-            → Sem emojis. 
-            → Crie mensagens espontâneas, com induzam de forma sutil ao impulso de compra e sugestionem o consumidor a relaxar com uma Corona gelada 
-    
-            Contexto para inspiração:
-            - Temperatura: {real_time_data['weather']}°C
-            - Horário: {momento}
-            - Dia da semana: {dia_da_semana(data_campanha)}
-    
-            Instruções específicas:
-            -  Adapte a intenção do título conforme o dia da semana ({dia_da_semana(data_campanha)}), cite o dia só quando for conveniente:
-            Na segunda, explore o contexto do início ou recomeço da semana;
-            Na terça, fale sobre continuidade da semana, sobre já ser terça;
-            Na quarta, o contexto de meio de semana é ótimo pra ser usado;
-            Na quinta, usa a ideia de que falta pouco pro fim de semana;
-            Na sexta, explore a expressão sextou e o fato de que o fim de semana já começou;
-            No sábado e no domingo, use momentos no parque, de folga, de relaxamento para entregar as mensagens.
-            - Quando o momento do dia for escolhido, adapte a intenção da mensagem também:
-                De manhã, não faça referência nenhuma;
-                De tarde, explore a ideia do entardecer e de que logo tem por-do-sol;
-                De noite, diga que uma Corona sempre vai bem antes ou depois do jantar.
-            - Não repita o nome da cidade, estado ou bairro nos slogans. Use outros recursos para criar conexão com o local.
-            - Corona é uma marca solar, animada, otimista, refrescante, que sempre vê a vida com um olhar otimista e positivo.
-    
-            Referência conceitual: "Corona. A vida é aqui fora" / "Corona. Há 100 anos fazendo da praia um palco"
-    
-            Exemplos de boas saídas:
-            - Sol na pele, limão na garrafa, e um brinde à vida.
-            - O pôr-do-sol é só o começo. Um brinde ao que vem depois.
-            """)
+        path_FONT = FONT_PATH['corona']
+        path_LOGOS = LOGOS_PATH['corona']
+        path_VIDEOS = VIDEOS_PATH['corona']
+        path_FUNDO_IMAGEM = FUNDO_IMAGEM_PATH['corona']
+        path_IMAGEM_FINAL = IMAGEM_FINAL_PATH['corona']
+    if brand_name == "Lacta":
+        path_FONT = FONT_PATH['lacta']
+        path_LOGOS = LOGOS_PATH['lacta']
+        path_VIDEOS = VIDEOS_PATH['lacta']
+        path_FUNDO_IMAGEM = FUNDO_IMAGEM_PATH['lacta']
+        path_IMAGEM_FINAL = IMAGEM_FINAL_PATH['lacta']
+    if brand_name == "bauducco":
+        path_FONT = FONT_PATH['bauducco']
+        path_LOGOS = LOGOS_PATH['bauducco']
+        path_VIDEOS = VIDEOS_PATH['bauducco']
+        path_FUNDO_IMAGEM = FUNDO_IMAGEM_PATH['bauducco']
+        path_IMAGEM_FINAL = IMAGEM_FINAL_PATH['bauducco']
 
 
 
-        
-    elif brand_name == "Lacta":
-        prompt = (
-        f"Crie quatro slogans publicitários exclusivos e de alto impacto para a marca Lacta, "
-        f"Use o estado '{estado}','{cidade}' e '{bairro} para criar slogans que tenha contexto com a localidade. Esta campanha é direcionada ao público de 18 a 35 anos com o tema, "
-        f"utilizando um tom de voz de emocional e afetivo para transmitir uma sensação de prestígio, acolhimento e valor agregado positivo. "
-        "precisamos que limite o uso de caracter para que não exceda, não pode passar de 70 caracteres"
-        "Cada slogan deve ser envolvente, destacar a exclusividade da marca e incluir uma chamada para ação (CTA) que inspire desejo e urgência. "
-        "Separe cada slogan com uma quebra de linha e garanta que sejam quatro slogans únicos."
-        "slogans que pode ser rimados seria muito bom, para grudar na cabeça do cliente, mas mantendo a criatividade e os 45 caracteres "
-        "vamos colocar mais criatividade nesses slogans, quero algo mais intuitivo de acordo com suas marcas."
-        "não coloque datas nos slogans, use as datas para indentificar o dia da semana e aproveite para usar a seu favor."
-        "quero apenas o slogans, não é para colocar corona:, isso não deixa os slogans profisionais, gere apenas slogans."
-        "Regra basica, quando colocar a localização no slogam sempre açocie a marca, se não tiver a localização apenas o slogam com a marca."
-        "nunca deixe de mencionar a marca Lacta."
-        "criativo da marca frequentemente utiliza jogos de palavras, trocadilhos e referencias culturais, criatividade na forma de se comunicar"
-        "eu quero concordancia nas frases dos slogans, sempre tenta manter uma concordancia verbal para um maior entendimento do publico."
-        f"No caso de o '{data_campanha}'selecionado for Quarta feira subistitua para Quartou, Quinta feira subistitua para Quintou e se for Sexta feira subistitua para Sextou."
-        f"Considere na criação do slogan o horario que vai ser consumido o produto: {momento}'"
-        )
+    """Gera GIF animado com o slogan."""
+    dt_now = datetime.now()
+    base_filename = f"slogan_animado{dt_now.strftime('%Y%m%d%H%M%S')}{str(dt_now.microsecond)[:2].zfill(2)}"
+    largura, altura = 1920, 158
+
+    # Configuração de cores por marca
+    bg_color = "#333333" if brand_name in ["Corona", "Lacta", "Bauducco"] else "#FFFFFF"
+    text_color = "white" if brand_name in ["Corona", "Lacta", "Bauducco"] else "black"
+
+    # Carrega imagem de fundo ou cria uma padrão
+    if os.path.exists(path_FUNDO_IMAGEM):
+        imagem_base = Image.open(path_FUNDO_IMAGEM).resize((largura, altura)).convert("RGBA")
+    else:
+        imagem_base = Image.new("RGBA", (largura, altura), bg_color)
+
+    # Imagem de final de vídeo
+    if os.path.exists(path_IMAGEM_FINAL):
+        baseplate_img = Image.open(path_IMAGEM_FINAL).resize((largura, altura)).convert("RGBA")
+    else:
+        baseplate_img = None
+
+    # Configuração de fonte
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4-turbo",
-            messages=[
-                {"role": "system", "content": "Assuma que você é um redador publicitário especialista em mensagens curtas, rápidas e inteligentes sem precisar que enumere os slogans, sem a utilização de aspas e evita pontuações desnecesarias, um publicitario que é atento aos calendadriaos festivos que fazem sentido para a marcas"},
-                {"role": "user", "content": prompt}
-            ]
-        )
-        string_response = str(response.choices[0].message.content)
-        print(string_response)
-        slogans = encontrar_slogans(string_response, regex_patterns_gpt)
-        imgs = []
-        for slogan in slogans:
-            file_img = criar_gif_slogan_combinado(slogan, brand_name)
-            imgs.append(file_img)
-        print("Mensagem GPT\n\n", slogans)
-        return slogans[:4], imgs
+        font = ImageFont.truetype(path_FONT, 64)
+    except IOError:
+        font = ImageFont.load_default()
+
+    # Cálculo de posição do texto
+    temp_draw = ImageDraw.Draw(Image.new("RGB", (1, 1)))
+    total_width = sum(font.getbbox(char)[2] - font.getbbox(char)[0] for char in slogan_texto)
+    pos_x = (largura - total_width) // 2
+    pos_y = (altura - (font.getbbox(slogan_texto)[3] - font.getbbox(slogan_texto)[1])) // 2
+
+    # Animação letra por letra
+    frames = []
+    for frame_idx in range(len(slogan_texto) * 5 + 30):  # 5 frames por letra + 30 frames finais
+        frame = imagem_base.copy()
+        overlay = Image.new("RGBA", (largura, altura), (255, 255, 255, 0))
+        draw = ImageDraw.Draw(overlay)
+
+        current_x = pos_x
+        for char_idx, char in enumerate(slogan_texto):
+            if frame_idx >= char_idx * 5 and frame_idx < char_idx * 5 + 10:
+                alpha = min(255, (frame_idx - char_idx * 5) * 25)
+                offset_y = int(10 * (1 - (frame_idx - char_idx * 5) / 5))
+                draw.text(
+                    (current_x, pos_y + offset_y),
+                    char,
+                    font=font,
+                    fill=((255, 255, 255, alpha) if text_color == "white" else (0, 0, 0, alpha))
+                )
+            elif frame_idx >= char_idx * 5 + 10:
+                draw.text(
+                    (current_x, pos_y),
+                    char,
+                    font=font,
+                    fill=text_color
+                )
+
+            current_x += font.getbbox(char)[2] - font.getbbox(char)[0]
+
+        frame.paste(overlay, (0, 0), overlay)
+        frames.append(np.array(frame.convert("RGB")))
+
+    # Salva como vídeo
+    clip = ImageSequenceClip(frames, fps=24)
+    video_path = os.path.join("static", f"{base_filename}.mp4")
+    clip.write_videofile(video_path, codec="libx264", fps=24, logger=None)
+    return video_path
+
+# ======================================================================
+# FUNÇÕES AUXILIARES
+# ======================================================================
+def dia_da_semana(date_str: str) -> str:
+    """Converte data para dia da semana (ex: '25/12/2023' -> 'Segunda-feira')."""
+    dias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 
+            'Sexta-feira', 'Sábado', 'Domingo']
+    try:
+        data = datetime.strptime(date_str.split("to")[0].strip(), '%d/%m/%Y').date()
+        return dias[data.weekday()]
     except Exception as e:
-        print("Erro ao gerar slogans:", e)
-        try:
-            genai.configure(api_key=data['GEMINI_API_KEY'])
-            genai.GenerationConfig(
-                temperature=1,
-                candidate_count=1,
-                top_k=10
-            )
-            model_gemini = genai.GenerativeModel(
-                model_name="gemini-1.5-flash"
-            )
-            response = model_gemini.generate_content(prompt)
-            string_response = str(response.text)
-            slogans = encontrar_slogans(string_response, regex_patterns_gpt)
-            imgs = []
-            for slogan in slogans:
-                file_img = criar_gif_slogan_combinado(slogan, brand_name)
-                imgs.append(file_img)
-            print("Mensagem GPT\n\n", slogans)
-            return slogans[:4], imgs
-        except Exception as e:
-            print("Erro gemini------\n\n", e)
-            slogans = ['Slogan 1 é na bump',
-                       'Slogan 2 é na bump_media',
-                       'Slogan 3 é na media',
-                       'Slogan 4 é na bump media',
-                       'Slogan 5 é na media_bump']
-            imgs = []
-            for slogan in slogans:
-                file_img = criar_gif_slogan_combinado(slogan, brand_name)
-                imgs.append(file_img)
-            return slogans[:4], imgs
+        print(f"Erro ao converter data: {e}")
+        return ""
 
-
-
-
-# Função para gerar dados em tempo real usando a OpenAI
-def gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha):
-    regex_patterns = [
-        r"^- (.+)$",
-        r"^\d+\.\s(.+)$",
-        r"^\d+-\s(.+)$",
-        r"^\d+:\s(.+)$",
-        r"^- (.+)$",
-        r"([^/]+)"
+def extrair_slogans(texto: str) -> list:
+    """Extrai slogans de texto usando regex."""
+    padroes = [
+        r'"([^"]+)"',
+        r'^\d+\.\s*(.+)$',
+        r'^-\s*(.+)$'
     ]
-    dates = [datetime.strptime(d.strip(), '%d/%m/%Y').strftime('%Y-%m-%d') for d in data_campanha.split("to")]
-    weather_response = get_weather_call(dates, get_coordinates(cidade, estado))
-    print(weather_response)
-    prompt = (
-        f"Baseado na localização '{estado}', '{cidade}', '{bairro}', forneça:\n"
-        "- Temperatura máxima e mínima e clima atual\n"
-        "- Hashtags de tendências\n"
-        "- Um evento local relevante\n"
-        "- Um tópico popular de cultura pop atual.\n"
-        "Retorne algo similar a: Max 25°C e Max 20°C Ensolarado / #rock&rio #sextou / Festa de são joão & Festa de aniversário da cidade / Novo albúm da Taylor Swift"
-    )
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "Você está puxando informações baseado no nome de estado. O retorno é feito com tópicos e separado por '/'"},
-                {"role": "user", "content": prompt}
-            ]
-        )
-        resposta = str(response['choices'][0]['message']['content'])
-        print("Resposta do CLIMA GPT")
-        print(resposta)
-        dados = regex_info(resposta, regex_patterns)
-        if weather_response:
-            weather_value = weather_response
-        elif len(dados) > 0:
-            weather_value = dados[0]
-        else:
-            weather_value = "Não disponível"
-        conjunto_add_info = {
-            "weather": weather_value,
-            "trending": dados[1] if len(dados) > 1 else "Não disponível",
-            "local_events": dados[2] if len(dados) > 2 else "Não disponível",
-            "pop_culture": dados[3] if len(dados) > 3 else "Não disponível",
-        }
-        print(conjunto_add_info)
-        return conjunto_add_info
-    except Exception as e:
-        print("Erro ao gerar dados em tempo real:", e)
-        return {
-            "weather": "Erro ao obter dados.",
-            "trending": "Erro ao obter dados.",
-            "local_events": "Erro ao obter dados.",
-            "pop_culture": "Erro ao obter dados.",
-        }
+    for padrao in padroes:
+        matches = re.findall(padrao, texto, re.MULTILINE)
+        if len(matches) >= 4:
+            return matches[:4]
+    return ["Slogan não disponível"] * 4
+
+
+#service_checado

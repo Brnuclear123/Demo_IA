@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <title>Gerador de Conteúdo - Bauducco</title>
+        <!-- Estilos -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <!-- Flatpickr (Calendário) -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    </head>
+    <body>
+
+    <!-- Cabeçalho / Topo -->
+    <header class="header-bar">
+        <div class="header-logo">
+            <!-- Substitua por um logo real, se quiser -->
+            <img src="static/src/bump_small_logo.png" alt="bump">
+        </div>
+        <nav class="header-menu">
+            <ul>
+                <li><a href="{{ url_for('routes.bauducco') }}" class="active"><button id="generate-button">CRIAR CONTEÚDO</button></a></li>
+                <!-- Ajuste a rota para a sua view de slogans avaliados, se quiser -->
+                <li><a href="{{ url_for('routes.avaliados') }}"><button id="generate-button">AVALIADOS</button></a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Seção principal -->
+    <main class="container">
+
+        <!-- Título principal / Subtítulo -->
+        <section class="intro">
+            <h2>Criador de Conteúdo</h2>
+            <p>Comece a criar as mensagens certas para o momento certo. Aqui colocar mensagem do que o usuário precisa fazer antes de começar a criar conteúdo. Falar sobre conceito de “campanha” e explicar o recurso..</p>
+        </section>
+
+        <!-- Formulário principal -->
+        <form class="campaign-form" action="{{ url_for('routes.bauducco') }}" method="post">
+            <div class="form-row">
+                <!-- 1) Onde a oferta vai rodar? -->
+                <div class="form-group">
+                    <label for="localizacao">Com quem esse conteúdo vai falar?</label>
+                    <input 
+                        type="text" 
+                        id="localizacao" 
+                        placeholder="Digite Estado, Cidade ou Bairro" 
+                        autocomplete="off" 
+                        required
+                    >
+                    <ul 
+                        id="suggestions" 
+                        style="display:none;"
+                    >
+                        <!-- Sugestões geradas dinamicamente -->
+                    </ul>
+                    <!-- Campos ocultos preenchidos dinamicamente -->
+                    <input type="hidden" id="estado" name="estado">
+                    <input type="hidden" id="cidade" name="cidade">
+                    <input type="hidden" id="bairro" name="bairro">
+                </div>
+
+                <!-- 2) Com quem você quer falar? (loja) -->
+                <div class="form-group">
+                    <label for="loja">Quais pontos de venda vão receber esse conteúdo?</label>
+                    <select id="loja" name="loja" required>
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="Store 1">Loja 1</option>
+                        <option value="Store 2">Loja 2</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <!-- 3) Quando a oferta vai rodar? (intervalo de datas) -->
+                <div class="form-group">
+                    <label for="data_campanha">Qual o período de visualização do conteúdo?</label>
+                    <input 
+                        type="text" 
+                        id="data_campanha" 
+                        class="datepicker" 
+                        name="data_campanha" 
+                        placeholder="Selecione o intervalo" 
+                        required
+                    >
+                </div>
+
+                <!-- 4) Que momento do dia recebe essa mensagem? -->
+                <div class="form-group">
+                    <label>Qual o melhor momento para a sua mensagem?</label>
+                    <div class="time-ranges">
+                        <label><input type="checkbox" name="time_range" value="early_morning"> Manhã</label>
+                        <label><input type="checkbox" name="time_range" value="afternoon"> Tarde</label>
+                        <label><input type="checkbox" name="time_range" value="night"> Noite</label>
+                        <label><input type="checkbox" name="time_range" value="late_at_night"> Madrugada</label>
+                        <label><input type="checkbox" name="time_range" value="full_day"> Dia todo</label>
+                        <label><input type="time" > Escolher outro horário</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão para gerar conteúdo -->
+            <div class="buttons-container">
+                <button 
+                    id="generate-button" 
+                    type="submit"
+                >
+                    CRIAR CONTEÚDO
+                </button>
+            </div>
+        </form>
+
+        <label>Deixe seu conteúdo mais relevante, conectando com dados em tempo real:</label>
+        <!-- Seção de dados em tempo real (caso queira manter) -->
+        <div class="real-time-data">
+            <label class="checkbox-container">
+                🌤️ <strong>CLIMA LOCAL</strong><br>
+                <input type="checkbox" class="data-checkbox" data-type="weather">
+                <span class="checkmark"></span>
+                <span class="data-text">{{ real_time_date.weather if real_time_date else "Carregando..." }}</span>
+            </label>
+            <label class="checkbox-container disabled">
+                #️⃣ <strong>SOCIAL TRENDS</strong><br>
+                <input type="checkbox" class="data-checkbox" data-type="trending">
+                <span class="checkmark"></span>
+                <span class="data-text">{{ real_time_date.trending if real_time_date else "Carregando..." }}</span>
+            </label>
+            <label class="checkbox-container disabled">
+                📅 <strong>EVENTOS LOCAIS</strong><br>
+                <input type="checkbox" class="data-checkbox" data-type="local-events">
+                <span class="checkmark"></span>
+                <span class="data-text">{{ real_time_date.local_events if real_time_date else "Carregando..." }}</span>
+            </label>
+            <label class="checkbox-container disabled">
+                🎬 <strong>AGENDA CULTURAL</strong><br>
+                <input type="checkbox" class="data-checkbox" data-type="pop-culture">
+                <span class="checkmark"></span>
+                <span class="data-text">{{ real_time_date.pop_culture if real_time_date else "Carregando..." }}</span>
+            </label>
+        </div>
+
+
+        <!-- Botões adicionais (Avaliados e Refazer) -->
+        <div class="buttons-container">
+            <form action="{{ url_for('routes.avaliados') }}" method="post">
+                <button id="slogans-button" type="submit">
+                    VER OPÇÕES AVALIADAS
+                </button>
+            </form>
+            <form id="refazer-form" action="{{ url_for('routes.bauducco') }}" method="POST" style="display:inline-block;">
+                <!-- Esses inputs são apenas placeholders caso precise re-enviar -->
+                <input type="hidden" name="time_range" value="time_range">
+                <input type="hidden" name="data_campanha" value="data_campanha">
+                <input type="hidden" name="estado" value="estado">
+                <input type="hidden" name="cidade" value="cidade">
+                <input type="hidden" name="bairro" value="bairro">
+                <button id="refazer-button" type="submit">
+                    CRIAR NOVAS OPÇÕES
+                </button>
+            </form>
+        </div>
+
+        <!-- Seção de opções criativas de slogans -->
+        <section class="slogan-section">
+            <h2>Opções Criativas</h2>
+            <div class="slogan-options">
+                {% if slogans_imagens %}
+                    {% for slogan, imagem in slogans_imagens %}
+                        <div class="slogan-box">
+                            <video autoplay muted loop class="slogan-image" id="slogan-video-player">
+                                <source src="{{ imagem }}" type="video/mp4">
+                                Seu navegador não suporta o elemento de vídeo.
+                            </video>
+
+                            <img src="static/brands/bauducco/bottom/bottom_bdc.jpeg" alt="Lacta_baseplate" class="slogan-image"> <!--olhar aqui-->
+                            
+                            
+                            <!-- Botões de avaliação -->
+                            <div class="slogan-controls">
+                                <button class="like-button" data-imagem="{{ imagem }}" data-avaliacao="like">👍</button>
+                                <button class="dislike-button" data-imagem="{{ imagem }}" data-avaliacao="dislike">👎</button>
+                            </div>
+                            <button id="publish-button" data-imagem="{{ imagem }}" type="button">
+                                PUBLICAR
+                            </button>
+                            <button class="edit-button" data-imagem="{{ imagem }}" data-slogan="{{ slogan }}">
+                                EDITAR
+                            </button>
+                            
+
+                            <!-- Modal de Edição -->
+                            <div class="modal edit-modal" style="display:none;">
+                                <div class="modal-content">
+                                    <span class="close" style="font-size: 35px; color: red">&times;</span>
+                                    <h3>EDITAR SLOGAN</h3>
+                                    <input type="text" class="new-slogan-input" placeholder="Digite o novo slogan">
+                                    <button class="save-slogan-btn">SALVAR</button>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Nenhum conteúdo gerado ainda. Preencha o formulário acima e clique em "CRIAR CONTEÚDO".</p>
+                {% endif %}
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="footer-bar">
+        <p>© Lacta®. All rights reserved - 2025.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        // SUGESTÕES DE LOCALIZAÇÃO
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('localizacao');
+            const suggestions = document.getElementById('suggestions');
+            const estadoInput = document.getElementById('estado');
+            const cidadeInput = document.getElementById('cidade');
+            const bairroInput = document.getElementById('bairro');
+    
+            // Carregar os dados do JSON
+            fetch('/static/data/estados_cidades_bairros.json')
+                .then(response => response.json())
+                .then(data => {
+                    // Atualizar sugestões conforme o usuário digita
+                    input.addEventListener('input', () => {
+                        const query = input.value.toLowerCase();
+                        suggestions.innerHTML = '';
+    
+                        if (query.length < 2) {
+                            suggestions.style.display = 'none';
+                            return;
+                        }
+    
+                        // Filtrar os dados para encontrar correspondências
+                        const matches = [];
+                        for (const [estado, cidades] of Object.entries(data)) {
+                            for (const [cidade, bairros] of Object.entries(cidades)) {
+                                if (estado.toLowerCase().includes(query) || cidade.toLowerCase().includes(query)) {
+                                    matches.push(`${estado} - ${cidade}`);
+                                }
+                                bairros.forEach(bairro => {
+                                    if (bairro.toLowerCase().includes(query)) {
+                                        matches.push(`${estado} - ${cidade} - ${bairro}`);
+                                    }
+                                });
+                            }
+                        }
+    
+                        // Exibir as sugestões
+                        if (matches.length > 0) {
+                            matches.forEach(match => {
+                                const li = document.createElement('li');
+                                li.textContent = match;
+                                li.addEventListener('click', () => {
+                                    input.value = match;
+                                    suggestions.style.display = 'none';
+    
+                                    // Preencher campos hidden
+                                    const parts = match.split(' - ');
+                                    estadoInput.value = parts[0] || '';
+                                    cidadeInput.value = parts[1] || '';
+                                    bairroInput.value = parts[2] || '';
+                                });
+                                suggestions.appendChild(li);
+                            });
+                            suggestions.style.display = 'block';
+                        } else {
+                            suggestions.style.display = 'none';
+                        }
+                    });
+    
+                    // Esconder as sugestões ao clicar fora
+                    document.addEventListener('click', (e) => {
+                        if (!e.target.closest('.form-group')) {
+                            suggestions.style.display = 'none';
+                        }
+                    });
+                })
+                .catch(error => console.error('Erro ao carregar os dados:', error));
+        });
+    </script>
+
+    <script>
+        // Função que chama o endpoint e atualiza o span do clima
+        async function updateWeather() {
+        const estado = document.getElementById('estado').value;
+        const cidade = document.getElementById('cidade').value;
+        const bairro = document.getElementById('bairro').value;
+        const dataCampanha = document.getElementById('data_campanha').value;
+        if (!estado || !cidade || !dataCampanha) return;  // só executa se tiver tudo
+    
+        try {
+            const params = new URLSearchParams({
+            estado, cidade, bairro,
+            data_campanha: dataCampanha
+            });
+            const res = await fetch(`/real_time_data?${params.toString()}`);
+            const json = await res.json();
+            // Seleciona o label de clima e atualiza o texto
+            const label = document.querySelector('.checkbox-container input[data-type="weather"]')
+                                .closest('.checkbox-container');
+            label.querySelector('.data-text').innerText = json.weather;
+        } catch (err) {
+            console.error('Erro ao atualizar clima:', err);
+        }
+        }
+    
+        document.addEventListener('DOMContentLoaded', () => {
+        // 1) Chamar ao selecionar sugestão de localização
+        document.getElementById('suggestions').addEventListener('click', () => {
+            // Delay para garantir que os campos hidden já foram preenchidos
+            setTimeout(updateWeather, 100);
+        });
+
+        });
+    </script>
+  
+
+    <script>
+        // DATEPICKER (FLATPICKR)
+        document.addEventListener("DOMContentLoaded", function() {
+            flatpickr("#data_campanha", {
+                mode: "range",
+                dateFormat: "d/m/Y",
+                minDate: "today",
+                locale: {
+                    firstDayOfWeek: 0,
+                    weekdays: {
+                        shorthand: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+                        longhand: ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"]
+                    },
+                    months: {
+                        shorthand: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
+                        longhand: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+                    }
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                    updateWeather();
+                    console.log("Datas selecionadas:", dateStr);
+                }
+            });
+        });
+    </script>
+
+    <script>
+        // BOTÕES LIKE/DISLIKE
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.like-button, .dislike-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const imagem = this.getAttribute('data-imagem');
+                    const avaliacao = this.getAttribute('data-avaliacao');
+                    
+                    fetch('/avaliar_slogan', {
+                        method: 'POST',
+                        body: new URLSearchParams({
+                            'slogan_image': imagem,
+                            'avaliacao': avaliacao
+                        }),
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            alert(data.message);
+                            console.log('Likes:', data.likes);
+                            console.log('Dislikes:', data.dislikes);
+                        } else {
+                            alert("Erro ao avaliar slogan");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao avaliar slogan:', error);
+                    });
+                });
+            });
+        });
+    </script>
+
+    <script>
+        // Fazer o vídeo pausar e ficar só uma imagem
+        var videos = document.querySelectorAll('#slogan-video-player');
+
+        var startAtSecond = 15;
+
+        videos.forEach(function(video) {
+            video.onloadedmetadata = function() {
+                video.currentTime = startAtSecond;
+                video.pause();
+                video.controls = false;
+            };
+        });
+
+
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Para cada botão "EDITAR", ao ser clicado, localize o modal relativo à mesma .slogan-box
+        document.querySelectorAll('.edit-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Encontra o container pai (a div .slogan-box)
+                const sloganBox = this.closest('.slogan-box');
+                // Seleciona o modal dentro desse container
+                const editModal = sloganBox.querySelector('.edit-modal');
+                // Preenche o input com o slogan atual, se estiver armazenado no botão
+                const newSloganInput = sloganBox.querySelector('.new-slogan-input');
+                newSloganInput.value = this.getAttribute('data-slogan');
+                // Exibe o modal
+                editModal.style.display = 'block';
+                
+                // Fecha o modal ao clicar no elemento com a classe "close"
+                sloganBox.querySelector('.close').addEventListener('click', () => {
+                    editModal.style.display = 'none';
+                });
+
+                // Ao clicar no botão "Salvar" dentro do modal, envie a atualização
+                sloganBox.querySelector('.save-slogan-btn').addEventListener('click', () => {
+                    const novoSlogan = newSloganInput.value;
+                    // Obtenha o caminho atual do vídeo (por exemplo, do <source> dentro do vídeo deste container)
+                    const currentVideoElement = sloganBox.querySelector('video');
+                    const oldVideoPath = currentVideoElement.querySelector('source').getAttribute('src');
+
+                    fetch('/editar_slogan', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            video_path: oldVideoPath,
+                            novo_slogan: novoSlogan
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.status === 'success') {
+                            const novoVideoPath = data.novo_video_path;
+                            // Atualiza o src do vídeo
+                            const sourceElement = currentVideoElement.querySelector('source');
+                            sourceElement.setAttribute('src', novoVideoPath);
+                            currentVideoElement.load();
+
+                            // Atualiza os atributos data-imagem e data-slogan dos botões do container
+                            sloganBox.querySelectorAll('.like-button, .dislike-button, #publish-button, .edit-button').forEach(btn => {
+                                btn.dataset.imagem = novoVideoPath;
+                            });
+                            // Atualiza o botão "EDITAR" com o novo slogan
+                            this.setAttribute('data-slogan', novoSlogan);
+                            alert('Vídeo atualizado com sucesso!');
+                        } else {
+                            alert('Erro ao atualizar slogan: ' + data.message);
+                        }
+                        editModal.style.display = 'none';
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        editModal.style.display = 'none';
+                    });
+                });
+            });
+        });
+    });
+
+    </script>
+    
+
+        <!-- Publicar na tela -->
+    <script>
+        // PUBLICAÇÃO DE CONTEÚDO
+        document.querySelectorAll('#publish-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const videoPath = this.getAttribute('data-imagem');
+                
+                fetch('/publish-content', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        file_path: videoPath
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        alert('Conteúdo publicado com sucesso!');
+                    } else {
+                        alert('Erro na publicação: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro na comunicação com o servidor');
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

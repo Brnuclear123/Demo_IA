@@ -21,6 +21,8 @@ def login():
                 return redirect(url_for('routes.corona'))
             elif user['brand'] == 'Lacta':
                 return redirect(url_for('routes.lacta'))
+            elif user['brand'] == 'Bauducco':
+                return redirect(url_for('routes.bauducco'))
         else:
             error = "Login falhou. Verifique suas credenciais."
     
