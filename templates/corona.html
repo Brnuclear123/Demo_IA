@@ -13,8 +13,9 @@
     <!-- Cabeçalho / Topo -->
     <header class="header-bar">
         <div class="header-logo">
-            <!-- Substitua por um logo real, se quiser -->
-            <img src="static/src/bump_small_logo.png" alt="bump">
+            <a href="{{ url_for('routes.login') }}">
+                <img src="static/src/bump_small_logo.png" alt="bump">
+            </a>
         </div>
         <nav class="header-menu">
             <ul>
@@ -31,7 +32,10 @@
         <!-- Título principal / Subtítulo -->
         <section class="intro">
             <h2>Criador de Conteúdo</h2>
-            <p>Comece a criar as mensagens certas para o momento certo. Aqui colocar mensagem do que o usuário precisa fazer antes de começar a criar conteúdo. Falar sobre conceito de “campanha” e explicar o recurso..</p>
+            <p>Comece a criar as mensagens certas para o momento certo. 
+                Prencha todos os campos 
+                Aqui colocar mensagem do que o usuário precisa fazer antes 
+                de começar a criar conteúdo. Falar sobre conceito de “campanha” e explicar o recurso..</p>
         </section>
 
         <!-- Formulário principal -->
