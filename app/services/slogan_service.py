@@ -233,13 +233,13 @@ def criar_gif_slogan_combinado(slogan_texto: str, brand_name: str) -> str:
         path_VIDEOS = VIDEOS_PATH['corona']
         path_FUNDO_IMAGEM = FUNDO_IMAGEM_PATH['corona']
         path_IMAGEM_FINAL = IMAGEM_FINAL_PATH['corona']
-    if brand_name == "Lacta":
+    elif brand_name == "Lacta":
         path_FONT = FONT_PATH['lacta']
         path_LOGOS = LOGOS_PATH['lacta']
         path_VIDEOS = VIDEOS_PATH['lacta']
         path_FUNDO_IMAGEM = FUNDO_IMAGEM_PATH['lacta']
         path_IMAGEM_FINAL = IMAGEM_FINAL_PATH['lacta']
-    if brand_name == "bauducco":
+    elif brand_name == "bauducco":
         path_FONT = FONT_PATH['bauducco']
         path_LOGOS = LOGOS_PATH['bauducco']
         path_VIDEOS = VIDEOS_PATH['bauducco']
@@ -283,7 +283,7 @@ def criar_gif_slogan_combinado(slogan_texto: str, brand_name: str) -> str:
 
     # Animação letra por letra
     frames = []
-    for frame_idx in range(len(slogan_texto) * 5 + 30):  # 5 frames por letra + 30 frames finais
+    for frame_idx in range(len(slogan_texto) * 5 + 160):  # 5 frames por letra + 160 frames finais
         frame = imagem_base.copy()
         overlay = Image.new("RGBA", (largura, altura), (255, 255, 255, 0))
         draw = ImageDraw.Draw(overlay)

@@ -14,7 +14,7 @@
     <header class="header-bar">
         <div class="header-logo">
             <a href="{{ url_for('routes.login') }}">
-                <img src="static/src/bump_small_logo.png" alt="bump">
+                <img src="static/src/bump_small_logo-noBG.png" alt="bump">
             </a>
         </div>
         <nav class="header-menu">
@@ -149,11 +149,11 @@
             </form>
             <form id="refazer-form" action="{{ url_for('routes.lacta') }}" method="POST" style="display:inline-block;">
                 <!-- Esses inputs são apenas placeholders caso precise re-enviar -->
-                <input type="hidden" name="time_range" value="time_range">
-                <input type="hidden" name="data_campanha" value="data_campanha">
-                <input type="hidden" name="estado" value="estado">
-                <input type="hidden" name="cidade" value="cidade">
-                <input type="hidden" name="bairro" value="bairro">
+                <input type="hidden" name="time_range" value="">
+                <input type="hidden" name="data_campanha" value="">
+                <input type="hidden" name="estado" value="">
+                <input type="hidden" name="cidade" value="">
+                <input type="hidden" name="bairro" value="">
                 <button id="refazer-button" type="submit">
                     CRIAR NOVAS OPÇÕES
                 </button>
@@ -213,8 +213,70 @@
         <p>© Lacta®. All rights reserved - 2025.</p>
     </footer>
 
-    <!-- Scripts -->
+    <!-- 
+        SCRIPTS DO CÓDIGO 
+    -->
+
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <!-- PERSISTIR OQUE FOI COLOCADO NO FORMULÀRIO DE CRIAÇÂO -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const campaignForm = document.querySelector('.campaign-form');
+            
+            campaignForm.addEventListener('submit', function() {
+                const estado = document.getElementById('estado').value;
+                const cidade = document.getElementById('cidade').value;
+                const bairro = document.getElementById('bairro').value;
+                const dataCampanha = document.getElementById('data_campanha').value;
+                const timeRanges = Array.from(document.querySelectorAll('input[name="time_range"]:checked'))
+                    .map(el => el.value)
+                    .join(', ');
+        
+                const formData = {
+                    estado,
+                    cidade,
+                    bairro,
+                    dataCampanha,
+                    timeRanges
+                };
+        
+                // Salva no Local Storage
+                localStorage.setItem('formData', JSON.stringify(formData));
+            });
+        });
+    </script>
+        
+    <!-- FUNCIONAMENTO BOTÃO REFAZER SLOGANS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const refazerForm = document.getElementById('refazer-form');
+            const refazerButton = document.getElementById('refazer-button');
+        
+            refazerButton.addEventListener('click', function(event) {
+                event.preventDefault();
+        
+                // Recupera do Local Storage
+                const formData = JSON.parse(localStorage.getItem('formData'));
+                if (!formData) {
+                    alert('Nenhuma informação salva. Por favor, preencha o formulário.');
+                    return;
+                }
+        
+                // Preenche os inputs escondidos do refazer-form
+                refazerForm.querySelector('input[name="estado"]').value = formData.estado;
+                refazerForm.querySelector('input[name="cidade"]').value = formData.cidade;
+                refazerForm.querySelector('input[name="bairro"]').value = formData.bairro;
+                refazerForm.querySelector('input[name="data_campanha"]').value = formData.dataCampanha;
+                refazerForm.querySelector('input[name="time_range"]').value = formData.timeRanges;
+        
+                // Envia o formulário
+                refazerForm.submit();
+            });
+        });
+    </script>    
+    
+    <!-- AUTO COMPLEMENTO DA PESQUISA DE CIDADE -->
     <script>
         // SUGESTÕES DE LOCALIZAÇÃO
         document.addEventListener('DOMContentLoaded', () => {
@@ -287,8 +349,8 @@
         });
     </script>
 
+    <!-- CHAMADA DE ENDPOINT PARA ATUALIZAR O SPAN DO CLIMA -->
     <script>
-        // Função que chama o endpoint e atualiza o span do clima
         async function updateWeather() {
         const estado = document.getElementById('estado').value;
         const cidade = document.getElementById('cidade').value;
@@ -322,7 +384,7 @@
         });
     </script>
   
-
+    <!-- CONFIGURAÇÃO PARA O CALENDÁRIO E ATIVAÇÃO DO ENDPOINT PARA ATUALIZAR O SPAN DE CLIMA -->
     <script>
         // DATEPICKER (FLATPICKR)
         document.addEventListener("DOMContentLoaded", function() {
@@ -349,6 +411,7 @@
         });
     </script>
 
+    <!-- FUNCIONAMENTO DO BOTÃO DE LIKE E DISLIKE -->
     <script>
         // BOTÕES LIKE/DISLIKE
         document.addEventListener('DOMContentLoaded', function () {
@@ -385,11 +448,12 @@
         });
     </script>
 
+    <!-- PAUSAR O VÍDEO AO GERAR ELE -->
     <script>
-        // Fazer o vídeo pausar e ficar só uma imagem
+        
         var videos = document.querySelectorAll('#slogan-video-player');
 
-        var startAtSecond = 15;
+        var startAtSecond = 14;
 
         videos.forEach(function(video) {
             video.onloadedmetadata = function() {
@@ -402,6 +466,7 @@
 
     </script>
 
+    <!-- FUNCIONAMENTO DO MODAL DE EDITAR -->
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // Para cada botão "EDITAR", ao ser clicado, localize o modal relativo à mesma .slogan-box
@@ -468,9 +533,8 @@
     });
 
     </script>
-    
 
-        <!-- Publicar na tela -->
+    <!-- SCRIPT PUBLICAR NA TELA DE TESTE -->
     <script>
         // PUBLICAÇÃO DE CONTEÚDO
         document.querySelectorAll('#publish-button').forEach(button => {

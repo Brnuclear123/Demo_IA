@@ -83,10 +83,19 @@ body {
     color: #333;
 }
 
-.intro p {
+.intro p, ol {
     font-size: 1rem;
     color: #666;
     width: 72%;
+}
+
+.intro li {
+    font-size: 1rem;
+    color: #666;
+    width: 72%;
+    margin-left: 20px;
+    padding-left: 10px;
+    padding-top: 10px;
 }
 
 /* Formulário de campanha */

@@ -57,36 +57,43 @@ def bauducco():
         return redirect(url_for('routes.login'))
 
 def avaliar_slogan():
-    # Obter a imagem e a avaliação (like/dislike)
     imagem = request.form['slogan_image']
-    avaliacao = request.form['avaliacao']
+    avaliacao = request.form['avaliacao']   # 'like' ou 'dislike'
     user = session.get('username', 'anon')
 
-    # Carregar avaliações anteriores
     avaliacoes = carregar_avaliacoes()
+    avaliacoes.setdefault(user, {"like": [], "dislike": []})
 
-    # Se o usuário não tiver um registro ainda, criar
-    if user not in avaliacoes:
-        avaliacoes[user] = {"like": [], "dislike": []}
+    likes = avaliacoes[user]['like']
+    dislikes = avaliacoes[user]['dislike']
 
-    # Registrar a avaliação
     if avaliacao == 'like':
-        if imagem not in avaliacoes[user]['like']:
-            avaliacoes[user]['like'].append(imagem)
-        # Remover da lista de dislikes, se existir
-        if imagem in avaliacoes[user]['dislike']:
-            avaliacoes[user]['dislike'].remove(imagem)
-    elif avaliacao == 'dislike':
-        if imagem not in avaliacoes[user]['dislike']:
-            avaliacoes[user]['dislike'].append(imagem)
-        # Remover da lista de likes, se existir
-        if imagem in avaliacoes[user]['like']:
-            avaliacoes[user]['like'].remove(imagem)
+        if imagem in likes:
+            # se já estava no like, tira (toggle off)
+            likes.remove(imagem)
+        else:
+            # adiciona no like e garante que não fique no dislike
+            likes.append(imagem)
+            if imagem in dislikes:
+                dislikes.remove(imagem)
 
-    # Salvar as avaliações no arquivo JSON
+    else:  # avaliacao == 'dislike'
+        if imagem in dislikes:
+            dislikes.remove(imagem)
+        else:
+            dislikes.append(imagem)
+            if imagem in likes:
+                likes.remove(imagem)
+
     salvar_avaliacoes(avaliacoes)
 
-    return "Ok"  # Redireciona para a página inicial ou outra
+    # opcional: devolver status e as listas para o front atualizar UI
+    return jsonify({
+        'status':  'success',
+        'message': 'Avaliação atualizada',
+        'likes':    likes,
+        'dislikes': dislikes
+    })
 
 
 def avaliados():
@@ -103,6 +110,8 @@ def avaliados():
         avaliacao_usuario = avaliacoes.get('corona', {'like': [], 'dislike': []})
     elif marca == 'Lacta':
         avaliacao_usuario = avaliacoes.get('lacta', {'like': [], 'dislike': []})
+    elif marca == 'Bauducco':
+        avaliacao_usuario = avaliacoes.get('bauducco', {'like': [], 'dislike': []})
     else:
         avaliacao_usuario = {'like': [], 'dislike': []}
 

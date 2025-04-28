@@ -1,13 +1,13 @@
 {
     "corona": {
-        "like": [
-
-        ],
-        "dislike": [
-
-        ]
+        "like": [],
+        "dislike": []
     },
     "lacta": {
+        "like": [],
+        "dislike": []
+    },
+    "bauducco": {
         "like": [],
         "dislike": []
     }
