@@ -90,12 +90,21 @@ def gerar_slogans_bauducco(estado, cidade, bairro, data_campanha, momento, real_
             
         return slogans_ficticios, imagens
 
-def extrair_slogans(texto, padroes):
-    for padrao in padroes:
-        matches = re.findall(padrao, texto, re.MULTILINE)
-        if len(matches) >= 4:
-            return matches
-    return ["Slogan não disponível"] * 4
+def extrair_slogans(resposta_texto, regex_patterns):
+    slogans = []
+    for pattern in regex_patterns:
+        matches = re.findall(pattern, resposta_texto, re.MULTILINE)
+        if matches:
+            slogans.extend(matches)
+
+    # Agora tratamos: remover enumeração e passar tudo para MAIÚSCULO
+    slogans_tratados = []
+    for slogan in slogans:
+        slogan = re.sub(r'^\s*\d+\.\s*', '', slogan)  # remove o "1. ", "2. ", etc no começo
+        slogans_tratados.append(slogan.upper())       # coloca o slogan todo em maiúsculo
+
+    return slogans_tratados
+
 
 def dia_da_semana(date_str):
     dias = ['segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado', 'domingo']

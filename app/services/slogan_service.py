@@ -31,6 +31,14 @@ ENVIROMENT_DATA = conf.ENVIROMENT_DATA      # 'env_variables.json'
 # FUNÇÕES UTILITÁRIAS (GENÉRICAS)
 # ======================================================================
 
+def tudo_maiusculo(texto):
+    """Transforma o texto inteiro em maiúsculo."""
+    return texto.upper()
+
+def remover_enum(texto):
+    """Remove a enumeração no formato '1. ', '2. ', etc."""
+    return re.sub(r'^\d+\.\s*', '', texto)
+    
 def gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha):
     """
     Gera dados em tempo real (clima, tendências, eventos) para campanhas.
@@ -96,6 +104,11 @@ def gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha):
         )
         gpt_response = str(response['choices'][0]['message']['content'])
         print(f"Resposta do GPT: {gpt_response}")
+
+          # Aplica os tratamentos
+        gpt_response = remover_enum(gpt_response)
+        gpt_response = tudo_maiusculo(gpt_response)
+        
     except Exception as e:
         print(f"Erro ao chamar GPT: {e}")
         return {
