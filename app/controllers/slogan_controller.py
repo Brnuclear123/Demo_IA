@@ -15,6 +15,8 @@ def corona():
             cidade = request.form.get('cidade')
             bairro = request.form.get('bairro')
             real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
+            # TODO: remover for dedebuging
+            print("Real time data: ", real_time_data)
             slogans, imagens = gerar_slogans_corona(estado, cidade, bairro, data_campanha, momento, real_time_data)
             slogans_imagens = list(zip(slogans, imagens))
             return render_template('corona.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)

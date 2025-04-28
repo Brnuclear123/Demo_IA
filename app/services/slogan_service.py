@@ -9,8 +9,9 @@ import requests
 import numpy as np
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
-from moviepy import ImageSequenceClip
+from moviepy.editor import ImageSequenceClip
 import openai
+
 
 # ======================================================================
 # CONSTANTES E CONFIGURAÇÕES
@@ -245,7 +246,6 @@ def criar_gif_slogan_combinado(slogan_texto: str, brand_name: str) -> str:
         path_VIDEOS = VIDEOS_PATH['bauducco']
         path_FUNDO_IMAGEM = FUNDO_IMAGEM_PATH['bauducco']
         path_IMAGEM_FINAL = IMAGEM_FINAL_PATH['bauducco']
-
 
 
     """Gera GIF animado com o slogan."""

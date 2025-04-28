@@ -174,10 +174,7 @@
                 {% if slogans_imagens %}
                     {% for slogan, imagem in slogans_imagens %}
                         <div class="slogan-box">
-                            <video autoplay muted loop class="slogan-image" id="slogan-video-player">
-                                <source src="{{ imagem }}" type="video/mp4">
-                                Seu navegador não suporta o elemento de vídeo.
-                            </video>
+                            <img src="{{ imagem }}" alt="Slogan" class="slogan-image">
 
                             <img src="static/brands/lacta/bottom/bottom_lct.jpeg" alt="Lacta_baseplate" class="slogan-image">
                             
@@ -187,7 +184,7 @@
                                 <button class="like-button" data-imagem="{{ imagem }}" data-avaliacao="like">👍</button>
                                 <button class="dislike-button" data-imagem="{{ imagem }}" data-avaliacao="dislike">👎</button>
                             </div>
-                            <button id="publish-button" data-imagem="{{ imagem }}" type="button">
+                            <button id="publish-button" data-imagem="{{ imagem }}" data-slogan="{{ slogan }}" type="button">
                                 PUBLICAR
                             </button>
                             <button class="edit-button" data-imagem="{{ imagem }}" data-slogan="{{ slogan }}">
@@ -550,7 +547,7 @@
         document.querySelectorAll('#publish-button').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
-                const videoPath = this.getAttribute('data-imagem');
+                const slogan = this.getAttribute('data-slogan');
                 
                 fetch('/publish-content', {
                     method: 'POST',
@@ -558,7 +555,8 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        file_path: videoPath
+                        slogan: slogan,
+                        brand: 'Lacta'
                     })
                 })
                 .then(response => response.json())

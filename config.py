@@ -32,6 +32,18 @@ class Config:
                  'bauducco': 'static/brands/bauducco/bottom/bottom_bdc.jpeg',
                  'corona': 'static/brands/corona/bottom/bottom_crn.png'}
     
+    BG_VIDEO_PATH = {'lacta': 'static/brands/lacta/frames/bg_lacta.mp4',
+                 'bauducco': 'static/brands/bauducco/frames/bg_bauducco.mp4',
+                 'corona': 'static/brands/corona/frames/bg_sea.mp4'}
+    
+    BG_VIDEO_LOGO_PATH = {'lacta': 'static/brands/lacta/frames/bg_lacta_logo.mp4',
+                'bauducco': 'static/brands/bauducco/frames/bg_bauducco_logo.mp4',
+                'corona': 'static/brands/corona/frames/bg_clip_logo.mp4'}
+    
+    TARGET_PATH = {'lacta': 'static/brands/lacta/target/',
+                'bauducco': 'static/brands/bauducco/target/',
+                'corona': 'static/brands/corona/target/'}
+
     # Arquivos compartilhados
     WEATHER_JSON = 'static/data/weather-cd.json'
     AVALIACOES_PATH = 'static/data/avaliacoes.json'
