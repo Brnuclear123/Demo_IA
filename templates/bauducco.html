@@ -32,13 +32,14 @@
         <!-- Título principal / Subtítulo -->
         <section class="intro">
             <h2>Criador de Conteúdo</h2>
-            <p>Comece a criar as mensagens certas para o momento certo. 
-                <br>1. No campo "Com quem esse conteúdo vai falar?" coloque qual região o slogan que alcançar
-                <br>2. Selecione no campo "Qual o período de visualização do conteúdo?" a data que você quer usar como contexto para a criação dos slogans, isso vai influenciar os dados em tempo real
-                <br>3. Você consegue selecionar qual o ponto de venda que vai receber esse contéudo no campo "Qual o período de visualização do conteúdo?"
-                <br>4. Escolha qual o momento para sua mensagem no campo "Qual o melhor momento para a sua mensagem?", aprofundando a criação do slogan
-                <br>Após isso é só clicar em "CRIAR CONTEÚDO" e você terá seus slogans prontos
-            </p>
+            <p>Comece a criar as mensagens certas para o momento certo</p>
+            <ol>
+                <li>No campo "Com quem esse conteúdo vai falar?" coloque qual região quer alcançar com o slogan</li>
+                <li>Selecione no campo "Qual o período de visualização do conteúdo?" a data que você quer usar como contexto para a criação dos slogans, isso vai influenciar os dados em tempo real</li>
+                <li>Você consegue selecionar qual o ponto de venda que vai receber esse contéudo no campo "Qual o período de visualização do conteúdo?"</li>
+                <li>Escolha qual o momento para sua mensagem no campo "Qual o melhor momento para a sua mensagem?", aprofundando a criação do slogan</li>
+                <li>Após isso é só clicar em "CRIAR CONTEÚDO" e você terá seus slogans prontos</li>
+            </ol>
         </section>
 
         <!-- Formulário principal -->
@@ -251,6 +252,9 @@
                 localStorage.setItem('formData', JSON.stringify(formData));
             });
         });
+        window.addEventListener('beforeunload', function() {
+            localStorage.removeItem('formData');
+        });
     </script>
         
     <!-- FUNCIONAMENTO BOTÃO REFAZER SLOGANS -->
@@ -439,7 +443,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
-                            alert(data.message);
+                            alert(data.message)
                             console.log('Likes:', data.likes);
                             console.log('Dislikes:', data.dislikes);
                         } else {

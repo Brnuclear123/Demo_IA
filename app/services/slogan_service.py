@@ -239,7 +239,7 @@ def criar_gif_slogan_combinado(slogan_texto: str, brand_name: str) -> str:
         path_VIDEOS = VIDEOS_PATH['lacta']
         path_FUNDO_IMAGEM = FUNDO_IMAGEM_PATH['lacta']
         path_IMAGEM_FINAL = IMAGEM_FINAL_PATH['lacta']
-    elif brand_name == "bauducco":
+    elif brand_name == "Bauducco":
         path_FONT = FONT_PATH['bauducco']
         path_LOGOS = LOGOS_PATH['bauducco']
         path_VIDEOS = VIDEOS_PATH['bauducco']
@@ -255,10 +255,11 @@ def criar_gif_slogan_combinado(slogan_texto: str, brand_name: str) -> str:
 
     # Configuração de cores por marca
     bg_color = "#333333" if brand_name in ["Corona", "Lacta", "Bauducco"] else "#FFFFFF"
-    text_color = "white" if brand_name in ["Corona", "Lacta", "Bauducco"] else "black"
+    text_color = "white" if brand_name in ["Corona", "Lacta", "bauducco"] else "black"
 
     # Carrega imagem de fundo ou cria uma padrão
     if os.path.exists(path_FUNDO_IMAGEM):
+        print(path_FUNDO_IMAGEM)
         imagem_base = Image.open(path_FUNDO_IMAGEM).resize((largura, altura)).convert("RGBA")
     else:
         imagem_base = Image.new("RGBA", (largura, altura), bg_color)

@@ -124,7 +124,7 @@ def editar_slogan():
     data = request.get_json()
     video_path = data.get('video_path')
     novo_slogan = data.get('novo_slogan')
-    brand_name = "Corona"  # ou recuperar dinamicamente se necessário
+    brand_name = session.get('brand_name', 'anon')  # ou recuperar dinamicamente se necessário
 
     try:
         # Gere o novo vídeo com base no novo slogan
