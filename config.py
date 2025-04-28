@@ -8,8 +8,8 @@ class Config:
     
     # Configurações por marca
     
-    FONT_PATH = {'lacta': 'static/brands/lacta/fonts/Bison-Bold.ttf',
-                 'bauducco': 'static/brands/bauducco/fonts/Bison-Bold.ttf',
+    FONT_PATH = {'lacta': 'static/brands/lacta/fonts/CircularStd-Bold.otf', 
+                 'bauducco': 'static/brands/bauducco/fonts/Decoy-Black.otf',
                  'corona': 'static/brands/corona/fonts/Bison-Bold.ttf'}
     
     LOGOS_PATH = {'lacta': 'static/brands/lacta/logos/',

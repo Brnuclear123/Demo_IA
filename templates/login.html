@@ -6,10 +6,7 @@
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
 </head>
-<body>
-    <div class="logo">
-        <img src="static/src/bump_small_logo-noBG.png" alt="bump">
-    </div>       
+<body>    
     <div class="container">
         <div class="login-box">
             <h1>Transforme dados em conexões reais.</h1>
@@ -20,9 +17,6 @@
                 <button type="submit">ENTRAR</button>
                 <a href="#">Esqueci minha senha</a>
             </form>
-        </div>
-        <div class="illustration">
-            <img src="{{ url_for('static', filename='login-image.png') }}" alt="Ilustração">
         </div>
     </div>
 </body>

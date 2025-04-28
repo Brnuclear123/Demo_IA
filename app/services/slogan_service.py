@@ -255,7 +255,7 @@ def criar_gif_slogan_combinado(slogan_texto: str, brand_name: str) -> str:
 
     # Configuração de cores por marca
     bg_color = "#333333" if brand_name in ["Corona", "Lacta", "Bauducco"] else "#FFFFFF"
-    text_color = "white" if brand_name in ["Corona", "Lacta", "bauducco"] else "black"
+    text_color = "white" if brand_name in ["Corona", "Lacta", "Bauducco"] else "black"
 
     # Carrega imagem de fundo ou cria uma padrão
     if os.path.exists(path_FUNDO_IMAGEM):
