@@ -100,11 +100,10 @@ def extrair_slogans(resposta_texto, regex_patterns):
     # Agora tratamos: remover enumeração e passar tudo para MAIÚSCULO
     slogans_tratados = []
     for slogan in slogans:
-        slogan = re.sub(r'^\s*\d+\.\s*', '', slogan)  # remove o "1. ", "2. ", etc no começo
+        slogan = re.sub(r'^\s\d+.\s', '', slogan)  # remove o "1. ", "2. ", etc no começo
         slogans_tratados.append(slogan.upper())       # coloca o slogan todo em maiúsculo
 
     return slogans_tratados
-
 
 def dia_da_semana(date_str):
     dias = ['segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado', 'domingo']

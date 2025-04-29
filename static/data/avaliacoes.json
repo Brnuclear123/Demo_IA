@@ -1,9 +1,6 @@
 {
     "corona": {
-        "like": [
-            "static/slogan_static_corona_2025042811453142.png",
-            "static\\slogan_static_corona_2025042816293448.png"
-        ],
+        "like": [],
         "dislike": []
     },
     "lacta": {
@@ -11,10 +8,7 @@
         "dislike": []
     },
     "bauducco": {
-        "like": [
-            "static/slogan_animado2025042722485311.mp4",
-            "static/slogan_animado2025042722484359.mp4"
-        ],
+        "like": [],
         "dislike": []
     }
 }
