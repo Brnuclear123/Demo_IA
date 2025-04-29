@@ -101,71 +101,52 @@
                         <label><input type="checkbox" name="time_range" value="night"> Noite</label>
                         <label><input type="checkbox" name="time_range" value="late_at_night"> Madrugada</label>
                         <label><input type="checkbox" name="time_range" value="full_day"> Dia todo</label>
-                        <label><input type="time" > Escolher outro horário</label>
                     </div>
                 </div>
             </div>
 
+            <label>Deixe seu conteúdo mais relevante, conectando com dados em tempo real:</label>
+            <!-- Seção de dados em tempo real (caso queira manter) -->
+            <div class="real-time-data">
+                <label class="checkbox-container">
+                    🌤️ <strong>CLIMA LOCAL</strong><br>
+                    <input type="checkbox" class="data-checkbox" data-type="weather">
+                    <span class="checkmark"></span>
+                    <span class="data-text">{{ real_time_date.weather if real_time_date else "Carregando..." }}</span>
+                </label>
+                <label class="checkbox-container disabled">
+                    #️⃣ <strong>SOCIAL TRENDS</strong><br>
+                    <input type="checkbox" class="data-checkbox" data-type="trending">
+                    <span class="checkmark"></span>
+                    <span class="data-text">{{ real_time_date.trending if real_time_date else "Carregando..." }}</span>
+                </label>
+                <label class="checkbox-container disabled">
+                    📅 <strong>EVENTOS LOCAIS</strong><br>
+                    <input type="checkbox" class="data-checkbox" data-type="local-events">
+                    <span class="checkmark"></span>
+                    <span class="data-text">{{ real_time_date.local_events if real_time_date else "Carregando..." }}</span>
+                </label>
+                <label class="checkbox-container disabled">
+                    🎬 <strong>AGENDA CULTURAL</strong><br>
+                    <input type="checkbox" class="data-checkbox" data-type="pop-culture">
+                    <span class="checkmark"></span>
+                    <span class="data-text">{{ real_time_date.pop_culture if real_time_date else "Carregando..." }}</span>
+                </label>
+            </div>
+            
             <!-- Botão para gerar conteúdo -->
             <div class="buttons-container">
-                <button 
-                    id="generate-button" 
-                    type="submit"
-                >
+                <form action="{{ url_for('routes.avaliados') }}" method="post">
+                    <button id="slogans-button" type="submit">
+                        VER OPÇÕES AVALIADAS
+                    </button>
+                </form>
+
+                <button id="generate-button" type="submit">
                     CRIAR CONTEÚDO
                 </button>
             </div>
         </form>
-
-        <label>Deixe seu conteúdo mais relevante, conectando com dados em tempo real:</label>
-        <!-- Seção de dados em tempo real (caso queira manter) -->
-        <div class="real-time-data">
-            <label class="checkbox-container">
-                🌤️ <strong>CLIMA LOCAL</strong><br>
-                <input type="checkbox" class="data-checkbox" data-type="weather">
-                <span class="checkmark"></span>
-                <span class="data-text">{{ real_time_date.weather if real_time_date else "Carregando..." }}</span>
-            </label>
-            <label class="checkbox-container disabled">
-                #️⃣ <strong>SOCIAL TRENDS</strong><br>
-                <input type="checkbox" class="data-checkbox" data-type="trending">
-                <span class="checkmark"></span>
-                <span class="data-text">{{ real_time_date.trending if real_time_date else "Carregando..." }}</span>
-            </label>
-            <label class="checkbox-container disabled">
-                📅 <strong>EVENTOS LOCAIS</strong><br>
-                <input type="checkbox" class="data-checkbox" data-type="local-events">
-                <span class="checkmark"></span>
-                <span class="data-text">{{ real_time_date.local_events if real_time_date else "Carregando..." }}</span>
-            </label>
-            <label class="checkbox-container disabled">
-                🎬 <strong>AGENDA CULTURAL</strong><br>
-                <input type="checkbox" class="data-checkbox" data-type="pop-culture">
-                <span class="checkmark"></span>
-                <span class="data-text">{{ real_time_date.pop_culture if real_time_date else "Carregando..." }}</span>
-            </label>
-        </div>
-
-
-        <!-- Botões adicionais (Avaliados e Refazer) -->
-        <div class="buttons-container">
-            <form action="{{ url_for('routes.avaliados') }}" method="post">
-                <button id="slogans-button" type="submit">
-                    VER OPÇÕES AVALIADAS
-                </button>
-            </form>
-            <form id="refazer-form" action="{{ url_for('routes.bauducco') }}" method="POST" style="display:inline-block;">
-                <!-- Esses inputs são apenas placeholders caso precise re-enviar -->
-                <input type="hidden" name="time_range" value="">
-                <input type="hidden" name="data_campanha" value="">
-                <input type="hidden" name="estado" value="">
-                <input type="hidden" name="cidade" value="">
-                <input type="hidden" name="bairro" value="">
-                <button id="refazer-button" type="submit">
-                    CRIAR NOVAS OPÇÕES
-                </button>
-            </form>
-        </div>
 
         <!-- Seção de opções criativas de slogans -->
         <section class="slogan-section">
