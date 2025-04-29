@@ -4,6 +4,7 @@ from app.services.brands.lacta import  gerar_slogans_lacta
 from app.services.brands.bauducco import gerar_slogans_bauducco
 from app.services.slogan_service import gerar_dados_em_tempo_real, carregar_avaliacoes, salvar_avaliacoes, criar_gif_slogan_combinado
 
+from app.services.utils.slogan_static_generator import SloganStaticGenerator
 
 def corona():
     if 'username' in session and session['brand_name'] == 'Corona':
@@ -130,12 +131,15 @@ def editar_slogan():
 
     try:
         # Gere o novo vídeo com base no novo slogan
-        novo_video_path = criar_gif_slogan_combinado(novo_slogan, brand_name)
+        generator = SloganStaticGenerator(brand_name)
+        novo_image_path = generator.generate_static_image(novo_slogan)
+        print(novo_image_path)
+        #novo_video_path = criar_gif_slogan_combinado(novo_slogan, brand_name)
         # Se houver necessidade, atualize o registro do slogan no banco de dados ou arquivo
         
         return jsonify({
             'status': 'success',
-            'novo_video_path': novo_video_path
+            'novo_image_path': novo_image_path
         })
     except Exception as e:
         return jsonify({
