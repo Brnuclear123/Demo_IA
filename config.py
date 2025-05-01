@@ -4,7 +4,7 @@ class Config:
     # Configurações gerais
     SECRET_KEY = os.getenv('SECRET_KEY', 'my_secret_key')
     DEBUG = False
-    BEARER_TOKEN = os.getenv('BEARER_TOKEN', 'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDU4NjYxOTYsInRpbWVzdGFtcCI6MTc0NTg2MjU5NjgwNX0.UYE7ZttK3NRhW43x8ClG3hkVRaTtKswhMEhFsglRgk4')
+    BEARER_TOKEN = os.getenv('BEARER_TOKEN', 'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDYwMjkwMDQsInRpbWVzdGFtcCI6MTc0NjAyNTQwNDM0M30.LBhkznmZedoCZEJL90Ti-TeKUNZyi7Gc5ozqhd5iy3M')
     
     # Configurações por marca
     

@@ -1,0 +1,16 @@
+{
+    "feriados_nacionais": {
+      "2025": [
+        { "data": "01-01", "nome": "Ano Novo" },
+        { "data": "20-02", "nome": "Carnaval" },
+        { "data": "21-02", "nome": "Carnaval - Terça-feira" },
+        { "data": "07-04", "nome": "Páscoa" },
+        { "data": "21-04", "nome": "Tiradentes" },
+        { "data": "01-05", "nome": "Dia do Trabalho" },
+        { "data": "07-09", "nome": "Independência do Brasil" },
+        { "data": "15-11", "nome": "Proclamação da República" },
+        { "data": "25-12", "nome": "Natal" }
+      ]
+    }
+  }
+  

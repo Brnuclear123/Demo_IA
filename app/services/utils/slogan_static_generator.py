@@ -1,5 +1,7 @@
 import os
+import re
 import numpy as np
+import string
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 from config import config
@@ -58,6 +60,17 @@ class SloganStaticGenerator:
             self.bg_color = "#FFFFFF"
             self.text_color = "black"
     
+    def _clean_slogan(self, text):
+        # remove leading enumeration (e.g., '1. ', '2) ')
+        text = re.sub(r'^\s*\d+[\.\)\-]\s*', '', text)
+        # remove emojis and non-standard punctuation
+        text = text.encode('ascii', 'ignore').decode()  # strip non-ascii
+        # remove unwanted punctuation
+        text = text.translate(str.maketrans('', '', string.punctuation.replace('&', '')))
+        # collapse whitespace and uppercase
+        return ' '.join(text.split()).upper()
+
+
     def generate_static_image(self, slogan_text, output_path=None):
         """
         Gera uma imagem estática com o slogan.

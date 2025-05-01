@@ -8,7 +8,9 @@
         "dislike": []
     },
     "bauducco": {
-        "like": [],
+        "like": [
+            "static\\slogan_static_bauducco_2025042901344565.png"
+        ],
         "dislike": []
     }
 }

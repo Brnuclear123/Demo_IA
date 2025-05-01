@@ -10,7 +10,7 @@ conf_json_path = "static/data/env_variables.json"
 env_data = js_read(conf_json_path)
 openai.api_key = env_data["OPENAI_API_KEY"]
 
-def gerar_slogans_lacta(estado, cidade, bairro, data_campanha, momento, real_time_data):
+def gerar_slogans_lacta(estado, cidade, bairro, data_campanha, momento, real_time_data, usar_feriado=None):
     regex_patterns = [
         r'(.+?)\\s{2,}',
         r'\"([^\"]+)\",?',
@@ -34,6 +34,7 @@ def gerar_slogans_lacta(estado, cidade, bairro, data_campanha, momento, real_tim
         → Público-alvo: jovens e adultos de 18 a 45 anos, que apreciam momentos de prazer com chocolate.
         → Sem emojis. 
         → Evitar soar como propaganda direta: as mensagens devem parecer falas espontâneas de alguém desfrutando de um momento de prazer com Lacta.
+        → Evite iniciar as mensagens com numeração, como "1." ou "2.". Mesmo quando o conteúdo for envolvente, como em "1. O DIA DOS NAMORADOS MERECE UM DOCE A MAIS COM LACTA", a presença de um número no início quebra a fluidez da leitura emocional e faz a mensagem parecer parte de uma lista técnica. Isso vai contra a proposta sensível, afetiva e espontânea que buscamos com Lacta. Além disso, não comece frases com traços ou hífens ("-"), pois isso também remete a tópicos ou listas. Cada mensagem deve ser única, suave e fluida, como um momento doce que se oferece naturalmente.
 
         Contexto para inspiração:
         - Temperatura: {real_time_data['weather']}°C
@@ -102,7 +103,7 @@ def extrair_slogans(resposta_texto, regex_patterns):
     for slogan in slogans:
         slogan = re.sub(r'^\s\d+.\s', '', slogan)  # remove o "1. ", "2. ", etc no começo
         slogans_tratados.append(slogan.upper())       # coloca o slogan todo em maiúsculo
-
+        
     return slogans_tratados
 
 def dia_da_semana(date_str):

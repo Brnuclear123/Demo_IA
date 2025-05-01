@@ -10,7 +10,7 @@ conf_json_path = "static/data/env_variables.json"
 env_data = js_read(conf_json_path)
 openai.api_key = env_data["OPENAI_API_KEY"]
 
-def gerar_slogans_corona(estado, cidade, bairro, data_campanha, momento, real_time_data):
+def gerar_slogans_corona(estado, cidade, bairro, data_campanha, momento, real_time_data, usar_feriado=None):
     regex_patterns = [
         r'(.+?)\\s{2,}',
         r'\"([^\"]+)\",?',
@@ -34,6 +34,7 @@ def gerar_slogans_corona(estado, cidade, bairro, data_campanha, momento, real_ti
         → Público-alvo: jovens de 18 a 35 anos, ligados à música, sunset, esportes e natureza.
         → Sem emojis. 
         → Evitar soar como propaganda direta: as mensagens devem parecer falas espontâneas de alguém relaxando com uma Corona gelada.
+        →  Evite iniciar as mensagens com numeração, como "1." ou "2.". Mesmo que a ideia seja boa, como em "1. UMA NOITE COM CORONA E PÉS NA AREIA", o número transmite uma sensação de instrução ou passo a passo — o que contradiz o espírito leve, livre e fluido da marca Corona. Também evite iniciar frases com traços ("-"), pois isso reforça a sensação de que a mensagem faz parte de uma lista. Com Corona, cada frase deve parecer um convite espontâneo a viver o momento, não um item a ser lido em sequência.
 
         Contexto para inspiração:
         - Temperatura: {real_time_data['weather']}°C

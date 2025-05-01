@@ -1,4 +1,5 @@
 from flask import redirect, url_for, request, session, render_template, jsonify
+from app.services.feriado_service import verificar_feriado
 from app.services.brands.corona import gerar_slogans_corona
 from app.services.brands.lacta import  gerar_slogans_lacta
 from app.services.brands.bauducco import gerar_slogans_bauducco
@@ -6,8 +7,10 @@ from app.services.slogan_service import gerar_dados_em_tempo_real, carregar_aval
 
 from app.services.utils.slogan_static_generator import SloganStaticGenerator
 
+from app.services.feriado_service import verificar_feriado
+
 def corona():
-    if 'username' in session and session['brand_name'] == 'Corona':
+    if 'username' in session and session['brand_name'].lower() == 'corona':
         real_time_data = None
         if request.method == 'POST':
             momento = request.form.getlist('time_range')
@@ -15,18 +18,33 @@ def corona():
             estado = request.form.get('estado')
             cidade = request.form.get('cidade')
             bairro = request.form.get('bairro')
+
+            # ✅ Verifica se há feriado
+            feriado = verificar_feriado(data_campanha)
+            usar_feriado = request.form.get("usar_feriado")
+
+            # ✅ Gera dados em tempo real e os slogans
             real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
-            # TODO: remover for dedebuging
-            print("Real time data: ", real_time_data)
-            slogans, imagens = gerar_slogans_corona(estado, cidade, bairro, data_campanha, momento, real_time_data)
+            slogans, imagens = gerar_slogans_corona(
+                estado, cidade, bairro, data_campanha, momento, real_time_data, usar_feriado
+            )
+
             slogans_imagens = list(zip(slogans, imagens))
-            return render_template('corona.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
-        return render_template('corona.html')
+
+            return render_template(
+                'corona.html',
+                slogans_imagens=slogans_imagens,
+                real_time_date=real_time_data,
+                feriado=feriado
+            )
+
+        return render_template('corona.html', feriado=None)
     else:
         return redirect(url_for('routes.login'))
+
 
 def lacta():
-    if 'username' in session and session['brand_name'] == 'Lacta':
+    if 'username' in session and session['brand_name'].lower() == 'lacta':
         real_time_data = None
         if request.method == 'POST':
             momento = request.form.getlist('time_range')
@@ -34,16 +52,36 @@ def lacta():
             estado = request.form.get('estado')
             cidade = request.form.get('cidade')
             bairro = request.form.get('bairro')
+
+            # ✅ Verifica se tem feriado para a data informada
+            feriado = verificar_feriado(data_campanha)
+            usar_feriado = request.form.get("usar_feriado")
+
+            # ✅ Gera dados em tempo real e depois slogans
             real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
-            slogans, imagens = gerar_slogans_lacta(estado, cidade, bairro, data_campanha, momento, real_time_data)
+            slogans, imagens = gerar_slogans_lacta(
+                estado, cidade, bairro, data_campanha, momento, real_time_data, usar_feriado
+            )
+
             slogans_imagens = list(zip(slogans, imagens))
-            return render_template('lacta.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
-        return render_template('lacta.html')
+
+            return render_template(
+                'lacta.html',
+                slogans_imagens=slogans_imagens,
+                real_time_date=real_time_data,
+                feriado=feriado
+            )
+
+        # GET (inicial)
+        return render_template('lacta.html', feriado=None)
     else:
         return redirect(url_for('routes.login'))
 
+
+from app.services.feriado_service import verificar_feriado
+
 def bauducco():
-    if 'username' in session and session['brand_name'] == 'Bauducco':
+    if 'username' in session and session['brand_name'].lower() == 'bauducco':
         real_time_data = None
         if request.method == 'POST':
             momento = request.form.getlist('time_range')
@@ -51,13 +89,30 @@ def bauducco():
             estado = request.form.get('estado')
             cidade = request.form.get('cidade')
             bairro = request.form.get('bairro')
+
+            # ✅ Verifica se há feriado
+            feriado = verificar_feriado(data_campanha)
+            usar_feriado = request.form.get("usar_feriado")
+
+            # ✅ Gera dados em tempo real e os slogans
             real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
-            slogans, imagens = gerar_slogans_bauducco(estado, cidade, bairro, data_campanha, momento, real_time_data)
+            slogans, imagens = gerar_slogans_bauducco(
+                estado, cidade, bairro, data_campanha, momento, real_time_data, usar_feriado
+            )
+
             slogans_imagens = list(zip(slogans, imagens))
-            return render_template('bauducco.html', slogans_imagens=slogans_imagens, real_time_date=real_time_data)
-        return render_template('bauducco.html')
+
+            return render_template(
+                'bauducco.html',
+                slogans_imagens=slogans_imagens,
+                real_time_date=real_time_data,
+                feriado=feriado
+            )
+
+        return render_template('bauducco.html', feriado=None)
     else:
         return redirect(url_for('routes.login'))
+
 
 def avaliar_slogan():
     imagem = request.form['slogan_image']

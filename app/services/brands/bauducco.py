@@ -10,7 +10,8 @@ conf_json_path = "static/data/env_variables.json"
 env_data = js_read(conf_json_path)
 openai.api_key = env_data["OPENAI_API_KEY"]
 
-def gerar_slogans_bauducco(estado, cidade, bairro, data_campanha, momento, real_time_data):
+def gerar_slogans_bauducco(estado, cidade, bairro, data_campanha, momento, real_time_data, usar_feriado=None):
+
     regex_patterns = [
         r'(.+?)\\s{2,}',
         r'\"([^\"]+)\",?',
@@ -20,39 +21,51 @@ def gerar_slogans_bauducco(estado, cidade, bairro, data_campanha, momento, real_
     ]
 
     prompt = (f"""
-        Você é uma inteligência criativa especializada em redigir mensagens curtas, impactantes e sensoriais para a marca de biscoitos Bauducco no Brasil.
+        Você é uma inteligência criativa especializada em redigir mensagens curtas, impactantes e sensoriais para a marca de pães Bauducco no Brasil. Quando referir-se à marca Bauducco, faça sempre no feminino. 
 
         Sua tarefa:
-        → Crie 4 variações de slogans publicitários para exibição em telas digitais no ponto de venda.
-        → Cada slogan deve ter entre 30 e 75 caracteres.
+        → Crie 4 variações de títulos publicitários para exibição em telas digitais no ponto de venda.
+        → Cada título deve ter entre 30 e 75 caracteres.
         → Não enumere, não use aspas e evite pontuação desnecessária.
 
         Diretrizes de estilo:
-        → Mensagens leves, inspiradoras, sensoriais.
-        → Evocar elementos de prazer, momentos de alegria e compartilhamento.
-        → Estilo de vida descontraído e momentos de pausa.
-        → Público-alvo: jovens e adultos de 18 a 45 anos, que apreciam momentos de prazer com biscoitos.
+        → Mensagens acolhedoras, envolventes, calorosas e próxima.
+        → Evocar sempre as relações familiares e os afetos que envolvem essas relações.
+        → Bauducco é sobre conexão, tradição, simplicidade, sabores, cuidado, celebração e o quanto seus produtos simbolizam e estimulam as pessoas a viverem momentos juntas.
+        → Público-alvo: pessoas de 18 a 55 anos, emocionalmente conectadas com a família, os amigos, e parceiros de vida.
         → Sem emojis. 
-        → Evitar soar como propaganda direta: as mensagens devem parecer falas espontâneas de alguém desfrutando de um momento de prazer com Bauducco.
+        → Crie mensagens espontâneas, com induzam de forma sutil ao impulso de compra e sugestionem o consumidor a criar momentos inesquecíveis com pessoas queridas e Bauducco. 
+        → Evite iniciar as mensagens com numeração, como "1." ou "2.". Mesmo quando o conteúdo for excelente, como em "1. QUARTA-FEIRA É PERFEITA PARA REUNIR, AMAR E SABOREAR BAUDUCCO", o número inicial transmite uma ideia de lista técnica e quebra a fluidez da leitura emocional, além de destoar da imagem sensível e inspiradora que queremos transmitir. Também evite iniciar frases com traços ("-"), pois isso reforça a sensação de que a mensagem faz parte de uma lista. Com Bauducco, cada frase deve parecer um convite espontâneo a viver o momento, não um item a ser lido em sequência.
 
         Contexto para inspiração:
         - Temperatura: {real_time_data['weather']}°C
         - Horário: {momento}
         - Dia da semana: {dia_da_semana(data_campanha)}
-        - Localização: {estado}, {cidade}, {bairro}
 
         Instruções específicas:
-        - Adapte o tom dos slogans conforme o dia da semana ({dia_da_semana(data_campanha)}).
-        - Se houver algum evento cultural ou mundial relevante no período, use-o de forma natural (sem forçar datas comemorativas aleatórias).
+        - Adapte a intenção do título conforme o dia da semana ({dia_da_semana(data_campanha)}), cite o dia só quando for conveniente:
+        Na segunda, explore momentos em família ou com os amigos que inspirem incentivo para o início da semana;
+        Na terça, fale sobre a importância das parcerias e companhias para encarar o restante da semana;
+        Na quarta, o contexto de meio de semana é ótimo para encontrar familiares e amigos;
+        Na quinta, lembre as pessoas que o fim de semana se aproxima e que reunir os amigos e a família é sempre um momento gostoso;
+        Na sexta, explore a expressão sextou e o fato de que o fim de semana já começou para reforçar as conexões humanas;
+        No sábado e no domingo, reforce os momentos de reunião entre amigos e familiares para entregar mensagens que valorizem a marca como um bom motivo para que esses encontros aconteçam.
+        - Quando o momento do dia for escolhido, adapte a intenção da mensagem também:
+            De manhã, fale sobre como um "bom dia" fica mais gostoso quando inicia com um pão saboroso de verdade;
+            De tarde, explore o fato de que qualquer dia ou relação fica mais gostosa com Bauducco;
+            De noite, diga que boas companhias e Bauducco sempre fazem um jantar maravilhoso.
         - Não repita o nome da cidade, estado ou bairro nos slogans. Use outros recursos para criar conexão com o local.
-        - Como Bauducco é uma marca bem pra frente, carregue os slogans de animação, prazer e otimismo.
+        - Bauducco é uma marca leve, calorosa, próxima, acolhedora e inspiradora. Fala de forma simples, direta e sempre buscando criar conexão emocional com o consumidor
 
-        Referência conceitual: "Bauducco é inspirada no prazer, não feita do prazer."
+        Referência conceitual: "Um sentimento chamado família"
 
         Exemplos de boas saídas:
-        - Um momento de prazer, uma pausa para respirar, e o tempo jogando a favor
-        - O prazer é só o começo Brinde com o que vem depois
+        - Bom dia é começar o dia com um pãozinho de verdade.
+        - Fim de semana tem que ter família e tem que ter Bauducco.
         """)
+
+
+
 
     try:
         response = openai.ChatCompletion.create(
