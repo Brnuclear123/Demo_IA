@@ -9,8 +9,9 @@ import requests
 import numpy as np
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
-from moviepy import ImageSequenceClip
+from moviepy.editor import ImageSequenceClip
 import openai
+
 
 # ======================================================================
 # CONSTANTES E CONFIGURAÇÕES
@@ -30,6 +31,14 @@ ENVIROMENT_DATA = conf.ENVIROMENT_DATA      # 'env_variables.json'
 # FUNÇÕES UTILITÁRIAS (GENÉRICAS)
 # ======================================================================
 
+def tudo_maiusculo(texto):
+    """Transforma o texto inteiro em maiúsculo."""
+    return texto.upper()
+
+def remover_enum(texto):
+    """Remove a enumeração no formato '1. ', '2. ', etc."""
+    return re.sub(r'^\d+\.\s*', '', texto)
+    
 def gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha):
     """
     Gera dados em tempo real (clima, tendências, eventos) para campanhas.
@@ -95,6 +104,11 @@ def gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha):
         )
         gpt_response = str(response['choices'][0]['message']['content'])
         print(f"Resposta do GPT: {gpt_response}")
+
+          # Aplica os tratamentos
+        gpt_response = remover_enum(gpt_response)
+        gpt_response = tudo_maiusculo(gpt_response)
+        
     except Exception as e:
         print(f"Erro ao chamar GPT: {e}")
         return {
@@ -245,7 +259,6 @@ def criar_gif_slogan_combinado(slogan_texto: str, brand_name: str) -> str:
         path_VIDEOS = VIDEOS_PATH['bauducco']
         path_FUNDO_IMAGEM = FUNDO_IMAGEM_PATH['bauducco']
         path_IMAGEM_FINAL = IMAGEM_FINAL_PATH['bauducco']
-
 
 
     """Gera GIF animado com o slogan."""

@@ -101,71 +101,52 @@
                         <label><input type="checkbox" name="time_range" value="night"> Noite</label>
                         <label><input type="checkbox" name="time_range" value="late_at_night"> Madrugada</label>
                         <label><input type="checkbox" name="time_range" value="full_day"> Dia todo</label>
-                        <label><input type="time" > Escolher outro horário</label>
                     </div>
                 </div>
             </div>
 
+            <label>Deixe seu conteúdo mais relevante, conectando com dados em tempo real:</label>
+            <!-- Seção de dados em tempo real (caso queira manter) -->
+            <div class="real-time-data">
+                <label class="checkbox-container">
+                    🌤️ <strong>CLIMA LOCAL</strong><br>
+                    <input type="checkbox" class="data-checkbox" data-type="weather">
+                    <span class="checkmark"></span>
+                    <span class="data-text">{{ real_time_date.weather if real_time_date else "Carregando..." }}</span>
+                </label>
+                <label class="checkbox-container disabled">
+                    #️⃣ <strong>SOCIAL TRENDS</strong><br>
+                    <input type="checkbox" class="data-checkbox" data-type="trending">
+                    <span class="checkmark"></span>
+                    <span class="data-text">{{ real_time_date.trending if real_time_date else "Carregando..." }}</span>
+                </label>
+                <label class="checkbox-container disabled">
+                    📅 <strong>EVENTOS LOCAIS</strong><br>
+                    <input type="checkbox" class="data-checkbox" data-type="local-events">
+                    <span class="checkmark"></span>
+                    <span class="data-text">{{ real_time_date.local_events if real_time_date else "Carregando..." }}</span>
+                </label>
+                <label class="checkbox-container disabled">
+                    🎬 <strong>AGENDA CULTURAL</strong><br>
+                    <input type="checkbox" class="data-checkbox" data-type="pop-culture">
+                    <span class="checkmark"></span>
+                    <span class="data-text">{{ real_time_date.pop_culture if real_time_date else "Carregando..." }}</span>
+                </label>
+            </div>
+            
             <!-- Botão para gerar conteúdo -->
             <div class="buttons-container">
-                <button 
-                    id="generate-button" 
-                    type="submit"
-                >
+                <form action="{{ url_for('routes.avaliados') }}" method="post">
+                    <button id="slogans-button" type="submit">
+                        VER OPÇÕES AVALIADAS
+                    </button>
+                </form>
+
+                <button id="generate-button" type="submit">
                     CRIAR CONTEÚDO
                 </button>
             </div>
         </form>
-
-        <label>Deixe seu conteúdo mais relevante, conectando com dados em tempo real:</label>
-        <!-- Seção de dados em tempo real (caso queira manter) -->
-        <div class="real-time-data">
-            <label class="checkbox-container">
-                🌤️ <strong>CLIMA LOCAL</strong><br>
-                <input type="checkbox" class="data-checkbox" data-type="weather">
-                <span class="checkmark"></span>
-                <span class="data-text">{{ real_time_date.weather if real_time_date else "Carregando..." }}</span>
-            </label>
-            <label class="checkbox-container disabled">
-                #️⃣ <strong>SOCIAL TRENDS</strong><br>
-                <input type="checkbox" class="data-checkbox" data-type="trending">
-                <span class="checkmark"></span>
-                <span class="data-text">{{ real_time_date.trending if real_time_date else "Carregando..." }}</span>
-            </label>
-            <label class="checkbox-container disabled">
-                📅 <strong>EVENTOS LOCAIS</strong><br>
-                <input type="checkbox" class="data-checkbox" data-type="local-events">
-                <span class="checkmark"></span>
-                <span class="data-text">{{ real_time_date.local_events if real_time_date else "Carregando..." }}</span>
-            </label>
-            <label class="checkbox-container disabled">
-                🎬 <strong>AGENDA CULTURAL</strong><br>
-                <input type="checkbox" class="data-checkbox" data-type="pop-culture">
-                <span class="checkmark"></span>
-                <span class="data-text">{{ real_time_date.pop_culture if real_time_date else "Carregando..." }}</span>
-            </label>
-        </div>
-
-
-        <!-- Botões adicionais (Avaliados e Refazer) -->
-        <div class="buttons-container">
-            <form action="{{ url_for('routes.avaliados') }}" method="post">
-                <button id="slogans-button" type="submit">
-                    VER OPÇÕES AVALIADAS
-                </button>
-            </form>
-            <form id="refazer-form" action="{{ url_for('routes.lacta') }}" method="POST" style="display:inline-block;">
-                <!-- Esses inputs são apenas placeholders caso precise re-enviar -->
-                <input type="hidden" name="time_range" value="">
-                <input type="hidden" name="data_campanha" value="">
-                <input type="hidden" name="estado" value="">
-                <input type="hidden" name="cidade" value="">
-                <input type="hidden" name="bairro" value="">
-                <button id="refazer-button" type="submit">
-                    CRIAR NOVAS OPÇÕES
-                </button>
-            </form>
-        </div>
 
         <!-- Seção de opções criativas de slogans -->
         <section class="slogan-section">
@@ -174,10 +155,7 @@
                 {% if slogans_imagens %}
                     {% for slogan, imagem in slogans_imagens %}
                         <div class="slogan-box">
-                            <video autoplay muted loop class="slogan-image" id="slogan-video-player">
-                                <source src="{{ imagem }}" type="video/mp4">
-                                Seu navegador não suporta o elemento de vídeo.
-                            </video>
+                            <img src="{{ imagem }}" alt="Slogan" class="slogan-image">
 
                             <img src="static/brands/lacta/bottom/bottom_lct.jpeg" alt="Lacta_baseplate" class="slogan-image">
                             
@@ -187,7 +165,7 @@
                                 <button class="like-button" data-imagem="{{ imagem }}" data-avaliacao="like">👍</button>
                                 <button class="dislike-button" data-imagem="{{ imagem }}" data-avaliacao="dislike">👎</button>
                             </div>
-                            <button id="publish-button" data-imagem="{{ imagem }}" type="button">
+                            <button id="publish-button" data-imagem="{{ imagem }}" data-slogan="{{ slogan }}" type="button">
                                 PUBLICAR
                             </button>
                             <button class="edit-button" data-imagem="{{ imagem }}" data-slogan="{{ slogan }}">
@@ -478,79 +456,77 @@
 
     <!-- FUNCIONAMENTO DO MODAL DE EDITAR -->
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Para cada botão "EDITAR", ao ser clicado, localize o modal relativo à mesma .slogan-box
-        document.querySelectorAll('.edit-button').forEach(button => {
-            button.addEventListener('click', function() {
-                // Encontra o container pai (a div .slogan-box)
-                const sloganBox = this.closest('.slogan-box');
-                // Seleciona o modal dentro desse container
-                const editModal = sloganBox.querySelector('.edit-modal');
-                // Preenche o input com o slogan atual, se estiver armazenado no botão
-                const newSloganInput = sloganBox.querySelector('.new-slogan-input');
-                newSloganInput.value = this.getAttribute('data-slogan');
-                // Exibe o modal
-                editModal.style.display = 'block';
-                
-                // Fecha o modal ao clicar no elemento com a classe "close"
-                sloganBox.querySelector('.close').addEventListener('click', () => {
-                    editModal.style.display = 'none';
-                });
-
-                // Ao clicar no botão "Salvar" dentro do modal, envie a atualização
-                sloganBox.querySelector('.save-slogan-btn').addEventListener('click', () => {
-                    const novoSlogan = newSloganInput.value;
-                    // Obtenha o caminho atual do vídeo (por exemplo, do <source> dentro do vídeo deste container)
-                    const currentVideoElement = sloganBox.querySelector('video');
-                    const oldVideoPath = currentVideoElement.querySelector('source').getAttribute('src');
-
-                    fetch('/editar_slogan', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            video_path: oldVideoPath,
-                            novo_slogan: novoSlogan
+        document.addEventListener('DOMContentLoaded', () => {
+            // Para cada botão "EDITAR", ao ser clicado, localize o modal relativo à mesma .slogan-box
+            document.querySelectorAll('.edit-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Encontra o container pai (a div .slogan-box)
+                    const sloganBox = this.closest('.slogan-box');
+                    // Seleciona o modal dentro desse container
+                    const editModal = sloganBox.querySelector('.edit-modal');
+                    // Preenche o input com o slogan atual, se estiver armazenado no botão
+                    const newSloganInput = sloganBox.querySelector('.new-slogan-input');
+                    newSloganInput.value = this.getAttribute('data-slogan');
+                    // Exibe o modal
+                    editModal.style.display = 'block';
+                    
+                    // Fecha o modal ao clicar no elemento com a classe "close"
+                    sloganBox.querySelector('.close').addEventListener('click', () => {
+                        editModal.style.display = 'none';
+                    });
+    
+                    // Ao clicar no botão "Salvar" dentro do modal, envie a atualização
+                    sloganBox.querySelector('.save-slogan-btn').addEventListener('click', () => {
+                        const novoSlogan = newSloganInput.value;
+                        // Obtenha o caminho atual da imagem
+                        const currentImageElement = sloganBox.querySelector('img.slogan-image');
+                        const oldImagePath = currentImageElement.getAttribute('src');
+    
+                        fetch('/editar_slogan', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                image_path: oldImagePath,
+                                novo_slogan: novoSlogan
+                            })
                         })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if(data.status === 'success') {
-                            const novoVideoPath = data.novo_video_path;
-                            // Atualiza o src do vídeo
-                            const sourceElement = currentVideoElement.querySelector('source');
-                            sourceElement.setAttribute('src', novoVideoPath);
-                            currentVideoElement.load();
-
-                            // Atualiza os atributos data-imagem e data-slogan dos botões do container
-                            sloganBox.querySelectorAll('.like-button, .dislike-button, #publish-button, .edit-button').forEach(btn => {
-                                btn.dataset.imagem = novoVideoPath;
-                            });
-                            // Atualiza o botão "EDITAR" com o novo slogan
-                            this.setAttribute('data-slogan', novoSlogan);
-                            alert('Vídeo atualizado com sucesso!');
-                        } else {
-                            alert('Erro ao atualizar slogan: ' + data.message);
-                        }
-                        editModal.style.display = 'none';
-                    })
-                    .catch(error => {
-                        console.error('Erro:', error);
-                        editModal.style.display = 'none';
+                        .then(response => response.json())
+                        .then(data => {
+                            if(data.status === 'success') {
+                                const novoImagePath = data.novo_image_path;
+                                // Atualiza o src da imagem
+                                currentImageElement.setAttribute('src', novoImagePath);
+    
+                                // Atualiza os atributos data-imagem e data-slogan dos botões do container
+                                sloganBox.querySelectorAll('.like-button, .dislike-button, #publish-button, .edit-button').forEach(btn => {
+                                    btn.dataset.imagem = novoImagePath;
+                                });
+                                // Atualiza o botão "EDITAR" com o novo slogan
+                                this.setAttribute('data-slogan', novoSlogan);
+                                alert('Imagem atualizada com sucesso!');
+                            } else {
+                                alert('Erro ao atualizar slogan: ' + data.message);
+                            }
+                            editModal.style.display = 'none';
+                        })
+                        .catch(error => {
+                            console.error('Erro:', error);
+                            editModal.style.display = 'none';
+                        });
                     });
                 });
             });
         });
-    });
-
-    </script>
-
+    
+        </script>
+    
     <!-- SCRIPT PUBLICAR NA TELA DE TESTE -->
     <script>
         // PUBLICAÇÃO DE CONTEÚDO
         document.querySelectorAll('#publish-button').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
-                const videoPath = this.getAttribute('data-imagem');
+                const slogan = this.getAttribute('data-slogan');
                 
                 fetch('/publish-content', {
                     method: 'POST',
@@ -558,7 +534,8 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        file_path: videoPath
+                        slogan: slogan,
+                        brand: 'Lacta'
                     })
                 })
                 .then(response => response.json())

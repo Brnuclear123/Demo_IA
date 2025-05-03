@@ -3,13 +3,14 @@ import json
 import os
 import re
 from datetime import datetime
-from app.services.slogan_service import criar_gif_slogan_combinado, js_read
+from app.services.slogan_service import js_read
+from app.services.utils.slogan_static_generator import SloganStaticGenerator
 
 conf_json_path = "static/data/env_variables.json"
 env_data = js_read(conf_json_path)
 openai.api_key = env_data["OPENAI_API_KEY"]
 
-def gerar_slogans_corona(estado, cidade, bairro, data_campanha, momento, real_time_data):
+def gerar_slogans_corona(estado, cidade, bairro, data_campanha, momento, real_time_data, usar_feriado=None):
     regex_patterns = [
         r'(.+?)\\s{2,}',
         r'\"([^\"]+)\",?',
@@ -33,6 +34,7 @@ def gerar_slogans_corona(estado, cidade, bairro, data_campanha, momento, real_ti
         → Público-alvo: jovens de 18 a 35 anos, ligados à música, sunset, esportes e natureza.
         → Sem emojis. 
         → Evitar soar como propaganda direta: as mensagens devem parecer falas espontâneas de alguém relaxando com uma Corona gelada.
+        →  Evite iniciar as mensagens com numeração, como "1." ou "2.". Mesmo que a ideia seja boa, como em "1. UMA NOITE COM CORONA E PÉS NA AREIA", o número transmite uma sensação de instrução ou passo a passo — o que contradiz o espírito leve, livre e fluido da marca Corona. Também evite iniciar frases com traços ("-"), pois isso reforça a sensação de que a mensagem faz parte de uma lista. Com Corona, cada frase deve parecer um convite espontâneo a viver o momento, não um item a ser lido em sequência.
 
         Contexto para inspiração:
         - Temperatura: {real_time_data['weather']}°C
@@ -53,9 +55,6 @@ def gerar_slogans_corona(estado, cidade, bairro, data_campanha, momento, real_ti
         - O pôr-do-sol é só o começo Brinde com o que vem depois
         """)
 
-
-
-
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4-turbo",
@@ -67,23 +66,45 @@ def gerar_slogans_corona(estado, cidade, bairro, data_campanha, momento, real_ti
         resposta_texto = response.choices[0].message.content
         slogans = extrair_slogans(resposta_texto, regex_patterns)
 
-        imagens = []
-        for slogan in slogans:
-            img = criar_gif_slogan_combinado(slogan, "Corona")
-            imagens.append(img)
+        # Usar o novo gerador de imagens estáticas
+        generator = SloganStaticGenerator("Corona")
+        imagens = generator.generate_static_images(slogans)
 
         return slogans[:4], imagens
 
     except Exception as e:
-        print("Erro ao gerar slogans Corona:", e)
-        return ["Slogan não disponível"] * 4, []
+        # print("Erro ao gerar slogans Corona:", e)
+        # TODO: remover for dedebuging
+        print("Retornando slogans fictícios para teste")
+        
+        # Dados fictícios para teste quando a API falha
+        slogans_ficticios = [
+            "Sol na pele, limão na garrafa, e o tempo jogando a favor",
+            "O pôr-do-sol é só o começo Brinde com o que vem depois",
+            "Brisa do mar, amigos de sempre, momentos que duram para sempre",
+            "Cada gole é uma nova aventura em um dia perfeito"
+        ]
+        
+        # Usar o novo gerador de imagens estáticas
+        generator = SloganStaticGenerator("Corona")
+        imagens = generator.generate_static_images(slogans_ficticios)
+            
+        return slogans_ficticios, imagens
 
-def extrair_slogans(texto, padroes):
-    for padrao in padroes:
-        matches = re.findall(padrao, texto, re.MULTILINE)
-        if len(matches) >= 4:
-            return matches
-    return ["Slogan não disponível"] * 4
+def extrair_slogans(resposta_texto, regex_patterns):
+    slogans = []
+    for pattern in regex_patterns:
+        matches = re.findall(pattern, resposta_texto, re.MULTILINE)
+        if matches:
+            slogans.extend(matches)
+
+    # Agora tratamos: remover enumeração e passar tudo para MAIÚSCULO
+    slogans_tratados = []
+    for slogan in slogans:
+        slogan = re.sub(r'^\s\d+.\s', '', slogan)  # remove o "1. ", "2. ", etc no começo
+        slogans_tratados.append(slogan.upper())       # coloca o slogan todo em maiúsculo
+
+    return slogans_tratados
 
 def dia_da_semana(date_str):
     dias = ['segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado', 'domingo']

@@ -3,13 +3,14 @@ import json
 import os
 import re
 from datetime import datetime
-from app.services.slogan_service import criar_gif_slogan_combinado, js_read
+from app.services.slogan_service import js_read
+from app.services.utils.slogan_static_generator import SloganStaticGenerator
 
 conf_json_path = "static/data/env_variables.json"
 env_data = js_read(conf_json_path)
 openai.api_key = env_data["OPENAI_API_KEY"]
 
-def gerar_slogans_lacta(estado, cidade, bairro, data_campanha, momento, real_time_data):
+def gerar_slogans_lacta(estado, cidade, bairro, data_campanha, momento, real_time_data, usar_feriado=None):
     regex_patterns = [
         r'(.+?)\\s{2,}',
         r'\"([^\"]+)\",?',
@@ -19,91 +20,94 @@ def gerar_slogans_lacta(estado, cidade, bairro, data_campanha, momento, real_tim
     ]
 
     prompt = (f"""
-        Você é uma inteligência criativa especializada em redigir mensagens curtas, impactantes e sensoriais para a marca de chocolate Lacta no Brasil. Quando referir-se à marca Lacta, faça sempre no feminino. 
+        Você é uma inteligência criativa especializada em redigir mensagens curtas, impactantes e sensoriais para a marca de chocolates Lacta no Brasil.
 
         Sua tarefa:
-        → Crie 4 variações de títulos publicitários para exibição em telas digitais no ponto de venda.
-        → Cada título deve ter entre 30 e 75 caracteres.
+        → Crie 4 variações de slogans publicitários para exibição em telas digitais no ponto de venda.
+        → Cada slogan deve ter entre 30 e 75 caracteres.
         → Não enumere, não use aspas e evite pontuação desnecessária.
 
         Diretrizes de estilo:
-        → Mensagens leves, inspiradoras, emocionais.
-        → Evocar sempre sentimentos.
-        → Lacta é sobre conexão, sentimento, emoção e o quanto um chocolate pode representar tudo isso.
-        → Público-alvo: pessoas de 18 a 55 anos, emocionalmente conectadas com a família, os amigos, e parceiros de vida.
+        → Mensagens leves, inspiradoras, sensoriais.
+        → Evocar elementos de prazer, momentos de alegria e compartilhamento.
+        → Estilo de vida descontraído e momentos de pausa.
+        → Público-alvo: jovens e adultos de 18 a 45 anos, que apreciam momentos de prazer com chocolate.
         → Sem emojis. 
-        → Crie mensagens espontâneas, com induzam de forma sutil ao impulso de compra e sugestionem o consumidor a presentear pessoas queridas com chocolate. 
+        → Evitar soar como propaganda direta: as mensagens devem parecer falas espontâneas de alguém desfrutando de um momento de prazer com Lacta.
+        → Evite iniciar as mensagens com numeração, como "1." ou "2.". Mesmo quando o conteúdo for envolvente, como em "1. O DIA DOS NAMORADOS MERECE UM DOCE A MAIS COM LACTA", a presença de um número no início quebra a fluidez da leitura emocional e faz a mensagem parecer parte de uma lista técnica. Isso vai contra a proposta sensível, afetiva e espontânea que buscamos com Lacta. Além disso, não comece frases com traços ou hífens ("-"), pois isso também remete a tópicos ou listas. Cada mensagem deve ser única, suave e fluida, como um momento doce que se oferece naturalmente.
 
         Contexto para inspiração:
         - Temperatura: {real_time_data['weather']}°C
         - Horário: {momento}
         - Dia da semana: {dia_da_semana(data_campanha)}
+        - Localização: {estado}, {cidade}, {bairro}
 
         Instruções específicas:
-        - Adapte a intenção do título conforme o dia da semana ({dia_da_semana(data_campanha)}), cite o dia só quando for conveniente:
-        Na segunda, explore falar de sentimentos que inspirem incentivo para o início da semana;
-        Na terça, fale sobre a importância das parcerias e companhias para encarar o restante da semana;
-        Na quarta, o contexto de meio de semana é ótimo pra gerar elogios;
-        Na quinta, lembre as pessoas sobre convites para jantares, happy hours e afins;;
-        Na sexta, explore a expressão sextou e o fato de que o fim de semana já começou para reforçar as conexões humanas;
-        No sábado e no domingo, use momentos no parque, de folga, de encontro com os amigos e a família para entregar as mensagens.
-        - Quando o momento do dia for escolhido, adapte a intenção da mensagem também:
-            De manhã, fale sobre como um "bom dia" fica mais gostoso com chocolate;
-            De tarde, explore o fato de quem um chocolate deixa qualquer tarde e relação mais doce;
-            De noite, diga que boas companhias e chocolate sempre fazem um jantar maravilhoso.
+        - Adapte o tom dos slogans conforme o dia da semana ({dia_da_semana(data_campanha)}).
+        - Se houver algum evento cultural ou mundial relevante no período, use-o de forma natural (sem forçar datas comemorativas aleatórias).
         - Não repita o nome da cidade, estado ou bairro nos slogans. Use outros recursos para criar conexão com o local.
-        - Lacta é uma marca leve, calorosa, próxima, acolhedora e inspiradora. Fala de forma simples, direta e sempre buscando criar conexão emocional com o consumidor
+        - Como Lacta é uma marca bem pra frente, carregue os slogans de animação, prazer e otimismo.
 
-        Referência conceitual: "Cada pedacinho aproxima"
+        Referência conceitual: "Lacta é inspirada no prazer, não feita do prazer."
 
         Exemplos de boas saídas:
-        - Sextou com gostinho da melhor companhia. Não disse qual
-        - O melhor pedacinho da segunda é com quem a gente divide ela
+        - Um momento de prazer, uma pausa para respirar, e o tempo jogando a favor
+        - O prazer é só o começo Brinde com o que vem depois
         """)
-
-
-
-
-
-
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4-turbo",
             messages=[
-                {"role": "system", "content": "Você é um redator publicitário especialista em slogans afetivos e curtos."},
+                {"role": "system", "content": "Você é um redator publicitário especialista em slogans sensoriais e inspiradores."},
                 {"role": "user", "content": prompt}
             ]
         )
         resposta_texto = response.choices[0].message.content
         slogans = extrair_slogans(resposta_texto, regex_patterns)
 
-        imagens = []
-        for slogan in slogans:
-            img = criar_gif_slogan_combinado(slogan, "Lacta")
-            imagens.append(img)
+        # Usar o novo gerador de imagens estáticas
+        generator = SloganStaticGenerator("Lacta")
+        imagens = generator.generate_static_images(slogans)
 
         return slogans[:4], imagens
 
     except Exception as e:
         print("Erro ao gerar slogans Lacta:", e)
-        return ["Slogan não disponível"] * 4, []
+        # TODO: remover for dedebuging
+        print("Retornando slogans fictícios para teste")
+        
+        # Dados fictícios para teste quando a API falha
+        slogans_ficticios = [
+            "Um momento de prazer, uma pausa para respirar, e o tempo jogando a favor",
+            "O prazer é só o começo Brinde com o que vem depois",
+            "Brisa do mar, amigos de sempre, momentos que duram para sempre",
+            "Cada gole é uma nova aventura em um dia perfeito"
+        ]
+        
+        # Usar o novo gerador de imagens estáticas
+        generator = SloganStaticGenerator("Lacta")
+        imagens = generator.generate_static_images(slogans_ficticios)
+            
+        return slogans_ficticios, imagens
 
-def extrair_slogans(texto, padroes):
-    for padrao in padroes:
-        matches = re.findall(padrao, texto, re.MULTILINE)
-        if len(matches) >= 4:
-            return matches
-    return ["Slogan não disponível"] * 4
+def extrair_slogans(resposta_texto, regex_patterns):
+    slogans = []
+    for pattern in regex_patterns:
+        matches = re.findall(pattern, resposta_texto, re.MULTILINE)
+        if matches:
+            slogans.extend(matches)
 
-def dia_da_semana(date_str: str) -> str:
-    """Converte data para dia da semana (ex: '25/12/2023' -> 'Segunda-feira')."""
-    dias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 
-            'Sexta-feira', 'Sábado', 'Domingo']
-    try:
-        data = datetime.strptime(date_str.split("to")[0].strip(), '%d/%m/%Y').date()
-        return dias[data.weekday()]
-    except Exception as e:
-        print(f"Erro ao converter data: {e}")
-        return ""
+    # Agora tratamos: remover enumeração e passar tudo para MAIÚSCULO
+    slogans_tratados = []
+    for slogan in slogans:
+        slogan = re.sub(r'^\s\d+.\s', '', slogan)  # remove o "1. ", "2. ", etc no começo
+        slogans_tratados.append(slogan.upper())       # coloca o slogan todo em maiúsculo
+        
+    return slogans_tratados
+
+def dia_da_semana(date_str):
+    dias = ['segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado', 'domingo']
+    date = datetime.strptime(date_str.split("to")[0].strip(), '%d/%m/%Y').date()
+    return dias[date.weekday()]
 
