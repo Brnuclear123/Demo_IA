@@ -53,10 +53,7 @@
             <div class="image-list">
                 {% for image in avaliacoes['like'] %}
                     <div class="image-item">
-                        <video autoplay loop muted class="slogan-image">
-                            <source src="{{ image }}" type="video/mp4">
-                            Seu navegador não suporta o elemento de vídeo.
-                        </video>
+                        <img src="{{ image }}" alt="Imagem avaliada">
                     </div>
                 {% endfor %}
             </div>
@@ -67,10 +64,7 @@
             <div class="image-list">
                 {% for image in avaliacoes['dislike'] %}
                     <div class="image-item">
-                        <video autoplay loop muted class="slogan-image">
-                            <source src="{{ image }}" type="video/mp4">
-                            Seu navegador não suporta o elemento de vídeo.
-                        </video>
+                        <img src="{{ image }}" alt="Imagem avaliada">
                     </div>
                 {% endfor %}
             </div>
