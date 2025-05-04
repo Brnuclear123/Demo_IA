@@ -106,6 +106,10 @@ class SloganVideoGenerator:
         os.makedirs(output_dir, exist_ok=True)
 
         bg_clip = self.bg_video
+        # REMOVER DEPOIS DE DEBUG
+        abspath = os.path.abspath(bg_clip)
+        print("→ tentando abrir vídeo em:", abspath, "existe?", os.path.isfile(abspath))
+        
         
         # Create a temp directory inside the output_dir
         temp_dir = os.path.join(output_dir, "temp")

@@ -13,20 +13,23 @@ def corona():
     if 'username' in session and session['brand_name'].lower() == 'corona':
         real_time_data = None
         if request.method == 'POST':
-            momento = request.form.getlist('time_range')
-            data_campanha = request.form.get('data_campanha')
             estado = request.form.get('estado')
             cidade = request.form.get('cidade')
             bairro = request.form.get('bairro')
+            momento = request.form.getlist('time_range')
+            dia_da_semana = request.form.getlist('target_days')
+            real_time_cards = request.form.getlist('data_cards')
+            data_campanha = '06/05/2025 to 07/05/2025'
 
             # ✅ Verifica se há feriado
             feriado = verificar_feriado(data_campanha)
             usar_feriado = request.form.get("usar_feriado")
 
             # ✅ Gera dados em tempo real e os slogans
-            real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
+            #real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
+            
             slogans, imagens = gerar_slogans_corona(
-                estado, cidade, bairro, data_campanha, momento, real_time_data, usar_feriado
+                estado, cidade, bairro, data_campanha, momento, real_time_cards, dia_da_semana, usar_feriado
             )
 
             slogans_imagens = list(zip(slogans, imagens))
@@ -47,20 +50,23 @@ def lacta():
     if 'username' in session and session['brand_name'].lower() == 'lacta':
         real_time_data = None
         if request.method == 'POST':
-            momento = request.form.getlist('time_range')
-            data_campanha = request.form.get('data_campanha')
             estado = request.form.get('estado')
             cidade = request.form.get('cidade')
             bairro = request.form.get('bairro')
+            momento = request.form.getlist('time_range')
+            dia_da_semana = request.form.getlist('target_days')
+            real_time_cards = request.form.getlist('data_cards')
+            data_campanha = '06/05/2025 to 07/05/2025'
 
-            # ✅ Verifica se tem feriado para a data informada
+            # ✅ Verifica se há feriado
             feriado = verificar_feriado(data_campanha)
             usar_feriado = request.form.get("usar_feriado")
 
-            # ✅ Gera dados em tempo real e depois slogans
-            real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
+            # ✅ Gera dados em tempo real e os slogans
+            #real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
+            
             slogans, imagens = gerar_slogans_lacta(
-                estado, cidade, bairro, data_campanha, momento, real_time_data, usar_feriado
+                estado, cidade, bairro, data_campanha, momento, real_time_cards, dia_da_semana, usar_feriado
             )
 
             slogans_imagens = list(zip(slogans, imagens))
@@ -84,20 +90,23 @@ def bauducco():
     if 'username' in session and session['brand_name'].lower() == 'bauducco':
         real_time_data = None
         if request.method == 'POST':
-            momento = request.form.getlist('time_range')
-            data_campanha = request.form.get('data_campanha')
             estado = request.form.get('estado')
             cidade = request.form.get('cidade')
             bairro = request.form.get('bairro')
+            momento = request.form.getlist('time_range')
+            dia_da_semana = request.form.getlist('target_days')
+            real_time_cards = request.form.getlist('data_cards')
+            data_campanha = '06/05/2025 to 07/05/2025'
 
             # ✅ Verifica se há feriado
             feriado = verificar_feriado(data_campanha)
             usar_feriado = request.form.get("usar_feriado")
 
             # ✅ Gera dados em tempo real e os slogans
-            real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
+            #real_time_data = gerar_dados_em_tempo_real(estado, cidade, bairro, data_campanha)
+            
             slogans, imagens = gerar_slogans_bauducco(
-                estado, cidade, bairro, data_campanha, momento, real_time_data, usar_feriado
+                estado, cidade, bairro, data_campanha, momento, real_time_cards, dia_da_semana, usar_feriado
             )
 
             slogans_imagens = list(zip(slogans, imagens))

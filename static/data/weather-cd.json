@@ -9,28 +9,28 @@
       "description": "Parcialmente nublado"
     },
     "3": {
-      "description": "Encoberto"
+      "description": "Nublado"
     },
     "45": {
       "description": "Nevoeiro"
     },
     "48": {
-      "description": "Nevoeiro com depósito de gelo"
+      "description": "Nevoeiro com gelo"
     },
     "51": {
-      "description": "Chuvisco: Intensidade leve"
+      "description": "Garoa: Intensidade leve"
     },
     "53": {
-      "description": "Chuvisco: Intensidade moderada"
+      "description": "Garoa: Intensidade moderada"
     },
     "55": {
-      "description": "Chuvisco: Intensidade densa"
+      "description": "Garoa: Intensidade densa"
     },
     "56": {
-      "description": "Chuvisco congelante: Intensidade leve"
+      "description": "Garoa congelante: Intensidade leve"
     },
     "57": {
-      "description": "Chuvisco congelante: Intensidade densa"
+      "description": "Garoa congelante: Intensidade densa"
     },
     "61": {
       "description": "Chuva: Intensidade leve"

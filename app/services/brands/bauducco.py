@@ -10,8 +10,7 @@ conf_json_path = "static/data/env_variables.json"
 env_data = js_read(conf_json_path)
 openai.api_key = env_data["OPENAI_API_KEY"]
 
-def gerar_slogans_bauducco(estado, cidade, bairro, data_campanha, momento, real_time_data, usar_feriado=None):
-
+def gerar_slogans_bauducco(estado, cidade, bairro, data_campanha, momento=[], real_time_data=[], dia_semana=[], usar_feriado=None):
     regex_patterns = [
         r'(.+?)\\s{2,}',
         r'\"([^\"]+)\",?',
@@ -34,42 +33,40 @@ def gerar_slogans_bauducco(estado, cidade, bairro, data_campanha, momento, real_
         → Bauducco é sobre conexão, tradição, simplicidade, sabores, cuidado, celebração e o quanto seus produtos simbolizam e estimulam as pessoas a viverem momentos juntas.
         → Público-alvo: pessoas de 18 a 55 anos, emocionalmente conectadas com a família, os amigos, e parceiros de vida.
         → Sem emojis. 
-        → Crie mensagens espontâneas, com induzam de forma sutil ao impulso de compra e sugestionem o consumidor a criar momentos inesquecíveis com pessoas queridas e Bauducco. 
-        → Evite iniciar as mensagens com numeração, como "1." ou "2.". Mesmo quando o conteúdo for excelente, como em "1. QUARTA-FEIRA É PERFEITA PARA REUNIR, AMAR E SABOREAR BAUDUCCO", o número inicial transmite uma ideia de lista técnica e quebra a fluidez da leitura emocional, além de destoar da imagem sensível e inspiradora que queremos transmitir. Também evite iniciar frases com traços ("-"), pois isso reforça a sensação de que a mensagem faz parte de uma lista. Com Bauducco, cada frase deve parecer um convite espontâneo a viver o momento, não um item a ser lido em sequência.
-
-        Contexto para inspiração:
-        - Temperatura: {real_time_data['weather']}°C
-        - Horário: {momento}
-        - Dia da semana: {dia_da_semana(data_campanha)}
+        → Crie mensagens espontâneas, com induzam de forma sutil ao impulso de compra e sugestionem o consumidor a relaxar com uma Corona gelada 
+        → Evite iniciar as mensagens com numeração, como "1." ou "2.". Mesmo que a ideia seja boa, como em "1. UMA NOITE COM CORONA E PÉS NA AREIA", o número transmite uma sensação de instrução ou passo a passo — o que contradiz o espírito leve, livre e fluido da marca Corona. Também evite iniciar frases com traços ("-"), pois isso reforça a sensação de que a mensagem faz parte de uma lista. Com Corona, cada frase deve parecer um convite espontâneo a viver o momento, não um item a ser lido em sequência.
 
         Instruções específicas:
-        - Adapte a intenção do título conforme o dia da semana ({dia_da_semana(data_campanha)}), cite o dia só quando for conveniente:
-        Na segunda, explore momentos em família ou com os amigos que inspirem incentivo para o início da semana;
-        Na terça, fale sobre a importância das parcerias e companhias para encarar o restante da semana;
-        Na quarta, o contexto de meio de semana é ótimo para encontrar familiares e amigos;
-        Na quinta, lembre as pessoas que o fim de semana se aproxima e que reunir os amigos e a família é sempre um momento gostoso;
-        Na sexta, explore a expressão sextou e o fato de que o fim de semana já começou para reforçar as conexões humanas;
-        No sábado e no domingo, reforce os momentos de reunião entre amigos e familiares para entregar mensagens que valorizem a marca como um bom motivo para que esses encontros aconteçam.
+        - Adapte a intenção do título conforme o dia da semana, cite o dia só quando for conveniente
         - Quando o momento do dia for escolhido, adapte a intenção da mensagem também:
             De manhã, fale sobre como um "bom dia" fica mais gostoso quando inicia com um pão saboroso de verdade;
             De tarde, explore o fato de que qualquer dia ou relação fica mais gostosa com Bauducco;
             De noite, diga que boas companhias e Bauducco sempre fazem um jantar maravilhoso.
         - Não repita o nome da cidade, estado ou bairro nos slogans. Use outros recursos para criar conexão com o local.
         - Bauducco é uma marca leve, calorosa, próxima, acolhedora e inspiradora. Fala de forma simples, direta e sempre buscando criar conexão emocional com o consumidor
+        - Quando selecionado o Dia do Pão, em 16/10, aproveite para sugerir mensagens que digam que todo dia é dia de comer pão, mas hoje mais ainda.
 
         Referência conceitual: "Um sentimento chamado família"
 
         Exemplos de boas saídas:
         - Bom dia é começar o dia com um pãozinho de verdade.
         - Fim de semana tem que ter família e tem que ter Bauducco.
+        
+        Contexto para inspiração:
+                - Localização: {estado}, {cidade}, {bairro}
         """)
+    if real_time_data != []:
+        prompt = prompt + f"\n                - Informações adicionais: {real_time_data}"
+    if momento != []:
+        prompt = prompt + f"\n                - Horário: {momento}"
+    if dia_semana != []:
+        prompt = prompt + f"\n                - Dia da semana: {dia_semana}"
 
-
-
+    print(prompt)
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4-turbo",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "Você é um redator publicitário especialista em slogans sensoriais e inspiradores."},
                 {"role": "user", "content": prompt}
@@ -104,15 +101,24 @@ def gerar_slogans_bauducco(estado, cidade, bairro, data_campanha, momento, real_
         return slogans_ficticios, imagens
 
 def extrair_slogans(resposta_texto, regex_patterns):
+
     slogans = []
     for pattern in regex_patterns:
         matches = re.findall(pattern, resposta_texto, re.MULTILINE)
         if matches:
             slogans.extend(matches)
 
-    # Agora tratamos: remover enumeração e passar tudo para MAIÚSCULO
+    # Remover duplicatas
+    seen = set()
+    deduped = []
+    for s in slogans:
+        if s not in seen:
+            seen.add(s)
+            deduped.append(s)
+
+    # Remover enumeração e passar tudo para MAIÚSCULO
     slogans_tratados = []
-    for slogan in slogans:
+    for slogan in deduped:
         slogan = re.sub(r'^\s\d+.\s', '', slogan)  # remove o "1. ", "2. ", etc no começo
         slogans_tratados.append(slogan.upper())       # coloca o slogan todo em maiúsculo
 

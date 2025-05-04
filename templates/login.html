@@ -1,23 +1,43 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
 </head>
-<body>    
-    <div class="container">
-        <div class="login-box">
-            <h1>Transforme dados em conexões reais.</h1>
-            <p>Crie mensagens que se adaptem e conversem com seu público naturalmente.</p>
-            <form action="{{ url_for('routes.login') }}" method="post">
-                <input type="text" name="username" placeholder="Usuário" required>
-                <input type="password" name="password" placeholder="Senha" required>
-                <button type="submit">ENTRAR</button>
-                <a href="#">Esqueci minha senha</a>
-            </form>
+<body>
+
+  <!-- Header com logo -->
+  <header class="header">
+    <img 
+      src="{{ url_for('static', filename='src/bump_small_logo-noBG.png') }}" 
+      alt="Logo Bump" 
+      class="logo"
+    >
+  </header>
+
+
+  <!-- Conteúdo do login -->
+  <main class="login-container">
+    <div class="login-box">
+      <h1>Transforme dados<br>em conexões reais.</h1>
+      <p>Crie mensagens que se adaptam e conversam com seu público naturalmente.</p>
+      <form action="{{ url_for('routes.login') }}" method="post">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Senha" required>
+        <div class="actions">
+          <button type="submit" class="btn-login">ENTRAR</button>
+          <a href="#" class="forgot">Esqueci minha senha</a>
         </div>
+      </form>
     </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer-main">
+    Bump® is the AI Retail Media Platform. All rights reserved to Bump® – 2025
+  </footer>
+
 </body>
 </html>

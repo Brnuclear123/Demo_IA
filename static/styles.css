@@ -102,8 +102,15 @@ body {
 .campaign-form {
     background: #fff;
     border-radius: 8px;
-    padding: 20px;
+    padding: 20px 20px 20px 0px;
     margin-bottom: 30px;
+}
+
+.campaign-form p{
+    margin: 45px 0px 25px 0px;
+    font-size: 1rem;
+    color: #666;
+    width: 72%;
 }
 
 /* Agrupamentos de campos em linhas */
@@ -131,6 +138,7 @@ body {
 .form-group input[type="text"],
 .form-group select {
     padding: 10px;
+    background-color: #fff;
     font-size: 1rem;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -223,7 +231,7 @@ button:disabled {
 }
 
 #generate-button:hover {
-    background-color: #75a6f0;
+    background-color: #003fbb;
 }
 
 #slogans-button {
@@ -231,7 +239,7 @@ button:disabled {
 }
 
 #slogans-button:hover {
-    background-color: #75a6f0;
+    background-color: #003fbb;
 }
 
 #refazer-button {
@@ -242,98 +250,61 @@ button:disabled {
     background-color: #75a6f0;
 }
 
-/* Seção de dados em tempo real */
+/* Grid de cards */
 .real-time-data {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: center;
-    margin-bottom: 30px;
-}
-
-/* Estilos para o container das caixas de seleção */
-.checkbox-container {
-    display: block;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    margin-bottom: 3rem;
+  }
+  
+  /* Cartões como toggles */
+  .checkbox-container {
     position: relative;
-    padding: 40px 35px;
-    margin-top: 15px;
-    margin-bottom: 15px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    background-color: #fff;
     cursor: pointer;
-    font-size: 16px;
+    transition: background 0.2s, border-color 0.2s;
     user-select: none;
-    border-radius: 10px;
-    background-color: #f9f9f9; /* Fundo neutro */
-}
-    /*DESATIVADO*/
-    .checkbox-container.disabled {
-        background-color: #eeeeee; /* fundo mais claro */
-        color: #919191;            /* texto em cinza */
-        cursor: not-allowed;       /* cursor de proibido */
-        pointer-events: none;      /* impede clique */
-        opacity: 0.7;              /* opcional: aparência "desativada" */
-    }
-
-    .checkbox-container.disabled .checkmark {
-        background-color: #ccc !important;
-        border-color: #ccc !important;
-    }
-
-/* Ocultar o checkbox padrão */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Estado desabilitado já existe */
+  .checkbox-container.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  
+  /* Esconde o checkmark original (opcional) */
+  .checkbox-container .checkmark {
+    display: none;
+  }
+  
+/* Esconde o checkbox nativo */
 .checkbox-container input {
     position: absolute;
     opacity: 0;
-    cursor: pointer;
+    pointer-events: none;
 }
-
-/* Estilos para a "checkmark" (parte visível da caixa de seleção) */
-.checkmark {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    height: 25px;
-    width: 25px;
-    background-color: #eee;
-    border: 2px solid #ccc;
-    border-radius: 100%;
+  
+/* Hover */
+.checkbox-container:hover:not(.disabled) {
+    background-color: #f9f9f9;
 }
-
-/* Quando a caixa de seleção está selecionada */
-.checkbox-container input:checked ~ .checkmark {
-    background-color: #007bff; /* Azul para selecionado */
-    border-color: #007bff;
-}
-
-/* Quando a caixa de seleção não está selecionada */
-.checkbox-container input:not(:checked) ~ .checkmark {
-    background-color: #ccc;
-    border-color: #ccc;
-}
-
-/* Exibe o símbolo de "check" quando selecionado */
-.checkmark:after {
-    content: "";
-    position: absolute;
-    display: none;
-}
-
-.checkbox-container input:checked ~ .checkmark:after {
-    display: block;
-}
-
-.checkmark:after {
-    left: 5px;
-    top: 0px;
-    width: 8px;
-    height: 12px;
-    border: solid white;
-    border-width: 0 3px 3px 0;
-    transform: rotate(45deg);
+  
+/* Quando ativo (checked) */
+.checkbox-container.active {
+    border-color: #075edd;
+    background-color: #e6f8ff;
 }
 
 /* Estilização para o texto dinâmico sem truncamento */
 .data-text {
     display: block;
-    width: 100px;      /* Largura fixa para uniformidade */
+    width: 200px;      /* Largura fixa para uniformidade */
     white-space: normal; /* Permite quebra de linha */
     word-wrap: break-word;
     text-align: center;
@@ -439,3 +410,49 @@ button:disabled {
         align-items: center;
     }
 }
+
+
+/* ===== Toggle buttons para time-ranges ===== */
+/* ===== Toggle buttons circulares para time-ranges ===== */
+.tags.time-ranges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px; /* espaçamento maior entre círculos */
+}
+
+.tags.time-ranges .tag {
+    position: relative;
+    width: 100px;       /* define largura fixa */
+    height: 100px;      /* define altura fixa igual à largura */
+    border: 1px solid #ccc;
+    border-radius: 50%; /* deixa redondo */
+    background: #fff;
+    color: #333;
+    
+    /* centraliza o texto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    user-select: none;
+    padding: 0;        /* remove padding anterior */
+}
+
+.tags.time-ranges .tag:hover {
+    background-color: #f0f0f0;
+}
+
+.tags.time-ranges .tag input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.tags.time-ranges .tag.active {
+    background-color: #075edd;
+    border-color: #075edd;
+    color: #fff;
+}
+

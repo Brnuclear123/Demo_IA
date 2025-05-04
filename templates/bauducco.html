@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-    <head>
-        <meta charset="UTF-8">
-        <title>Gerador de Conteúdo - Bauducco</title>
-        <!-- Estilos -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-        <!-- Flatpickr (Calendário) -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    </head>
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <title>Criador de Conteúdo - Bauducco</title>
+    <!-- Estilos -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Flatpickr (Calendário) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
 
     <!-- Cabeçalho / Topo -->
     <header class="header-bar">
@@ -32,20 +32,27 @@
         <!-- Título principal / Subtítulo -->
         <section class="intro">
             <h2>Criador de Conteúdo</h2>
-            <p>Comece a criar as mensagens certas para o momento certo</p>
-            <ol>
-                <li>No campo "Com quem esse conteúdo vai falar?" coloque qual região quer alcançar com o slogan</li>
-                <li>Selecione no campo "Qual o período de visualização do conteúdo?" a data que você quer usar como contexto para a criação dos slogans, isso vai influenciar os dados em tempo real</li>
-                <li>Você consegue selecionar qual o ponto de venda que vai receber esse contéudo no campo "Qual o período de visualização do conteúdo?"</li>
-                <li>Escolha qual o momento para sua mensagem no campo "Qual o melhor momento para a sua mensagem?", aprofundando a criação do slogan</li>
-                <li>Após isso é só clicar em "CRIAR CONTEÚDO" e você terá seus slogans prontos</li>
-            </ol>
+            <p>Comece a criar as mensagens certas para o momento certo. Aqui colocar mensagem do que o usuário precisa fazer antes de começar a criar conteúdo. Falar sobre conceito de “campanha” e explicar o recurso.</p>
         </section>
+
+        <div class="button-group">
+            <button class="generate-button">CRIAR NOVA CAMPANHA</button>
+            <button class="generate-button">USAR CAMPANHA EXISTENTE</button>
+        </div>
 
         <!-- Formulário principal -->
         <form class="campaign-form" action="{{ url_for('routes.bauducco') }}" method="post">
+
             <div class="form-row">
-                <!-- 1) Onde a oferta vai rodar? -->
+
+                <div class="form-group">
+                    <label for="alvo">O que vamos destacar desta vez?</label>
+                    <select id="alvo" name="alvo-instituição" required>
+                        <option value="" disabled selected>Selecione o alvo</option>
+                        <option value="Bauducco_Paes">Bauducco Pães</option>
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label for="localizacao">Com quem esse conteúdo vai falar?</label>
                     <input 
@@ -66,21 +73,19 @@
                     <input type="hidden" id="cidade" name="cidade">
                     <input type="hidden" id="bairro" name="bairro">
                 </div>
+            </div>
 
-                <!-- 2) Com quem você quer falar? (loja) -->
+            <div class="form-row">
                 <div class="form-group">
-                    <label for="loja">Quais pontos de venda vão receber esse conteúdo?</label>
+                    <label for="loja">Quais pontos vão receber esse conteúdo?</label>
                     <select id="loja" name="loja" required>
                         <option value="" disabled selected>Selecione</option>
                         <option value="Store 1">Loja 1</option>
                         <option value="Store 2">Loja 2</option>
                     </select>
                 </div>
-            </div>
 
-            <div class="form-row">
-                <!-- 3) Quando a oferta vai rodar? (intervalo de datas) -->
-                <div class="form-group">
+                <div class="form-group" style="display: none;">
                     <label for="data_campanha">Qual o período de visualização do conteúdo?</label>
                     <input 
                         type="text" 
@@ -91,60 +96,136 @@
                         required
                     >
                 </div>
+            </div>
 
-                <!-- 4) Que momento do dia recebe essa mensagem? -->
-                <div class="form-group">
-                    <label>Qual o melhor momento para a sua mensagem?</label>
-                    <div class="time-ranges">
-                        <label><input type="checkbox" name="time_range" value="early_morning"> Manhã</label>
-                        <label><input type="checkbox" name="time_range" value="afternoon"> Tarde</label>
-                        <label><input type="checkbox" name="time_range" value="night"> Noite</label>
-                        <label><input type="checkbox" name="time_range" value="late_at_night"> Madrugada</label>
-                        <label><input type="checkbox" name="time_range" value="full_day"> Dia todo</label>
-                    </div>
+            <h2>Variáveis interativas</h2>
+            
+            <p class="subtext">Escolha os dias da semana para construir o contexto da sua mensagem. (Você pode escolher mais de um)</p>
+            <div class="form-group">
+                <div class="tags time-ranges">
+                  <label class="tag">
+                    <input type="checkbox" name="target_days" value="Segunda">
+                    <span>Segunda</span>
+                  </label>
+                  <label class="tag">
+                    <input type="checkbox" name="target_days" value="Terça">
+                    <span>Terça</span>
+                  </label>
+                  <label class="tag">
+                    <input type="checkbox" name="target_days" value="Quarta">
+                    <span>Quarta</span>
+                  </label>
+                  <label class="tag">
+                    <input type="checkbox" name="target_days" value="Quinta">
+                    <span>Quinta</span>
+                  </label>
+                  <label class="tag">
+                    <input type="checkbox" name="target_days" value="Sexta">
+                    <span>Sexta</span>
+                  </label>
+                  <label class="tag">
+                    <input type="checkbox" name="target_days" value="Sábado">
+                    <span>Sábado</span>
+                  </label>
+                  <label class="tag">
+                    <input type="checkbox" name="target_days" value="Domingo">
+                    <span>Domingo</span>
+                  </label>
                 </div>
             </div>
 
-            <label>Deixe seu conteúdo mais relevante, conectando com dados em tempo real:</label>
-            <!-- Seção de dados em tempo real (caso queira manter) -->
+            <p class="subtext">Qual o momento do dia para a sua mensagem?</p>
+            <div class="form-group">
+                <div class="tags time-ranges">
+                  <label class="tag">
+                    <input type="checkbox" name="time_range" value="manhã">
+                    <span>Manhã</span>
+                  </label>
+                  <label class="tag">
+                    <input type="checkbox" name="time_range" value="tarde">
+                    <span>Tarde</span>
+                  </label>
+                  <label class="tag">
+                    <input type="checkbox" name="time_range" value="noite">
+                    <span>Noite</span>
+                  </label>
+                  <label class="tag">
+                    <input type="checkbox" name="time_range" value="madrugada">
+                    <span>Madrugada</span>
+                  </label>
+                  <label class="tag">
+                    <input type="checkbox" name="time_range" value="dia inteiro">
+                    <span>Dia todo</span>
+                  </label>
+                </div>
+            </div>
+
+
+            <p class="subtext">Deixe seu conteúdo mais relevante, conectando com dados em tempo real:</p>
             <div class="real-time-data">
                 <label class="checkbox-container">
-                    🌤️ <strong>CLIMA LOCAL</strong><br>
-                    <input type="checkbox" class="data-checkbox" data-type="weather">
-                    <span class="checkmark"></span>
+                    <strong>CLIMA LOCAL</strong><br>
+                    <input type="checkbox"
+                        class="data-checkbox"
+                        data-type="weather"
+                        name="data_cards"
+                        value="{{ real_time_date.weather if real_time_date else 'Carregando...' }}"
+                    >
                     <span class="data-text">{{ real_time_date.weather if real_time_date else "Carregando..." }}</span>
                 </label>
+                <label class="checkbox-container">
+                    <strong>DATAS RELEVANTES</strong><br>
+                    <input type="checkbox"
+                        class="data-checkbox"
+                        data-type="weather"
+                        name="data_cards"
+                        value="*OBRIGATORIAMENTE*, USE O DIA DO PÃO NO DIA 16/10 PARA CRIAR OS SLOGANS"
+                    >
+                    <span class="data-text">DIA DO PÃO 16/10</span>
+                </label>
                 <label class="checkbox-container disabled">
-                    #️⃣ <strong>SOCIAL TRENDS</strong><br>
-                    <input type="checkbox" class="data-checkbox" data-type="trending">
-                    <span class="checkmark"></span>
+                    <strong>SOCIAL TRENDS</strong><br>
+                    <input type="checkbox"
+                        class="data-checkbox"
+                        data-type="trending"
+                        name="data_cards"
+                        value="trending"
+                    >
                     <span class="data-text">{{ real_time_date.trending if real_time_date else "Carregando..." }}</span>
                 </label>
                 <label class="checkbox-container disabled">
-                    📅 <strong>EVENTOS LOCAIS</strong><br>
-                    <input type="checkbox" class="data-checkbox" data-type="local-events">
-                    <span class="checkmark"></span>
+                    <strong>EVENTOS LOCAIS</strong><br>
+                    <input type="checkbox"
+                        class="data-checkbox"
+                        data-type="local-events"
+                        name="data_cards"
+                        value="local-events"
+                    >
                     <span class="data-text">{{ real_time_date.local_events if real_time_date else "Carregando..." }}</span>
                 </label>
                 <label class="checkbox-container disabled">
-                    🎬 <strong>AGENDA CULTURAL</strong><br>
-                    <input type="checkbox" class="data-checkbox" data-type="pop-culture">
-                    <span class="checkmark"></span>
+                    <strong>AGENDA CULTURAL</strong><br>
+                    <input type="checkbox"
+                        class="data-checkbox"
+                        data-type="pop-culture"
+                        name="data_cards"
+                        value="pop-culture"
+                    >
                     <span class="data-text">{{ real_time_date.pop_culture if real_time_date else "Carregando..." }}</span>
                 </label>
             </div>
             
             <!-- Botão para gerar conteúdo -->
             <div class="buttons-container">
+                <button id="generate-button" type="submit">
+                    CRIAR CONTEÚDO
+                </button>
+
                 <form action="{{ url_for('routes.avaliados') }}" method="post">
                     <button id="slogans-button" type="submit">
                         VER OPÇÕES AVALIADAS
                     </button>
                 </form>
-
-                <button id="generate-button" type="submit">
-                    CRIAR CONTEÚDO
-                </button>
             </div>
         </form>
 
@@ -157,7 +238,7 @@
                         <div class="slogan-box">
                             <img src="{{ imagem }}" alt="Slogan" class="slogan-image">
 
-                            <img src="static/brands/bauducco/bottom/bottom_bdc.jpeg" alt="Lacta_baseplate" class="slogan-image"> <!--olhar aqui-->
+                            <img src="static/brands/bauducco/bottom/bottom_bdc.jpeg" alt="Bauducco_baseplate" class="slogan-image">
                             
                             
                             <!-- Botões de avaliação -->
@@ -185,9 +266,25 @@
                             
                         </div>
                     {% endfor %}
+                    <form id="refazer-form" action="{{ url_for('routes.bauducco') }}" method="POST" style="display:inline-block;">
+                        <input type="hidden" name="alvo-instituição" value="">
+                        <input type="hidden" name="loja" value="">
+                        <!-- estes containers são apenas suporte; não precisam existir no HTML inicial -->
+                        <div id="refazer-target-days"></div>
+                        <div id="refazer-time-range"></div>
+                        <input type="hidden" name="data_campanha" value="">
+                        <input type="hidden" name="estado" value="">
+                        <input type="hidden" name="cidade" value="">
+                        <input type="hidden" name="bairro" value="">
+                      
+                        <button id="refazer-button" type="submit">
+                          CRIAR NOVAS OPÇÕES
+                        </button>
+                    </form>                      
                 {% else %}
                     <p>Nenhum conteúdo gerado ainda. Preencha o formulário acima e clique em "CRIAR CONTEÚDO".</p>
                 {% endif %}
+
             </div>
         </section>
 
@@ -195,7 +292,7 @@
 
     <!-- Rodapé -->
     <footer class="footer-bar">
-        <p>© Bauducco. All rights reserved - 2025.</p>
+        <p>© Bump® is the AI Retail Media Platform. All rights reserved to Bump® - 2025.</p>
     </footer>
 
     <!-- 
@@ -206,63 +303,85 @@
 
     <!-- PERSISTIR OQUE FOI COLOCADO NO FORMULÀRIO DE CRIAÇÂO -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const campaignForm = document.querySelector('.campaign-form');
-            
-            campaignForm.addEventListener('submit', function() {
-                const estado = document.getElementById('estado').value;
-                const cidade = document.getElementById('cidade').value;
-                const bairro = document.getElementById('bairro').value;
-                const dataCampanha = document.getElementById('data_campanha').value;
-                const timeRanges = Array.from(document.querySelectorAll('input[name="time_range"]:checked'))
-                    .map(el => el.value)
-                    .join(', ');
+        document.addEventListener('DOMContentLoaded', () => {
+          const campaignForm = document.querySelector('.campaign-form');
         
-                const formData = {
-                    estado,
-                    cidade,
-                    bairro,
-                    dataCampanha,
-                    timeRanges
-                };
+          campaignForm.addEventListener('submit', () => {
+            // coleta TODOS os campos
+            const formState = {
+              alvo: campaignForm.querySelector('select[name="alvo-instituição"]').value,
+              loja: campaignForm.querySelector('select[name="loja"]').value,
+              target_days: Array.from(campaignForm.querySelectorAll('input[name="target_days"]:checked'))
+                                  .map(cb => cb.value),
+              time_range:  Array.from(campaignForm.querySelectorAll('input[name="time_range"]:checked'))
+                                  .map(cb => cb.value),
+              data_campanha: document.getElementById('data_campanha').value,
+              estado:        document.getElementById('estado').value,
+              cidade:        document.getElementById('cidade').value,
+              bairro:        document.getElementById('bairro').value
+            };
         
-                // Salva no Local Storage
-                localStorage.setItem('formData', JSON.stringify(formData));
-            });
+            localStorage.setItem('campaignFormState', JSON.stringify(formState));
+          });
         });
-        window.addEventListener('beforeunload', function() {
-            localStorage.removeItem('formData');
-        });
+        
+        
     </script>
+        
         
     <!-- FUNCIONAMENTO BOTÃO REFAZER SLOGANS -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const refazerForm = document.getElementById('refazer-form');
-            const refazerButton = document.getElementById('refazer-button');
+        document.addEventListener('DOMContentLoaded', () => {
+          const refazerForm   = document.getElementById('refazer-form');
+          const refazerButton = document.getElementById('refazer-button');
         
-            refazerButton.addEventListener('click', function(event) {
-                event.preventDefault();
+          refazerButton.addEventListener('click', e => {
+            e.preventDefault();
         
-                // Recupera do Local Storage
-                const formData = JSON.parse(localStorage.getItem('formData'));
-                if (!formData) {
-                    alert('Nenhuma informação salva. Por favor, preencha o formulário.');
-                    return;
-                }
+            const state = JSON.parse(localStorage.getItem('campaignFormState'));
+            if (!state) {
+              alert('Não há dados salvos. Preencha o formulário antes de refazer.');
+              return;
+            }
         
-                // Preenche os inputs escondidos do refazer-form
-                refazerForm.querySelector('input[name="estado"]').value = formData.estado;
-                refazerForm.querySelector('input[name="cidade"]').value = formData.cidade;
-                refazerForm.querySelector('input[name="bairro"]').value = formData.bairro;
-                refazerForm.querySelector('input[name="data_campanha"]').value = formData.dataCampanha;
-                refazerForm.querySelector('input[name="time_range"]').value = formData.timeRanges;
+            // preenche selects simples
+            refazerForm.querySelector('input[name="alvo-instituição"]').value = state.alvo;
+            refazerForm.querySelector('input[name="loja"]').value            = state.loja;
+            refazerForm.querySelector('input[name="data_campanha"]').value   = state.data_campanha;
+            refazerForm.querySelector('input[name="estado"]').value          = state.estado;
+            refazerForm.querySelector('input[name="cidade"]').value          = state.cidade;
+            refazerForm.querySelector('input[name="bairro"]').value          = state.bairro;
         
-                // Envia o formulário
-                refazerForm.submit();
+            // limpa qualquer input anterior
+            const containerDays = document.getElementById('refazer-target-days');
+            const containerTime = document.getElementById('refazer-time-range');
+            containerDays.innerHTML = '';
+            containerTime.innerHTML = '';
+        
+            // cria um hidden checkbox para cada dia alvo
+            state.target_days.forEach(day => {
+              const inp = document.createElement('input');
+              inp.type  = 'hidden';
+              inp.name  = 'target_days';
+              inp.value = day;
+              containerDays.appendChild(inp);
             });
+        
+            // cria um hidden checkbox para cada time_range
+            state.time_range.forEach(slot => {
+              const inp = document.createElement('input');
+              inp.type  = 'hidden';
+              inp.name  = 'time_range';
+              inp.value = slot;
+              containerTime.appendChild(inp);
+            });
+        
+            // finalmente, submete
+            refazerForm.submit();
+          });
         });
-    </script>    
+    </script>
+        
     
     <!-- AUTO COMPLEMENTO DA PESQUISA DE CIDADE -->
     <script>
@@ -317,6 +436,9 @@
                                     estadoInput.value = parts[0] || '';
                                     cidadeInput.value = parts[1] || '';
                                     bairroInput.value = parts[2] || '';
+
+                                    // dispara o updateWeather imediatamente
+                                    updateWeather();
                                 });
                                 suggestions.appendChild(li);
                             });
@@ -343,13 +465,14 @@
         const estado = document.getElementById('estado').value;
         const cidade = document.getElementById('cidade').value;
         const bairro = document.getElementById('bairro').value;
-        const dataCampanha = document.getElementById('data_campanha').value;
-        if (!estado || !cidade || !dataCampanha) return;  // só executa se tiver tudo
-    
+        //const dataCampanha = document.getElementById('data_campanha').value;
+        //if (!estado || !cidade || !dataCampanha) return;  // só executa se tiver tudo
+        if (!estado || !cidade) return;  // só executa se tiver tudo
+        
         try {
             const params = new URLSearchParams({
-            estado, cidade, bairro,
-            data_campanha: dataCampanha
+            estado, cidade, bairro//,
+            //data_campanha: dataCampanha
             });
             const res = await fetch(`/real_time_data?${params.toString()}`);
             const json = await res.json();
@@ -436,90 +559,73 @@
         });
     </script>
 
-    <!-- PAUSAR O VÍDEO AO GERAR ELE -->
-    <script>
-        
-        var videos = document.querySelectorAll('#slogan-video-player');
-
-        var startAtSecond = 14;
-
-        videos.forEach(function(video) {
-            video.onloadedmetadata = function() {
-                video.currentTime = startAtSecond;
-                video.pause();
-                video.controls = false;
-            };
-        });
-
-
-    </script>
-
     <!-- FUNCIONAMENTO DO MODAL DE EDITAR -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Para cada botão "EDITAR", ao ser clicado, localize o modal relativo à mesma .slogan-box
-            document.querySelectorAll('.edit-button').forEach(button => {
-                button.addEventListener('click', function() {
-                    // Encontra o container pai (a div .slogan-box)
-                    const sloganBox = this.closest('.slogan-box');
-                    // Seleciona o modal dentro desse container
-                    const editModal = sloganBox.querySelector('.edit-modal');
-                    // Preenche o input com o slogan atual, se estiver armazenado no botão
-                    const newSloganInput = sloganBox.querySelector('.new-slogan-input');
-                    newSloganInput.value = this.getAttribute('data-slogan');
-                    // Exibe o modal
-                    editModal.style.display = 'block';
-                    
-                    // Fecha o modal ao clicar no elemento com a classe "close"
-                    sloganBox.querySelector('.close').addEventListener('click', () => {
+    document.addEventListener('DOMContentLoaded', () => {
+        // Para cada botão "EDITAR", ao ser clicado, localize o modal relativo à mesma .slogan-box
+        document.querySelectorAll('.edit-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Encontra o container pai (a div .slogan-box)
+                const sloganBox = this.closest('.slogan-box');
+                // Seleciona o modal dentro desse container
+                const editModal = sloganBox.querySelector('.edit-modal');
+                // Preenche o input com o slogan atual, se estiver armazenado no botão
+                const newSloganInput = sloganBox.querySelector('.new-slogan-input');
+                newSloganInput.value = this.getAttribute('data-slogan');
+                // Exibe o modal
+                editModal.style.display = 'block';
+                
+                // Fecha o modal ao clicar no elemento com a classe "close"
+                sloganBox.querySelector('.close').addEventListener('click', () => {
+                    editModal.style.display = 'none';
+                });
+
+                // Ao clicar no botão "Salvar" dentro do modal, envie a atualização
+                sloganBox.querySelector('.save-slogan-btn').addEventListener('click', () => {
+                    const novoSlogan = newSloganInput.value;
+                    // Obtenha o caminho atual da imagem
+                    const currentImageElement = sloganBox.querySelector('img.slogan-image');
+                    const oldImagePath = currentImageElement.getAttribute('src');
+
+                    fetch('/editar_slogan', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            image_path: oldImagePath,
+                            novo_slogan: novoSlogan
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.status === 'success') {
+                            const novoImagePath = data.novo_image_path;
+                            // Atualiza o src da imagem
+                            currentImageElement.setAttribute('src', novoImagePath);
+
+                            // Atualiza os atributos data-imagem e data-slogan dos botões do container
+                            sloganBox.querySelectorAll('.like-button, .dislike-button, #publish-button, .edit-button').forEach(btn => {
+                                btn.dataset.imagem = novoImagePath;
+                                btn.dataset.slogan = novoSlogan;
+                            });
+                            // Atualiza o botão "EDITAR" com o novo slogan
+                            this.setAttribute('data-slogan', novoSlogan);
+                            alert('Imagem atualizada com sucesso!');
+                        } else {
+                            alert('Erro ao atualizar slogan: ' + data.message);
+                        }
                         editModal.style.display = 'none';
-                    });
-    
-                    // Ao clicar no botão "Salvar" dentro do modal, envie a atualização
-                    sloganBox.querySelector('.save-slogan-btn').addEventListener('click', () => {
-                        const novoSlogan = newSloganInput.value;
-                        // Obtenha o caminho atual da imagem
-                        const currentImageElement = sloganBox.querySelector('img.slogan-image');
-                        const oldImagePath = currentImageElement.getAttribute('src');
-    
-                        fetch('/editar_slogan', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                image_path: oldImagePath,
-                                novo_slogan: novoSlogan
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if(data.status === 'success') {
-                                const novoImagePath = data.novo_image_path;
-                                // Atualiza o src da imagem
-                                currentImageElement.setAttribute('src', novoImagePath);
-    
-                                // Atualiza os atributos data-imagem e data-slogan dos botões do container
-                                sloganBox.querySelectorAll('.like-button, .dislike-button, #publish-button, .edit-button').forEach(btn => {
-                                    btn.dataset.imagem = novoImagePath;
-                                });
-                                // Atualiza o botão "EDITAR" com o novo slogan
-                                this.setAttribute('data-slogan', novoSlogan);
-                                alert('Imagem atualizada com sucesso!');
-                            } else {
-                                alert('Erro ao atualizar slogan: ' + data.message);
-                            }
-                            editModal.style.display = 'none';
-                        })
-                        .catch(error => {
-                            console.error('Erro:', error);
-                            editModal.style.display = 'none';
-                        });
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        editModal.style.display = 'none';
                     });
                 });
             });
         });
-    
-        </script>
-    
+    });
+
+    </script>
+
     <!-- SCRIPT PUBLICAR NA TELA DE TESTE -->
     <script>
         // PUBLICAÇÃO DE CONTEÚDO
@@ -551,6 +657,40 @@
                     alert('Erro na comunicação com o servidor');
                 });
             });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.tags.time-ranges .tag').forEach(tag => {
+            const checkbox = tag.querySelector('input[type="checkbox"]');
+            // Inicializa estado ativo se já estiver marcado
+            if (checkbox.checked) tag.classList.add('active');
+    
+            tag.addEventListener('click', () => {
+            // alterna estado
+            checkbox.checked = !checkbox.checked;
+            tag.classList.toggle('active', checkbox.checked);
+            });
+        });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.real-time-data .checkbox-container').forEach(card => {
+            const cb = card.querySelector('input[type="checkbox"]');
+            // se já estiver marcado no servidor, mostra ativo
+            if (cb.checked) card.classList.add('active');
+    
+            card.addEventListener('click', () => {
+            // não faz nada se estiver desabilitado
+            if (card.classList.contains('disabled')) return;
+            // alterna checked + classe .active
+            cb.checked = !cb.checked;
+            card.classList.toggle('active', cb.checked);
+            });
+        });
         });
     </script>
 
