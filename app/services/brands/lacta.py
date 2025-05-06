@@ -55,19 +55,54 @@ def gerar_slogans_lacta(estado, cidade, bairro, data_campanha, momento=[], real_
         Contexto para inspiração:
                 - Localização: {estado}, {cidade}, {bairro}
         """)
-    if real_time_data != []:
+    context = "Você é um redator publicitário especialista em slogans sensoriais e inspiradores."
+    if real_time_data == ['*OBRIGATORIAMENTE*, USE O DIA DO CHOCOLATE NO DIA 07/07 PARA CRIAR OS SLOGANS']:
+        prompt = prompt = (f"""
+                            Você é uma inteligência criativa especializada em redigir mensagens curtas, sensoriais e acolhedoras para a marca de chocolates Lacta no Brasil. Refira-se sempre à Lacta no feminino.
+
+                            Sua tarefa:
+                            → Crie 4 variações de títulos publicitários para exibição em telas digitais no ponto de venda.
+                            → Cada título deve ter entre 30 e 75 caracteres.
+                            → Não enumere, não use aspas e evite pontuação desnecessária.
+                            → Evite iniciar as mensagens com numeração como "1." ou "2.". Mesmo que a ideia seja boa, como em "1. UMA NOITE COM CORONA E PÉS NA AREIA", o número transmite uma sensação de instrução ou passo a passo — o que contradiz o espírito emocional, doce e espontâneo da marca. Também evite iniciar frases com traços ("-"), pois isso reforça a sensação de que a mensagem faz parte de uma lista. Com Lacta, cada frase deve parecer um gesto sincero e único de afeto.
+
+                            Diretrizes de estilo:
+                            → Mensagens sensíveis, acolhedoras, afetuosas e inspiradoras.
+                            → Transmitir o sentimento de que o chocolate é um carinho em forma de sabor.
+                            → Evocar lembranças doces, relações próximas, trocas de afeto e pausas acolhedoras no dia.
+                            → Público-alvo: pessoas de 18 a 55 anos, emocionalmente conectadas com a família, amigos, relações afetivas e momentos de conforto.
+                            → Sem emojis.
+                            → Crie mensagens espontâneas que induzam de forma sutil ao impulso de compra e sugestionem o consumidor a tornar o Dia do Chocolate ainda mais especial com Lacta.
+
+                            Instruções específicas:
+                            - Crie mensagens que celebrem o Dia do Chocolate como uma data cheia de afeto, pausas merecidas e momentos doces com quem se ama.
+                            - Valorize a ideia de se presentear, de oferecer carinho ou simplesmente aproveitar o dia como um lembrete de que pequenos prazeres fazem a diferença.
+                            - As frases devem despertar o desejo por viver esse momento de forma doce, leve e afetiva, sem precisar nomear a data explicitamente.
+
+                            Não mencione o nome da cidade, estado ou bairro nos slogans. Use outros recursos para criar conexão com o local.
+
+                            Lacta é uma marca próxima, afetuosa, gentil e sensível, que desperta emoções e convida à troca de carinho através do sabor.
+
+                            Referência conceitual: "Fazendo o mundo mais doce desde sempre"
+
+                            Contexto para inspiração:
+                            - Localização: {estado}, {cidade}, {bairro}
+        """)
+        context = "*OBRIGATORIAMENTE*, USE O DIA DO CHOCOLATE NO DIA 07/07 PARA CRIAR OS SLOGANS"
+    if real_time_data != [] and "°C" in real_time_data[0]:
         prompt = prompt + f"\n                - Informações adicionais: {real_time_data}"
     if momento != []:
         prompt = prompt + f"\n                - Horário: {momento}"
     if dia_semana != []:
         prompt = prompt + f"\n                - Dia da semana: {dia_semana}"
 
+    print(real_time_data, type(real_time_data), '\n', '\n', prompt)
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "Você é um redator publicitário especialista em slogans sensoriais e inspiradores."},
+                {"role": "system", "content": context},
                 {"role": "user", "content": prompt}
             ]
         )

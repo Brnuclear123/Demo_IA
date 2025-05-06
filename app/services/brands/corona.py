@@ -62,25 +62,61 @@ def gerar_slogans_corona(estado, cidade, bairro, data_campanha, momento=[], real
         Contexto para inspiração:
                 - Localização: {estado}, {cidade}, {bairro}
         """)
-    if real_time_data != []:
+    context = "Você é um redator publicitário especialista em slogans sensoriais e inspiradores."
+    if real_time_data == ['FERIADO CORPUS CHRISTI NO DIA 19/06']:
+        prompt = prompt = (f"""
+                            Você é uma inteligência criativa especializada em redigir mensagens curtas, impactantes e sensoriais para a marca de cerveja Corona no Brasil. Refira-se sempre à Corona no feminino.
+
+                            Sua tarefa:
+                            → Crie 4 variações de títulos publicitários para exibição em telas digitais no ponto de venda.
+                            → Cada título deve ter entre 30 e 75 caracteres.
+                            → Não enumere, não use aspas e evite pontuação desnecessária.
+                            → Evite iniciar as mensagens com numeração como "1." ou "2.". Mesmo que a ideia seja boa, como em "1. UMA NOITE COM CORONA E PÉS NA AREIA", o número transmite uma sensação de instrução ou passo a passo — o que contradiz o espírito leve, livre e fluido da marca Corona. Também evite iniciar frases com traços ("-"), pois isso reforça a sensação de que a mensagem faz parte de uma lista. Com Corona, cada frase deve parecer um convite espontâneo a viver o momento, não um item a ser lido em sequência.
+
+                            Diretrizes de estilo:
+                            → Mensagens leves, sensoriais, inspiradoras e com tom de liberdade.
+                            → Evocar elementos da natureza: praia, sol, pôr-do-sol, calor, vento, mar.
+                            → Transmitir o espírito de aproveitar a vida ao ar livre, com leveza e autenticidade.
+                            → Público-alvo: jovens de 18 a 35 anos, ligados à música, experiências ao ar livre, viagens e descanso natural.
+                            → Sem emojis.
+                            → Crie mensagens espontâneas que induzam de forma sutil ao impulso de compra e sugiram momentos de relaxamento e prazer com uma Corona gelada.
+
+                            Instruções específicas:
+                            - Crie mensagens que valorizem o contexto de feriado prolongado sem mencionar diretamente o nome do feriado.
+                            - Explore sensações de escapada da rotina, de viagem para a praia ou o campo, de desligar do mundo e viver o agora.
+                            - Sugira que curtir o sol, a natureza e o tempo livre é ainda melhor com uma Corona na mão.
+                            - As mensagens devem inspirar o consumidor a transformar o tempo livre em momentos memoráveis e naturais.
+
+                            Não mencione o nome da cidade, estado ou bairro nos slogans. Use outros recursos para criar conexão com o local.
+
+                            Corona é uma marca solar, otimista, refrescante, que convida a viver fora da rotina, com autenticidade e conexão com a natureza.
+
+                            Referência conceitual: "Corona. A vida é aqui fora" / "Corona. Há 100 anos fazendo da praia um palco"
+
+                            Contexto para inspiração:
+                            - Localização: {estado}, {cidade}, {bairro}
+        """)
+        context = "Crie mensagens que valorizem o contexto de feriado prolongado sem mencionar diretamente o nome do feriado"
+    if real_time_data != [] and "°C" in real_time_data[0]:
         prompt = prompt + f"\n                - Informações adicionais: {real_time_data}"
     if momento != []:
         prompt = prompt + f"\n                - Horário: {momento}"
     if dia_semana != []:
         prompt = prompt + f"\n                - Dia da semana: {dia_semana}"
-        
+
+    print(real_time_data, type(real_time_data), '\n', '\n', prompt)
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "Você é um redator publicitário especialista em slogans sensoriais e inspiradores."},
+                {"role": "system", "content": context},
                 {"role": "user", "content": prompt}
             ]
         )
         resposta_texto = response.choices[0].message.content
         slogans = extrair_slogans(resposta_texto, regex_patterns)
-        
+
         # Usar o novo gerador de imagens estáticas
         generator = SloganStaticGenerator("Corona")
         imagens = generator.generate_static_images(slogans)

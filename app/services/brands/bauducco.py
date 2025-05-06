@@ -44,8 +44,7 @@ def gerar_slogans_bauducco(estado, cidade, bairro, data_campanha, momento=[], re
             De noite, diga que boas companhias e Bauducco sempre fazem um jantar maravilhoso.
         - Não repita o nome da cidade, estado ou bairro nos slogans. Use outros recursos para criar conexão com o local.
         - Bauducco é uma marca leve, calorosa, próxima, acolhedora e inspiradora. Fala de forma simples, direta e sempre buscando criar conexão emocional com o consumidor
-        - Quando selecionado o Dia do Pão, em 16/10, aproveite para sugerir mensagens que digam que todo dia é dia de comer pão, mas hoje mais ainda.
-
+        
         Referência conceitual: "Um sentimento chamado família"
 
         Exemplos de boas saídas:
@@ -55,20 +54,49 @@ def gerar_slogans_bauducco(estado, cidade, bairro, data_campanha, momento=[], re
         Contexto para inspiração:
                 - Localização: {estado}, {cidade}, {bairro}
         """)
-    if real_time_data != []:
+    context = "Você é um redator publicitário especialista em slogans sensoriais e inspiradores."
+    if real_time_data == ['*OBRIGATORIAMENTE*, USE O DIA DO PÃO NO DIA 16/10 PARA CRIAR OS SLOGANS']:
+        prompt = prompt = (f"""
+                            Você é uma inteligência criativa especializada em redigir mensagens publicitárias curtas, sensoriais e acolhedoras para a marca de pães Bauducco no Brasil. Quando referir-se à marca Bauducco, faça sempre de forma neutra, sem utilizar artigos femininos ou masculinos.
+
+                            Sua tarefa:
+                            → Crie 4 variações de títulos publicitários para exibição em telas digitais no ponto de venda, com foco total no Dia do Pão (16 de outubro).
+                            → Cada título deve conter entre 30 e 75 caracteres.
+                            → Não enumere, não use aspas e evite pontuação desnecessária.
+                            → Evite iniciar as mensagens com numeração como "1." ou "2." e também não use traços no início ("-"). Cada frase deve soar como uma mensagem espontânea e única, e não como parte de uma lista.
+
+                            Diretrizes de estilo:
+                            → Mensagens acolhedoras, envolventes, calorosas e próximas.
+                            → O Dia do Pão é uma oportunidade de celebrar os vínculos que nascem ao redor da mesa, o aconchego dos lares e o sabor das memórias.
+                            → Bauducco é sinônimo de tradição, simplicidade, afeto e cuidado — tudo o que o pão representa nesse dia especial.
+                            → Crie mensagens que transmitam o sentimento de que o pão é muito mais que um alimento: é parte da história das pessoas e dos momentos mais significativos da vida.
+                            → Público-alvo: pessoas de 18 a 55 anos, conectadas emocionalmente com suas famílias, amigos e parceiros de vida.
+                            → Sem emojis. A linguagem deve ser simples, humana, e inspirar o consumidor a valorizar momentos cotidianos com sabor e afeto.
+
+                            Instruções específicas:
+                            - Celebre o Dia do Pão com frases que destaquem o significado emocional desse alimento.
+                            - Sugira que todo dia é dia de pão, mas que hoje merece ainda mais atenção e carinho.
+                            - Estimule o consumidor a lembrar que o pão também é uma forma de demonstrar cuidado com quem se ama.
+
+                            Referência conceitual: "Um sentimento chamado família"
+
+                            Contexto para inspiração:
+                            - Data comemorativa: Dia do Pão - 16 de outubro
+                            - Localização: {estado}, {cidade}, {bairro}
+        """)
+        context = "*OBRIGATORIAMENTE*, AO CRIAR OS SLOGANS MENCIONE O DIA DO PÃO EM CADA SLOGAN CRIADO"
+    if real_time_data != [] and "°C" in real_time_data[0]:
         prompt = prompt + f"\n                - Informações adicionais: {real_time_data}"
     if momento != []:
         prompt = prompt + f"\n                - Horário: {momento}"
     if dia_semana != []:
         prompt = prompt + f"\n                - Dia da semana: {dia_semana}"
 
-    print(prompt)
-
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "Você é um redator publicitário especialista em slogans sensoriais e inspiradores."},
+                {"role": "system", "content": context},
                 {"role": "user", "content": prompt}
             ]
         )
